@@ -1,7 +1,7 @@
 # Build stage
 FROM node:18-alpine as build
 
-WORKDIR /app
+WORKDIR /app/frontend
 
 # Copy package files
 COPY package*.json ./
@@ -18,13 +18,13 @@ RUN npm run build
 # Production stage
 FROM node:18-alpine
 
-WORKDIR /app
+WORKDIR /app/frontend
 
 # Install serve globally
 RUN npm install -g serve
 
 # Copy build from build stage
-COPY --from=build /app/build ./build
+COPY --from=build /app/frontend/build ./build
 
 # Expose port
 EXPOSE 3000
