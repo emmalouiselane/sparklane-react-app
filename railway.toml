@@ -1,0 +1,2 @@
+# This is the root Railway config for the monorepo
+# Individual services have their own railway.toml files

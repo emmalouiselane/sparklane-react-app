@@ -1,5 +1,5 @@
 [build]
-builder = "NIXPACKS"
+builder = "DOCKERFILE"
 
 [deploy]
 healthcheckPath = "/"
@@ -12,3 +12,4 @@ name = "frontend"
 
 [services.variables]
 NODE_ENV = "production"
+PORT = "3000"
