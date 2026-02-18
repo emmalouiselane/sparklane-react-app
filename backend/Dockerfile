@@ -1,15 +1,12 @@
 FROM node:18-alpine
 
-WORKDIR /app/backend
+WORKDIR /app
 
-# Copy package files
-COPY package*.json ./
+# Copy the entire backend folder contents
+COPY . .
 
 # Install dependencies
 RUN npm ci --only=production
-
-# Copy source code
-COPY . .
 
 # Create .env file if it doesn't exist
 RUN touch .env
