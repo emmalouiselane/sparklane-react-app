@@ -2,20 +2,14 @@ FROM node:18-alpine
 
 WORKDIR /app
 
-# Copy package files first to leverage Docker cache
-COPY package*.json ./
-
-# Install all dependencies (including dev dependencies for build)
-RUN npm install
-
-# Copy the rest of the application code
+# Copy all files
 COPY . .
 
-# Create .env file if it doesn't exist
-RUN touch .env
+# Install dependencies
+RUN npm install
 
 # Expose port
 EXPOSE 5000
 
 # Start the app
-CMD ["npm", "start"]
+CMD ["node", "server.js"]
