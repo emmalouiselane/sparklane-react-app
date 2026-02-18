@@ -1,2 +1,27 @@
-# This is the root Railway config for the monorepo
-# Individual services have their own railway.toml files
+[build]
+builder = "NIXPACKS"
+
+[deploy]
+healthcheckPath = "/"
+healthcheckTimeout = 100
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 10
+
+# Backend service configuration
+[[services]]
+name = "backend"
+rootDirectory = "backend"
+startCommand = "node server.js"
+
+[services.variables]
+NODE_ENV = "production"
+
+# Frontend service configuration  
+[[services]]
+name = "frontend"
+rootDirectory = "frontend"
+startCommand = "serve -s build -l 3000"
+
+[services.variables]
+NODE_ENV = "production"
+PORT = "3000"
