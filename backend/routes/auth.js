@@ -27,6 +27,12 @@ router.post('/google/success', (req, res) => {
 });
 
 router.get('/user', (req, res) => {
+  console.log('Auth check - Session ID:', req.sessionID);
+  console.log('Auth check - Session exists:', !!req.session);
+  console.log('Auth check - Is authenticated:', req.isAuthenticated());
+  console.log('Auth check - Session data:', req.session);
+  console.log('Auth check - Cookies:', req.headers.cookie);
+  
   if (req.isAuthenticated()) {
     res.json({ user: req.user });
   } else {

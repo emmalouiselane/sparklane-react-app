@@ -45,6 +45,15 @@ app.use(session({
   rolling: true 
 }));
 
+// Add session logging middleware
+app.use((req, res, next) => {
+  console.log('Request - Session ID:', req.sessionID);
+  console.log('Request - Path:', req.path);
+  console.log('Request - User-Agent:', req.headers['user-agent']);
+  console.log('Request - Origin:', req.headers.origin);
+  next();
+});
+
 // Trust proxy for Railway (needed for secure cookies to work)
 app.set('trust proxy', 1);
 
