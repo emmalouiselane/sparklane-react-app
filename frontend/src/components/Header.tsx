@@ -2,6 +2,7 @@ import React from 'react';
 import { useAuthContext } from '../contexts/AuthContext';
 import './Header.css';
 import ConnectionStatus from './ConnectionStatus';
+import { PersonCircle } from 'react-bootstrap-icons';
 
 interface HeaderProps {
   user: any;
@@ -11,18 +12,37 @@ interface HeaderProps {
 function Header({ user, error }: HeaderProps) {
   const { handleLogout } = useAuthContext();
 
+  console.log(user);
+
+  // Get user initials for fallback
+  const getUserInitials = (user: any) => {
+    if (user?.name?.givenName) {
+      return user.name.givenName.charAt(0).toUpperCase();
+    }
+    if (user?.given_name) {
+      return user.given_name.charAt(0).toUpperCase();
+    }
+    return 'U'; // Default fallback
+  };
+
   return (
     <>
      <div className="toolbar">
         {user && (
           <>
             <div className="user-profile">
-              <img 
-                src={user.picture} 
-                alt={user.given_name} 
-                className="user-avatar"
-              />
-              <span className="user-name">{user.given_name}</span>
+              {user.photos?.[0]?.value ? (
+                <img 
+                  src={user.photos[0].value} 
+                  alt={user.name?.givenName || user.given_name} 
+                  className="user-avatar"
+                />
+              ) : (
+                <div className="user-avatar-fallback">
+                  {getUserInitials(user)}
+                </div>
+              )}
+              <span className="user-name">{user.name?.givenName || user.given_name}</span>
             </div>
 
             <ConnectionStatus />

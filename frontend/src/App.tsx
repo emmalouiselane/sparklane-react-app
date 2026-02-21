@@ -2,16 +2,31 @@ import React, { useState, useEffect } from 'react';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import Login from './components/Login';
 import Header from './components/Header';
+import UpcomingAgenda from './components/UpcomingAgenda';
 import { AuthProvider, useAuthContext } from './contexts/AuthContext';
 
 import './App.css';
-import ConnectionStatus from './components/ConnectionStatus';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import './CustomBootstrap.css';
 
 const GOOGLE_CLIENT_ID = process.env.REACT_APP_GOOGLE_CLIENT_ID || '';
 
 function AppContent() {
-  const { user, isAuthenticated, loading, error, handleLoginSuccess } = useAuthContext();
+  const { user, isAuthenticated, loading, error, handleLoginSuccess, checkAuthStatus } = useAuthContext();
  
+  // Check for auth success in URL params
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const authSuccess = urlParams.get('auth');
+    
+    if (authSuccess === 'success') {
+      // Clear the URL parameter
+      window.history.replaceState({}, document.title, window.location.pathname);
+      // Check authentication status
+      checkAuthStatus();
+    }
+  }, [checkAuthStatus]);
+
   if (loading) {
     return (
       <div className="app">Loading...</div>
@@ -32,7 +47,7 @@ function AppContent() {
       />
 
       <main className="app-main" id="main-content" role="main">
-        
+        <UpcomingAgenda />
       </main>
     </div>
   );

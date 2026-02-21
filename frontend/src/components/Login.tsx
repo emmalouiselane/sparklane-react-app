@@ -1,6 +1,5 @@
 import React from 'react';
-import { GoogleLogin } from '@react-oauth/google';
-import { jwtDecode } from 'jwt-decode';
+import { Button } from 'react-bootstrap';
 import axios from 'axios';
 import './Login.css';
 
@@ -9,24 +8,9 @@ interface LoginProps {
 }
 
 const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
-  const handleGoogleSuccess = async (credentialResponse: any) => {
-    try {
-      const decoded = jwtDecode(credentialResponse.credential);
-      
-      // Send user info to backend to create session
-      const response = await axios.post(`${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/auth/google/success`, {
-        token: credentialResponse.credential,
-        user: decoded
-      }, { withCredentials: true });
-
-      onLoginSuccess(response.data.user);
-    } catch (error) {
-      console.error('Login failed:', error);
-    }
-  };
-
-  const handleGoogleError = () => {
-    console.error('Google Login Failed');
+  const handleGoogleLogin = () => {
+    // Redirect to Google OAuth on the backend
+    window.location.href = `${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/auth/google`;
   };
 
   return (
@@ -37,11 +21,14 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
           <h2>Spark Lane Dev ~ Personal Assistant</h2>
           
           <div className="google-login-button">
-            <GoogleLogin
-              onSuccess={handleGoogleSuccess}
-              onError={handleGoogleError}
-              useOneTap
-            />
+            <Button 
+              variant="primary" 
+              size="lg"
+              onClick={handleGoogleLogin}
+              className="w-100"
+            >
+              Sign in with Google
+            </Button>
           </div>
 
           <i>The tools I build are available to all.</i>

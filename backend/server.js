@@ -7,6 +7,10 @@ const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const session = require('express-session');
 require('dotenv').config();
 
+// Import routes
+const authRoutes = require('./routes/auth');
+const calendarRoutes = require('./routes/calendar');
+
 const app = express();
 const PORT = process.env.PORT || 5000;
 
@@ -46,6 +50,9 @@ passport.use(new GoogleStrategy({
   clientSecret: process.env.GOOGLE_CLIENT_SECRET,
   callbackURL: `${process.env.RAILWAY_PUBLIC_DOMAIN || 'http://localhost:5000'}/auth/google/callback`
 }, (accessToken, refreshToken, profile, done) => {
+  // Store tokens for calendar access
+  profile.accessToken = accessToken;
+  profile.refreshToken = refreshToken;
   // Here you would typically find or create a user in your database
   return done(null, profile);
 }));
@@ -100,35 +107,9 @@ app.get('/api/', (req, res) => {
   res.json({ message: 'API is working', status: 'connected' });
 });
 
-// Auth routes
-app.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
-app.get('/auth/google/callback', 
-  passport.authenticate('google', { failureRedirect: `${process.env.FRONTEND_URL || 'http://localhost:3000'}/login` }),
-  (req, res) => {
-    // Successful authentication, redirect to home
-    res.redirect(process.env.FRONTEND_URL || 'http://localhost:3000');
-  }
-);
-app.get('/auth/user', (req, res) => {
-  if (req.isAuthenticated()) {
-    res.json({ user: req.user });
-  } else {
-    res.status(401).json({ error: 'Not authenticated' });
-  }
-});
-app.post('/auth/logout', (req, res) => {
-  req.logout((err) => {
-    if (err) console.error('Logout failed:', err);
-    res.json({ message: 'Logged out successfully' });
-  });
-});
-app.post('/auth/google/success', (req, res) => {
-  // Create a session for the user
-  req.login(req.body.user, (err) => {
-    if (err) console.error('Session creation failed:', err);
-    res.json({ user: req.body.user });
-  });
-});
+// Use route files
+app.use('/auth', authRoutes);
+app.use('/api/calendar', calendarRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
