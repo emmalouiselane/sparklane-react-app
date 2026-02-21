@@ -39,8 +39,7 @@ app.use(session({
     sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
     maxAge: 24 * 60 * 60 * 1000, 
     httpOnly: true, 
-    expires: new Date(Date.now() + 24 * 60 * 60 * 1000),
-    domain: process.env.NODE_ENV === 'production' ? '.railway.app' : undefined
+    expires: new Date(Date.now() + 24 * 60 * 60 * 1000)
   },
   name: 'sessionId', 
   rolling: true 
