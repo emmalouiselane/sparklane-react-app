@@ -1,6 +1,8 @@
 import React from 'react';
 import { Button } from 'react-bootstrap';
 import axios from 'axios';
+import { API_BASE_URL } from '../config/api';
+
 import './Login.css';
 
 interface LoginProps {
@@ -10,7 +12,7 @@ interface LoginProps {
 const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
   const handleGoogleLogin = () => {
     // Redirect to Google OAuth on the backend
-    window.location.href = `${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/auth/google`;
+    window.location.href = `${API_BASE_URL}/auth/google`;
   };
 
   return (

@@ -2,10 +2,9 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
 import { useAuthContext } from '../contexts/AuthContext';
+import { API_BASE_URL } from '../config/api';
 
 import { Plug, PlugFill } from 'react-bootstrap-icons';
-
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 
 function ConnectionStatus() {
   const { isAuthenticated, setError } = useAuthContext();

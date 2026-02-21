@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Card, ListGroup, Badge, Spinner, Alert } from 'react-bootstrap';
 import { Calendar3, Clock, GeoAlt } from 'react-bootstrap-icons';
 import axios from 'axios';
+import { API_BASE_URL } from '../config/api';
 
 import './UpcomingAgenda.css';
 
@@ -35,7 +36,7 @@ const UpcomingAgenda: React.FC<UpcomingAgendaProps> = () => {
       setError(null);
       
       const endpoint = '/api/calendar/events';
-      const response = await axios.get(`http://localhost:5000${endpoint}`, { 
+      const response = await axios.get(`${API_BASE_URL}${endpoint}`, { 
         withCredentials: true 
       });
       
