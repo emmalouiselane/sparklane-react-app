@@ -25,3 +25,4 @@ startCommand = "serve -s build -l 3000"
 [services.variables]
 NODE_ENV = "production"
 PORT = "3000"
+CI = "false"
