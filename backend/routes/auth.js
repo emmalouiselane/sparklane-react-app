@@ -13,8 +13,21 @@ router.get('/google/callback',
     failureRedirect: `${process.env.FRONTEND_URL || 'http://localhost:3000'}/login` 
   }),
   (req, res) => {
-    // Successful authentication, redirect to frontend with success
-    res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:3000'}?auth=success`);
+    // Successful authentication
+    console.log('OAuth Success - User authenticated:', !!req.user);
+    console.log('OAuth Success - Session ID:', req.sessionID);
+    console.log('OAuth Success - User data:', req.user);
+    
+    // Ensure session is saved before redirecting
+    req.session.save((err) => {
+      if (err) {
+        console.error('Session save error:', err);
+        return res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:3000'}/login?error=session_failed`);
+      }
+      
+      // Redirect to frontend with success
+      res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:3000'}?auth=success`);
+    });
   }
 );
 

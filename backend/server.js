@@ -67,10 +67,16 @@ passport.use(new GoogleStrategy({
   clientSecret: process.env.GOOGLE_CLIENT_SECRET,
   callbackURL: `${process.env.RAILWAY_PUBLIC_URL || process.env.RAILWAY_PUBLIC_DOMAIN || 'http://localhost:5000'}/auth/google/callback`
 }, (accessToken, refreshToken, profile, done) => {
+  console.log('Google Strategy - Profile received:', !!profile);
+  console.log('Google Strategy - Access token:', !!accessToken);
+  console.log('Google Strategy - Profile ID:', profile?.id);
+  
   // Store tokens for calendar access
   profile.accessToken = accessToken;
   profile.refreshToken = refreshToken;
+  
   // Here you would typically find or create a user in your database
+  console.log('Google Strategy - Calling done() with profile');
   return done(null, profile);
 }));
 
