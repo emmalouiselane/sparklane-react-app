@@ -40,6 +40,9 @@ app.use(session({
   rolling: true 
 }));
 
+// Trust proxy for Railway (needed for secure cookies to work)
+app.set('trust proxy', 1);
+
 // Passport middleware
 app.use(passport.initialize());
 app.use(passport.session());
