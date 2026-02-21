@@ -82,10 +82,12 @@ passport.use(new GoogleStrategy({
 
 // Serialize and deserialize user
 passport.serializeUser((user, done) => {
+  console.log('SerializeUser - User ID:', user.id);
   done(null, user);
 });
 
 passport.deserializeUser((user, done) => {
+  console.log('DeserializeUser - User ID:', user.id);
   done(null, user);
 });
 

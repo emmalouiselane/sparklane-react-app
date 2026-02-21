@@ -10,7 +10,8 @@ router.get('/google', passport.authenticate('google', {
 
 router.get('/google/callback', 
   passport.authenticate('google', { 
-    failureRedirect: `${process.env.FRONTEND_URL || 'http://localhost:3000'}/login` 
+    failureRedirect: `${process.env.FRONTEND_URL || 'http://localhost:3000'}/login`,
+    session: true 
   }),
   (req, res) => {
     // Successful authentication
@@ -18,13 +19,14 @@ router.get('/google/callback',
     console.log('OAuth Success - Session ID:', req.sessionID);
     console.log('OAuth Success - User data:', req.user);
     
-    // Ensure session is saved before redirecting
+    // Manually save session to ensure it persists
     req.session.save((err) => {
       if (err) {
         console.error('Session save error:', err);
         return res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:3000'}/login?error=session_failed`);
       }
       
+      console.log('Session saved successfully, redirecting...');
       // Redirect to frontend with success
       res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:3000'}?auth=success`);
     });
