@@ -1,5 +1,5 @@
 [build]
-builder = "NIXPACKS"
+builder = "RAILWAY_BUILD"
 
 [deploy]
 healthcheckTimeout = 100
