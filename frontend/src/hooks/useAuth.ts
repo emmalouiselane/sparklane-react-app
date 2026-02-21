@@ -22,7 +22,12 @@ export function useAuth(): UseAuthReturn {
 
   const checkAuthStatus = async () => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/auth/user`, { withCredentials: true });
+      const response = await axios.get(`${API_BASE_URL}/auth/user`, { 
+        withCredentials: true,
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
       if (response.data.user) {
         setUser(response.data.user);
         setIsAuthenticated(true);
@@ -47,7 +52,12 @@ export function useAuth(): UseAuthReturn {
 
   const handleLogout = async () => {
     try {
-      await axios.post(`${API_BASE_URL}/auth/logout`, {}, { withCredentials: true });
+      await axios.post(`${API_BASE_URL}/auth/logout`, {}, { 
+        withCredentials: true,
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
       setUser(null);
       setIsAuthenticated(false);
       setError(null);
