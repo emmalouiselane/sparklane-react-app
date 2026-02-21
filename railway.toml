@@ -25,11 +25,11 @@ rootDirectory = "frontend"
 buildCommand = "npm run build"
 startCommand = "npx serve -s build -l 3000"
 
-[services.variables]
+[[services.variables]]
 NODE_ENV = "production"
 PORT = "3000"
 CI = "false"
 
-[services.deploy]
+[[services.deploy]]
 healthcheckPath = "/"
 healthcheckPort = 3000
