@@ -1,4 +1,4 @@
-.App {
+.app {
   text-align: center;
   max-width: 1200px;
   margin: 0 auto;
@@ -16,7 +16,7 @@
   position: absolute;
   top: -40px;
   left: 6px;
-  background: #007bff;
+  background: #dc5c35;
   color: white;
   padding: 8px;
   text-decoration: none;
@@ -28,72 +28,7 @@
   top: 6px;
 }
 
-.App-header {
-  background-color: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
-  padding: 20px;
-  color: white;
-  border-radius: 12px;
-  margin-bottom: 30px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-.header-content {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  max-width: 100%;
-}
-
-.user-profile {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.user-avatar {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  object-fit: cover;
-}
-
-.user-name {
-  font-weight: 500;
-  color: white;
-}
-
-.logout-btn {
-  background-color: #dc3545;
-  color: white;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 14px;
-  transition: background-color 0.3s ease;
-}
-
-.logout-btn:hover {
-  background-color: #c82333;
-}
-
-.App-header h1 {
-  margin: 0;
-  font-size: 2.5rem;
-}
-
-.error {
-  background-color: rgba(255, 107, 107, 0.2);
-  color: white;
-  padding: 10px;
-  border-radius: 8px;
-  margin-top: 10px;
-  border: 1px solid rgba(255, 107, 107, 0.3);
-  backdrop-filter: blur(5px);
-}
-
-.App-main {
+.app-main {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 30px;
@@ -101,102 +36,19 @@
 }
 
 @media (max-width: 768px) {
-  .App-main {
+  .app-main {
     grid-template-columns: 1fr;
   }
 }
 
-.users-section, .posts-section {
-  background-color: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
-  padding: 20px;
-  border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  color: white;
+.connection-status {
+  margin: auto 0 auto auto;
 }
 
-.users-section h2, .posts-section h2 {
-  margin-top: 0;
-  color: white;
-  border-bottom: 2px solid var(--lightning-color);
-  padding-bottom: 10px;
+.connected {
+  color: #03b86fee;
 }
 
-.users-list, .posts-list {
-  margin-bottom: 30px;
-}
-
-.user-card, .post-card {
-  background-color: rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(5px);
-  padding: 15px;
-  margin-bottom: 10px;
-  border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  border-left: 4px solid var(--lightning-color);
-  color: white;
-}
-
-.user-card h3, .post-card h3 {
-  margin: 0 0 10px 0;
-  color: white;
-}
-
-.user-card p, .post-card p {
-  margin: 0;
-  color: rgba(255, 255, 255, 0.8);
-}
-
-.post-card small {
-  color: rgba(255, 255, 255, 0.7);
-  font-style: italic;
-}
-
-.add-user-form, .add-post-form {
-  background-color: rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(5px);
-  padding: 20px;
-  border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  color: white;
-}
-
-.add-user-form h3, .add-post-form h3 {
-  margin-top: 0;
-  color: white;
-}
-
-.add-user-form input,
-.add-post-form input,
-.add-post-form textarea,
-.add-post-form select {
-  width: 100%;
-  padding: 10px;
-  margin-bottom: 10px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 14px;
-  box-sizing: border-box;
-}
-
-.add-post-form textarea {
-  min-height: 80px;
-  resize: vertical;
-}
-
-.add-user-form button,
-.add-post-form button {
-  background-color: #007bff;
-  color: white;
-  padding: 10px 20px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 14px;
-  transition: background-color 0.3s ease;
-}
-
-.add-user-form button:hover,
-.add-post-form button:hover {
-  background-color: #0056b3;
+.disconnected {
+  color: #dc5c35;
 }

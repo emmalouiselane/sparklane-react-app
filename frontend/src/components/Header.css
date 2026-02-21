@@ -1,0 +1,65 @@
+.app-header {
+  background-color: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  padding: 10px;
+  color: white;
+  border-radius: 12px;
+  margin-bottom: 30px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.header-content {
+  align-items: center;
+  max-width: 100%;
+}
+
+.toolbar {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.user-profile {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.user-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.user-name {
+  font-weight: 500;
+  color: white;
+}
+
+.logout-btn {
+  background-color: #dc5c35;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.3s ease;
+}
+
+.logout-btn:hover {
+  background-color: #c82333;
+}
+
+.error {
+  background-color: rgba(255, 107, 107, 0.2);
+  color: white;
+  padding: 10px;
+  border-radius: 8px;
+  margin-top: 10px;
+  border: 1px solid rgba(255, 107, 107, 0.3);
+  backdrop-filter: blur(5px);
+}

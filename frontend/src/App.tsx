@@ -1,125 +1,49 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import Login from './components/Login';
-import './App.css';
+import Header from './components/Header';
+import { AuthProvider, useAuthContext } from './contexts/AuthContext';
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+import './App.css';
+import ConnectionStatus from './components/ConnectionStatus';
+
 const GOOGLE_CLIENT_ID = process.env.REACT_APP_GOOGLE_CLIENT_ID || '';
 
-function App() {
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [data, setData] = useState<any | null>(null);
-  const [user, setUser] = useState<any | null>(null);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-
-  useEffect(() => {
-    checkAuthStatus();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
-  const checkAuthStatus = async () => {
-    try {
-      const response = await axios.get(`${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/auth/user`, { withCredentials: true });
-      if (response.data.user) {
-        setUser(response.data.user);
-        setIsAuthenticated(true);
-        await fetchData();
-      } else {
-        setLoading(false);
-      }
-    } catch (err: any) {
-      setLoading(false);
-      // Handle session expiration
-      if (err.response?.status === 401 && err.response?.data?.error === 'Session expired') {
-        setError('Your session has expired. Please log in again.');
-        setUser(null);
-        setIsAuthenticated(false);
-      }
-    }
-  };
-
-  const handleLoginSuccess = (userData: any) => {
-    setUser(userData);
-    setIsAuthenticated(true);
-    fetchData();
-  };
-
-  const handleLogout = async () => {
-    try {
-      await axios.post(`${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/auth/logout`, {}, { withCredentials: true });
-      
-      setUser(null);
-      setIsAuthenticated(false);
-      setData(null);
-    } catch (err) {
-      console.error('Logout failed:', err);
-    }
-  };
-
-  const fetchData = async () => {
-    try {
-      setLoading(true);
-
-      const response = await axios.get(`${API_BASE_URL}/`);
-      setData(response.data);
-
-      setError(null);
-    } catch (err) {
-      setError('Failed to fetch data from the server');
-      console.error('Error fetching data:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
+function AppContent() {
+  const { user, isAuthenticated, loading, error, handleLoginSuccess } = useAuthContext();
+ 
   if (loading) {
     return (
-      <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
-        <div className="App">Loading...</div>
-      </GoogleOAuthProvider>
+      <div className="app">Loading...</div>
     );
   }
 
   if (!isAuthenticated) {
-    return (
-      <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
-        <Login onLoginSuccess={handleLoginSuccess} />
-      </GoogleOAuthProvider>
-    );
+    return <Login onLoginSuccess={handleLoginSuccess} />;
   }
 
   return (
-    <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
-      <div className="App">
-        <a href="#main-content" className="skip-link">Skip to main content</a>
-        
-        <header className="App-header" role="banner">
-          <div className="header-content">
-            <h1>Sparklane Full-Stack App</h1>
-            <div className="user-info">
-              {user && (
-                <div className="user-profile">
-                  <img 
-                    src={user.picture} 
-                    alt={user.name} 
-                    className="user-avatar"
-                  />
-                  <span className="user-name">{user.name}</span>
-                  <button onClick={handleLogout} className="logout-btn">
-                    Logout
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
-          {error && <div className="error" role="alert" aria-live="polite">{error}</div>}
-        </header>
+    <div className="app">
+      <a href="#main-content" className="skip-link">Skip to main content</a>
+      
+      <Header
+        user={user}
+        error={error}
+      />
 
-        <main className="App-main" id="main-content" role="main">
-          {data && <div className="data">{JSON.stringify(data)}</div>}
-        </main>
-      </div>
+      <main className="app-main" id="main-content" role="main">
+        
+      </main>
+    </div>
+  );
+}
+
+function App() {
+  return (
+    <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
+      <AuthProvider>
+        <AppContent />
+      </AuthProvider>
     </GoogleOAuthProvider>
   );
 }
