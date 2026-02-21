@@ -1,3 +1,10 @@
+:root {
+  --bg-color: oklch(27.8% .033 256.848);
+  --lightning-color: oklch(.78 .13 39.03);
+  --bg-pattern-1: url("data:image/svg+xml,%3Csvg width='80' height='80' xmlns='http://www.w3.org/2000/svg'%3E%3Ctext x='40' y='40' font-family='Arial' font-size='20' text-anchor='middle' dominant-baseline='middle' fill='oklch(.78 .13 39.03)' opacity='0.15' transform='rotate(25 40 40)'%3E⚡%3C/text%3E%3C/svg%3E");
+  --bg-pattern-2: url("data:image/svg+xml,%3Csvg width='80' height='80' xmlns='http://www.w3.org/2000/svg'%3E%3Ctext x='40' y='25' font-family='Arial' font-size='20' text-anchor='middle' dominant-baseline='middle' fill='oklch(.78 .13 39.03)' opacity='0.15' transform='rotate(25 40 25)'%3E⚡%3C/text%3E%3C/svg%3E");
+}
+
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',

@@ -48,6 +48,7 @@ function App() {
   const handleLogout = async () => {
     try {
       await axios.post(`${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/auth/logout`, {}, { withCredentials: true });
+      
       setUser(null);
       setIsAuthenticated(false);
       setData(null);
@@ -61,7 +62,6 @@ function App() {
       setLoading(true);
 
       const response = await axios.get(`${API_BASE_URL}/`);
-
       setData(response.data);
 
       setError(null);
@@ -74,12 +74,12 @@ function App() {
   };
 
   if (loading) {
-  return (
-    <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
-      <div className="App">Loading...</div>
-    </GoogleOAuthProvider>
-  );
-}
+    return (
+      <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
+        <div className="App">Loading...</div>
+      </GoogleOAuthProvider>
+    );
+  }
 
   if (!isAuthenticated) {
     return (
@@ -92,7 +92,9 @@ function App() {
   return (
     <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
       <div className="App">
-        <header className="App-header">
+        <a href="#main-content" className="skip-link">Skip to main content</a>
+        
+        <header className="App-header" role="banner">
           <div className="header-content">
             <h1>Sparklane Full-Stack App</h1>
             <div className="user-info">
@@ -111,10 +113,10 @@ function App() {
               )}
             </div>
           </div>
-          {error && <div className="error">{error}</div>}
+          {error && <div className="error" role="alert" aria-live="polite">{error}</div>}
         </header>
 
-        <main className="App-main">
+        <main className="App-main" id="main-content" role="main">
           {data && <div className="data">{JSON.stringify(data)}</div>}
         </main>
       </div>

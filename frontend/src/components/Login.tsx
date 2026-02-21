@@ -31,18 +31,23 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
 
   return (
     <div className="login-container">
-      <div className="login-card">
-        <h2>Welcome to Sparklane Personal Assistant</h2>
-        <p>Please sign in to continue</p>
-        
-        <div className="google-login-button">
-          <GoogleLogin
-            onSuccess={handleGoogleSuccess}
-            onError={handleGoogleError}
-            useOneTap
-          />
-        </div>
-      </div>
+      <main role="main">
+        <section className="login-card">
+          <h1>Welcome!</h1>
+          <h2>Spark Lane Dev ~ Personal Assistant</h2>
+          
+          <div className="google-login-button">
+            <GoogleLogin
+              onSuccess={handleGoogleSuccess}
+              onError={handleGoogleError}
+              useOneTap
+            />
+          </div>
+
+          <i>The tools I build are available to all.</i>
+          <p>If you would like access to this Personal Assistant or have any feedback, <a href="mailto:emma@sparklane.dev">please let me know</a></p>
+        </section>
+      </main>
     </div>
   );
 };
