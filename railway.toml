@@ -1,6 +1,3 @@
-[build]
-builder = "RAILWAY_BUILD"
-
 [deploy]
 healthcheckTimeout = 100
 restartPolicyType = "ON_FAILURE"
