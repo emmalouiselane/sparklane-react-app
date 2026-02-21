@@ -12,7 +12,7 @@ function ConnectionStatus() {
 
   const fetchDataConnection = async () => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/`);
+      const response = await axios.get(`${API_BASE_URL}/api/`);
       setDataConnection(response.data);
       setError(null);
     } catch (err) {

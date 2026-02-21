@@ -17,8 +17,13 @@ const PORT = process.env.PORT || 5000;
 // Middleware
 app.use(helmet());
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
-  credentials: true
+  origin: [
+    process.env.FRONTEND_URL || 'http://localhost:3000',
+    'https://sparklane-react-app.up.railway.app'
+  ],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
 app.use(morgan('combined'));
 app.use(express.json());
@@ -34,7 +39,8 @@ app.use(session({
     sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
     maxAge: 24 * 60 * 60 * 1000, 
     httpOnly: true, 
-    expires: new Date(Date.now() + 24 * 60 * 60 * 1000) 
+    expires: new Date(Date.now() + 24 * 60 * 60 * 1000),
+    domain: process.env.NODE_ENV === 'production' ? '.railway.app' : undefined
   },
   name: 'sessionId', 
   rolling: true 
