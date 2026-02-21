@@ -24,11 +24,16 @@ app.use(express.urlencoded({ extended: true }));
 app.use(session({
   secret: process.env.SESSION_SECRET || 'your-secret-key',
   resave: false,
-  saveUninitialized: true,
+  saveUninitialized: false,
   cookie: { 
     secure: process.env.NODE_ENV === 'production',
-    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax'
-  }
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+    maxAge: 24 * 60 * 60 * 1000, 
+    httpOnly: true, 
+    expires: new Date(Date.now() + 24 * 60 * 60 * 1000) 
+  },
+  name: 'sessionId', 
+  rolling: true 
 }));
 
 // Passport middleware
@@ -72,6 +77,20 @@ const connectDB = async () => {
 // Connect to database
 connectDB();
 
+// Session validation middleware
+app.use((req, res, next) => {
+  if (req.session && req.session.cookie && req.session.cookie.expires) {
+    if (new Date() > req.session.cookie.expires) {
+      // Session has expired, destroy it
+      req.session.destroy((err) => {
+        if (err) console.error('Error destroying expired session:', err);
+      });
+      return res.status(401).json({ error: 'Session expired' });
+    }
+  }
+  next();
+});
+
 // Routes
 app.get('/', (req, res) => {
   res.json({ message: 'Welcome to Sparklane API' });
@@ -99,16 +118,16 @@ app.get('/auth/user', (req, res) => {
 });
 app.post('/auth/logout', (req, res) => {
   req.logout((err) => {
-    if (err) {
-      return res.status(500).json({ error: 'Logout failed' });
-    }
+    if (err) console.error('Logout failed:', err);
     res.json({ message: 'Logged out successfully' });
   });
 });
 app.post('/auth/google/success', (req, res) => {
-  // For simplicity, we'll just return the user data
-  // In a real app, you'd validate the token and create a user session
-  res.json({ user: req.body.user });
+  // Create a session for the user
+  req.login(req.body.user, (err) => {
+    if (err) console.error('Session creation failed:', err);
+    res.json({ user: req.body.user });
+  });
 });
 
 // Error handling middleware

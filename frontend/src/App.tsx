@@ -24,12 +24,18 @@ function App() {
       if (response.data.user) {
         setUser(response.data.user);
         setIsAuthenticated(true);
-        fetchData();
+        await fetchData();
       } else {
         setLoading(false);
       }
-    } catch (err) {
+    } catch (err: any) {
       setLoading(false);
+      // Handle session expiration
+      if (err.response?.status === 401 && err.response?.data?.error === 'Session expired') {
+        setError('Your session has expired. Please log in again.');
+        setUser(null);
+        setIsAuthenticated(false);
+      }
     }
   };
 
