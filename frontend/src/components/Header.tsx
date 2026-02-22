@@ -17,6 +17,9 @@ function Header({ user, error }: HeaderProps) {
     if (user?.name?.givenName) {
       return user.name.givenName.charAt(0).toUpperCase();
     }
+    if (user?.name) {
+      return user.name.charAt(0).toUpperCase();
+    }
     if (user?.given_name) {
       return user.given_name.charAt(0).toUpperCase();
     }
@@ -29,9 +32,9 @@ function Header({ user, error }: HeaderProps) {
         {user && (
           <>
             <div className="user-profile">
-              {user.photos?.[0]?.value ? (
+              {user.picture || user.photos?.[0]?.value ? (
                 <img 
-                  src={user.photos[0].value} 
+                  src={user.picture || user.photos[0].value} 
                   alt={user.name?.givenName || user.given_name} 
                   className="user-avatar"
                 />
@@ -40,7 +43,7 @@ function Header({ user, error }: HeaderProps) {
                   {getUserInitials(user)}
                 </div>
               )}
-              <span className="user-name">{user.name?.givenName || user.given_name}</span>
+              <span className="user-name">{user.name?.givenName || user.name || user.given_name}</span>
             </div>
 
             <ConnectionStatus />
