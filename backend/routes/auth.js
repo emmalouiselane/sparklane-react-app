@@ -27,6 +27,8 @@ router.get('/google/callback',
       }
       
       console.log('Session saved successfully, redirecting...');
+      console.log('Session cookie after save:', req.session.cookie);
+      
       // Redirect to frontend with success
       res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:3000'}?auth=success`);
     });
