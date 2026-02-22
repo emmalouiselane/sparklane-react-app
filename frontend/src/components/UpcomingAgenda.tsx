@@ -36,8 +36,18 @@ const UpcomingAgenda: React.FC<UpcomingAgendaProps> = () => {
       setError(null);
       
       const endpoint = '/api/calendar/events';
+      const token = localStorage.getItem('authToken');
+      
+      if (!token) {
+        setError('Please log in to view calendar events');
+        return;
+      }
+      
       const response = await axios.get(`${API_BASE_URL}${endpoint}`, { 
-        withCredentials: true 
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
       });
       
       setEvents(response.data.events.slice(0, 5));

@@ -18,14 +18,30 @@ function AppContent() {
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const authSuccess = urlParams.get('auth');
+    const token = urlParams.get('token');
     
-    if (authSuccess === 'success') {
+    if (authSuccess === 'success' && token) {
+      // Store the token
+      localStorage.setItem('authToken', token);
+      
+      // Decode the JWT to get user data
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        handleLoginSuccess(payload, token);
+      } catch (error) {
+        console.error('Failed to decode JWT:', error);
+        checkAuthStatus();
+      }
+      
+      // Clear the URL parameters
+      window.history.replaceState({}, document.title, window.location.pathname);
+    } else if (authSuccess === 'success') {
       // Clear the URL parameter
       window.history.replaceState({}, document.title, window.location.pathname);
       // Check authentication status
       checkAuthStatus();
     }
-  }, [checkAuthStatus]);
+  }, [checkAuthStatus, handleLoginSuccess]);
 
   if (loading) {
     return (
