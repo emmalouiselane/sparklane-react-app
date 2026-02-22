@@ -74,4 +74,62 @@ router.get('/events', async (req, res) => {
   }
 });
 
+// Create calendar event
+router.post('/events', async (req, res) => {
+  try {
+    const { title, description, startTime, endTime, location } = req.body;
+
+    if (!title || !startTime || !endTime) {
+      return res.status(400).json({ error: 'Title, start time, and end time are required' });
+    }
+
+    const oauth2Client = new google.auth.OAuth2(
+      process.env.GOOGLE_CLIENT_ID,
+      process.env.GOOGLE_CLIENT_SECRET
+    );
+
+    oauth2Client.setCredentials({
+      access_token: req.user.accessToken,
+      refresh_token: req.user.refreshToken
+    });
+
+    const calendar = google.calendar({ version: 'v3', auth: oauth2Client });
+
+    const event = {
+      summary: title,
+      description: description || '',
+      location: location || '',
+      start: {
+        dateTime: new Date(startTime).toISOString(),
+        timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+      },
+      end: {
+        dateTime: new Date(endTime).toISOString(),
+        timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+      },
+    };
+
+    const response = await calendar.events.insert({
+      calendarId: 'primary',
+      resource: event,
+    });
+
+    res.json({ 
+      message: 'Event created successfully',
+      event: {
+        id: response.data.id,
+        title: response.data.summary,
+        description: response.data.description,
+        start: response.data.start,
+        end: response.data.end,
+        location: response.data.location,
+        status: response.data.status
+      }
+    });
+  } catch (error) {
+    console.error('Error creating calendar event:', error);
+    res.status(500).json({ error: 'Failed to create calendar event' });
+  }
+});
+
 module.exports = router;

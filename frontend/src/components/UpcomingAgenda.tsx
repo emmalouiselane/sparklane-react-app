@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Card, ListGroup, Badge, Spinner, Alert } from 'react-bootstrap';
-import { Calendar3, Clock, GeoAlt } from 'react-bootstrap-icons';
+import { Card, ListGroup, Badge, Spinner, Alert, Modal, Form, Button } from 'react-bootstrap';
+import { Calendar3, Clock, GeoAlt, Plus, X } from 'react-bootstrap-icons';
 import axios from 'axios';
 import { API_BASE_URL } from '../config/api';
 
 import './UpcomingAgenda.css';
+import dayjs from 'dayjs';
 
 interface Event {
   id: string;
@@ -29,6 +30,15 @@ const UpcomingAgenda: React.FC<UpcomingAgendaProps> = () => {
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showModal, setShowModal] = useState(false);
+  const [formData, setFormData] = useState({
+    title: '',
+    description: '',
+    startTime: '',
+    endTime: '',
+    location: ''
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const fetchEvents = useCallback(async () => {
     try {
@@ -63,6 +73,77 @@ const UpcomingAgenda: React.FC<UpcomingAgendaProps> = () => {
     }
   }, []);
 
+  const handleCreateEvent = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+
+    try {
+      const token = localStorage.getItem('authToken');
+      if (!token) {
+        setError('Please log in to create events');
+        return;
+      }
+
+      const response = await axios.post(`${API_BASE_URL}/api/calendar/events`, formData, {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      // Reset form and close modal
+      setFormData({
+        title: '',
+        description: '',
+        startTime: '',
+        endTime: '',
+        location: ''
+      });
+      setShowModal(false);
+      
+      // Refresh events list
+      fetchEvents();
+    } catch (err: any) {
+      console.error('Error creating event:', err);
+      setError('Failed to create event. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+
+    if (name === 'startTime') {
+      const startTime = dayjs(value);
+      const endTime = startTime.add(30, 'minute').format('YYYY-MM-DDTHH:mm:ss');
+
+      console.log(endTime);
+
+      setFormData(prev => ({
+        ...prev,
+        startTime: value,
+        endTime: endTime
+      }));
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        [name]: value
+      }));
+    }
+  };
+
+  const resetForm = () => {
+    setFormData({
+      title: '',
+      description: '',
+      startTime: '',
+      endTime: '',
+      location: ''
+    });
+    setShowModal(false);
+  };
+
   useEffect(() => {
     fetchEvents();
   }, [fetchEvents]);
@@ -92,10 +173,23 @@ const UpcomingAgenda: React.FC<UpcomingAgendaProps> = () => {
   return (
     <Card className="agenda-card">
       <Card.Header>
-        <Calendar3 />
-        <Card.Title>
-          Upcoming Events
-        </Card.Title>
+        <div className="agenda-header">
+          <div className="agenda-header-left">
+            <Calendar3 />
+            <Card.Title>
+              Upcoming Events
+            </Card.Title>
+          </div>
+          <Button 
+            variant="primary" 
+            size="sm" 
+            onClick={() => setShowModal(true)}
+            className="quick-add-btn"
+          >
+            <Plus size={16} />
+            Quick Add
+          </Button>
+        </div>
       </Card.Header>
       <Card.Body>
         {error && (
@@ -151,6 +245,106 @@ const UpcomingAgenda: React.FC<UpcomingAgendaProps> = () => {
           </ListGroup>
         )}
       </Card.Body>
+
+      {/* Quick Add Event Modal */}
+      <Modal show={showModal} onHide={resetForm} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>
+            <Plus size={20} className="me-2" />
+            Quick Add Event
+          </Modal.Title>
+        </Modal.Header>
+        <Form onSubmit={handleCreateEvent}>
+          <Modal.Body>
+            <Form.Group className="mb-3">
+              <Form.Label>Event Title *</Form.Label>
+              <Form.Control
+                type="text"
+                name="title"
+                value={formData.title}
+                onChange={handleInputChange}
+                placeholder="Enter event title"
+                required
+              />
+            </Form.Group>
+
+            <Form.Group className="mb-3">
+              <Form.Label>Description</Form.Label>
+              <Form.Control
+                as="textarea"
+                name="description"
+                value={formData.description}
+                onChange={handleInputChange}
+                placeholder="Enter event description (optional)"
+                rows={3}
+              />
+            </Form.Group>
+
+            <Form.Group className="mb-3">
+              <Form.Label>Start Time *</Form.Label>
+              <Form.Control
+                type="datetime-local"
+                name="startTime"
+                value={formData.startTime}
+                onChange={handleInputChange}
+                required
+              />
+            </Form.Group>
+
+            <Form.Group className="mb-3">
+              <Form.Label>End Time *</Form.Label>
+              <Form.Control
+                type="datetime-local"
+                name="endTime"
+                value={formData.endTime}
+                onChange={handleInputChange}
+                required
+              />
+            </Form.Group>
+
+            <Form.Group className="mb-3">
+              <Form.Label>Location</Form.Label>
+              <Form.Control
+                type="text"
+                name="location"
+                value={formData.location}
+                onChange={handleInputChange}
+                placeholder="Enter event location (optional)"
+              />
+            </Form.Group>
+          </Modal.Body>
+          <Modal.Footer>
+            <Button variant="secondary" onClick={resetForm}>
+              <X size={16} className="me-1" />
+              Cancel
+            </Button>
+            <Button 
+              variant="primary" 
+              type="submit" 
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? (
+                <>
+                  <Spinner
+                    as="span"
+                    animation="border"
+                    size="sm"
+                    role="status"
+                    aria-hidden="true"
+                    className="me-2"
+                  />
+                  Creating...
+                </>
+              ) : (
+                <>
+                  <Plus size={16} className="me-1" />
+                  Create Event
+                </>
+              )}
+            </Button>
+          </Modal.Footer>
+        </Form>
+      </Modal>
     </Card>
   );
 };

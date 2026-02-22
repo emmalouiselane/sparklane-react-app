@@ -18,13 +18,34 @@
 
   .card-header {
     display: flex;
+    align-items: center;
+    justify-content: space-between;
 
-    svg {
-      margin: auto 10px auto 0;
-    }
+    .agenda-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
 
-    .card-title {
-      margin: auto 0;
+      .agenda-header-left {
+        display: flex;
+        align-items: center;
+
+        svg {
+          margin: auto 10px auto 0;
+        }
+
+        .card-title {
+          margin: auto 0;
+        }
+      }
+
+      .quick-add-btn {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        font-weight: 500;
+      }
     }
   }
 
@@ -91,6 +112,23 @@
 
 /* Mobile view - stack columns */
 @media (max-width: 480px) {
+  .agenda-card {
+    .card-header .agenda-header {
+      flex-direction: column;
+      gap: 10px;
+      align-items: stretch;
+      
+      .agenda-header-left {
+        justify-content: center;
+      }
+      
+      .quick-add-btn {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+  }
+  
   .agenda-card .agenda-event-wrapper .agenda-event {
     flex-direction: column !important;
     

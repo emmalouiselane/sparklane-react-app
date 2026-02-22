@@ -24,6 +24,8 @@
   --bs-list-group-border-color: #4b5563; /* Darker grey border */
   --bs-list-group-hover-bg: #4b5563; /* Darker grey on hover */
   --bs-list-group-action-hover-color: var(--bs-white); /* White text on hover */
+
+  --bs-modal-bg: rgba(255, 255, 255, 0.1);
 }
 
 /* Force override for all buttons */
@@ -80,4 +82,26 @@
 .list-group-item-action:hover {
   background-color: rgba(255, 255, 255, 0.1) !important;
   color: var(--bs-white) !important;
+}
+
+/* Force override for all modals */
+.modal-content {
+  background-color: #4b5563 !important;
+  border-color: #4b5563 !important;
+
+  .h4 {
+    color: var(--bs-white) !important;
+  }
+}
+
+.modal-body {
+  label {
+    color: var(--bs-white) !important;
+  }
+
+  .form-control {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+    border-color: #4b5563 !important;
+    color: var(--bs-white) !important;
+  }
 }
