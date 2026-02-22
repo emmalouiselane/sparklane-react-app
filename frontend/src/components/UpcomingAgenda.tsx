@@ -118,8 +118,6 @@ const UpcomingAgenda: React.FC<UpcomingAgendaProps> = () => {
       const startTime = dayjs(value);
       const endTime = startTime.add(30, 'minute').format('YYYY-MM-DDTHH:mm:ss');
 
-      console.log(endTime);
-
       setFormData(prev => ({
         ...prev,
         startTime: value,
