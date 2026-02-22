@@ -316,9 +316,7 @@ const TodoList: React.FC<TodoListProps> = () => {
                         <h6 className={`todo-title ${todo.completed ? 'completed-text' : ''}`}>
                           {todo.title}
                         </h6>
-                        <div className="todo-badges">
-                          {getPriorityBadge(todo.priority)}
-                        </div>
+                        
                       </div>
                       {todo.description && (
                         <p className="todo-description">{todo.description}</p>
@@ -326,16 +324,23 @@ const TodoList: React.FC<TodoListProps> = () => {
                     </div>
                   </div>
                   <div className="todo-actions">
-                    <div className="todo-priority-icon">
-                      {getPriorityIcon(todo.priority)}
+                    <div className="todo-priority">
+                      <div className="todo-badges">
+                        {getPriorityBadge(todo.priority)}
+                      </div>
+                      <div className="todo-priority-icon">
+                        {getPriorityIcon(todo.priority)}
+                      </div>
                     </div>
 
-                    <Button className="custom-btn icon-only" onClick={() => handleEditTodo(todo)}>
-                      <Pencil size={16} />
-                    </Button>
-                    <Button className="custom-btn icon-only" onClick={() => handleDeleteTodo(todo)}>
-                      <Trash3 size={16} />
-                    </Button>
+                    <div className="todo-item-actions">
+                      <Button className="custom-btn icon-only" onClick={() => handleEditTodo(todo)}>
+                        <Pencil size={16} />
+                      </Button>
+                      <Button className="custom-btn icon-only" onClick={() => handleDeleteTodo(todo)}>
+                        <Trash3 size={16} />
+                      </Button>
+                    </div>
                   </div>
                 </div>
               </ListGroup.Item>

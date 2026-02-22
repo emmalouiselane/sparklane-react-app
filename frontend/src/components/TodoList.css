@@ -144,28 +144,19 @@
           display: flex;
           align-items: center;
           gap: 5px;
+        }
 
-          .todo-priority-icon {
-            display: flex;
-            align-items: center;
-          }
 
-          .todo-dropdown {
-            padding: 0;
-            
-            &:hover {
-              background: none;
-            }
+        .todo-priority {
+          display: flex;
+          align-items: center;
+          gap: 5px;
+        }
 
-            .dropdown-toggle {
-              padding: 4px 8px;
-              border-radius: 4px;
-              
-              &:hover {
-                background: rgba(255, 255, 255, 0.1);
-              }
-            }
-          }
+        .todo-priority-icon {
+          margin-left: 5px;
+          display: flex;
+          align-items: center;
         }
       }
     }
