@@ -28,14 +28,17 @@
 }
 
 .app-main {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 30px;
   text-align: left;
 }
 
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 30px;
+}
+
 @media (max-width: 768px) {
-  .app-main {
+  .dashboard-grid {
     grid-template-columns: 1fr;
   }
 }

@@ -3,6 +3,7 @@ import { GoogleOAuthProvider } from '@react-oauth/google';
 import Login from './components/Login';
 import Header from './components/Header';
 import UpcomingAgenda from './components/UpcomingAgenda';
+import TodoList from './components/TodoList';
 import { AuthProvider, useAuthContext } from './contexts/AuthContext';
 
 import './App.css';
@@ -63,7 +64,10 @@ function AppContent() {
       />
 
       <main className="app-main" id="main-content" role="main">
-        <UpcomingAgenda />
+        <div className="dashboard-grid">
+          <UpcomingAgenda />
+          <TodoList />
+        </div>
       </main>
     </div>
   );

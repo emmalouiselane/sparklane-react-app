@@ -29,24 +29,37 @@
 }
 
 /* Force override for all buttons */
-.btn {
+.btn-primary:not(.custom-btn) {
   background-color: #f18463 !important;
   border-color: #f18463 !important;
 }
 
-.btn:hover {
+.btn-primary:not(.custom-btn):hover {
   background-color: #d67747 !important;
   border-color: #d67747 !important;
 }
 
-.btn-primary {
-  background-color: #f18463 !important;
-  border-color: #f18463 !important;
+.custom-btn.icon-only {
+  background-color: unset !important;
+  border-width: 0;
+  padding: 6px;
 }
 
-.btn-primary:hover {
-  background-color: #d67747 !important;
-  border-color: #d67747 !important;
+.custom-btn.icon-only:hover {
+  background-color: unset !important;
+  border-width: 0;
+  padding: 6px;
+  color: #d67747;
+}
+
+.btn-secondary {
+  background-color: #74635e !important;
+  border-color: #74635e !important;
+}
+
+.btn-secondary:hover {
+  background-color: #705a53 !important;
+  border-color: #705a53 !important;
 }
 
 /* Force override for all cards */
@@ -84,6 +97,7 @@
   color: var(--bs-white) !important;
 }
 
+
 /* Force override for all modals */
 .modal-content {
   background-color: #4b5563 !important;
@@ -91,6 +105,41 @@
 
   .h4 {
     color: var(--bs-white) !important;
+  }
+
+  .form-control {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+    border-color: #4b5563 !important;
+    color: var(--bs-white) !important;
+
+    &::placeholder {
+      color: rgba(255, 255, 255, 0.5) !important;
+    }
+
+    &:focus {
+      background-color: rgba(255, 255, 255, 0.15) !important;
+      border-color: var(--bs-primary) !important;
+      color: var(--bs-white) !important;
+      box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25) !important;
+    }
+  }
+
+  .form-select {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+    border-color: #4b5563 !important;
+    color: var(--bs-white) !important;
+
+    &:focus {
+      background-color: rgba(255, 255, 255, 0.15) !important;
+      border-color: var(--bs-primary) !important;
+      color: var(--bs-white) !important;
+      box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25) !important;
+    }
+
+    option {
+      background-color: #4b5563 !important;
+      color: var(--bs-white) !important;
+    }
   }
 }
 

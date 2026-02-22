@@ -10,6 +10,7 @@ require('dotenv').config();
 // Import routes
 const authRoutes = require('./routes/auth');
 const calendarRoutes = require('./routes/calendar');
+const todosRoutes = require('./routes/todos');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -122,6 +123,7 @@ app.get('/api/', (req, res) => {
 // Use route files
 app.use('/auth', authRoutes);
 app.use('/api/calendar', calendarRoutes);
+app.use('/api/todos', todosRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {

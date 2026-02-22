@@ -1,0 +1,214 @@
+.todo-card {
+  text-align: center;
+
+  .loading-container {
+    padding: 1.5rem;
+  }
+
+  .no-todos {
+    h2 {
+      font-size: var(--font-size-xl);
+      margin: 5px 0;
+    }
+    
+    p {
+      color: var(--bs-secondary-color);
+    }
+  }
+
+  .card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    .todo-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+
+      .todo-header-left {
+        display: flex;
+        align-items: center;
+
+        svg {
+          margin: auto 10px auto 0;
+        }
+
+        .card-title {
+          margin: auto 0;
+        }
+      }
+
+      .todo-header-actions {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+
+        .clear-completed-btn {
+          display: flex;
+          align-items: center;
+          gap: 5px;
+          font-weight: 500;
+        }
+
+        .quick-add-btn {
+          display: flex;
+          align-items: center;
+          gap: 5px;
+          font-weight: 500;
+        }
+      }
+    }
+  }
+
+  .card-body {
+    svg {
+      margin: auto 5px auto 0;
+    }
+
+    .list-group {
+      backdrop-filter: blur(10px);
+    }
+
+    .todo-item {
+      padding: 1rem;
+      border: none;
+      background: rgba(255, 255, 255, 0.05);
+      margin-bottom: 0.5rem;
+      border-radius: 8px;
+
+      &.completed {
+        opacity: 0.7;
+        background: rgba(255, 255, 255, 0.02);
+      }
+
+      .todo-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+
+        .todo-left {
+          display: flex;
+          align-items: flex-start;
+          flex: 1;
+          text-align: left;
+
+          .checkbox {
+            padding: 0;
+            margin-right: 12px;
+            
+            &:hover {
+              background: none;
+              transform: scale(1.1);
+            }
+          }
+
+          .todo-info {
+            flex: 1;
+            margin-top: 2px;
+            margin-right: 5px;
+
+            .todo-title-row {
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              margin-bottom: 5px;
+
+              .todo-title {
+                margin: 0;
+                font-weight: 500;
+                flex: 1;
+
+                &.completed-text {
+                  text-decoration: line-through;
+                  opacity: 0.6;
+                }
+              }
+
+              .todo-badges {
+                margin-left: 10px;
+              }
+            }
+
+            .todo-description {
+              font-size: var(--font-size-sm);
+              opacity: 0.8;
+              margin: 0;
+              color: var(--bs-secondary-color);
+            }
+          }
+        }
+
+        .todo-actions {
+          display: flex;
+          align-items: center;
+          gap: 5px;
+
+          .todo-priority-icon {
+            display: flex;
+            align-items: center;
+          }
+
+          .todo-dropdown {
+            padding: 0;
+            
+            &:hover {
+              background: none;
+            }
+
+            .dropdown-toggle {
+              padding: 4px 8px;
+              border-radius: 4px;
+              
+              &:hover {
+                background: rgba(255, 255, 255, 0.1);
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+/* Mobile view - stack columns */
+@media (max-width: 480px) {
+  .todo-card {
+    .card-header .todo-header {
+      flex-direction: column;
+      gap: 10px;
+      align-items: stretch;
+      
+      .todo-header-left {
+        justify-content: center;
+      }
+      
+      .todo-header-actions {
+        flex-direction: column;
+        gap: 8px;
+        
+        .clear-completed-btn,
+        .quick-add-btn {
+          width: 100%;
+          justify-content: center;
+        }
+      }
+    }
+
+    .todo-item .todo-content {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 10px;
+
+      .todo-left {
+        width: 100%;
+      }
+
+      .todo-actions {
+        width: 100%;
+        justify-content: space-between;
+      }
+    }
+  }
+}
