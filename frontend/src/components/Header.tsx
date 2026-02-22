@@ -12,8 +12,6 @@ interface HeaderProps {
 function Header({ user, error }: HeaderProps) {
   const { handleLogout } = useAuthContext();
 
-  console.log(user);
-
   // Get user initials for fallback
   const getUserInitials = (user: any) => {
     if (user?.name?.givenName) {

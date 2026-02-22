@@ -48,10 +48,6 @@ app.use(session({
 
 // Add session logging middleware
 app.use((req, res, next) => {
-  console.log('Request - Session ID:', req.sessionID);
-  console.log('Request - Path:', req.path);
-  console.log('Request - User-Agent:', req.headers['user-agent']);
-  console.log('Request - Origin:', req.headers.origin);
   next();
 });
 
@@ -68,27 +64,18 @@ passport.use(new GoogleStrategy({
   clientSecret: process.env.GOOGLE_CLIENT_SECRET,
   callbackURL: `${process.env.RAILWAY_PUBLIC_URL || process.env.RAILWAY_PUBLIC_DOMAIN || 'http://localhost:5000'}/auth/google/callback`
 }, (accessToken, refreshToken, profile, done) => {
-  console.log('Google Strategy - Profile received:', !!profile);
-  console.log('Google Strategy - Access token:', !!accessToken);
-  console.log('Google Strategy - Profile ID:', profile?.id);
-  
   // Store tokens for calendar access
   profile.accessToken = accessToken;
   profile.refreshToken = refreshToken;
-  
-  // Here you would typically find or create a user in your database
-  console.log('Google Strategy - Calling done() with profile');
   return done(null, profile);
 }));
 
 // Serialize and deserialize user
 passport.serializeUser((user, done) => {
-  console.log('SerializeUser - User ID:', user.id);
   done(null, user);
 });
 
 passport.deserializeUser((user, done) => {
-  console.log('DeserializeUser - User ID:', user.id);
   done(null, user);
 });
 
@@ -100,7 +87,6 @@ const connectDB = async () => {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     });
-    console.log('MongoDB Connected');
   } catch (error) {
     console.error('Database connection error:', error);
     process.exit(1);

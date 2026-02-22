@@ -15,10 +15,6 @@ router.get('/google/callback',
     session: false 
   }),
   (req, res) => {
-    // Successful authentication
-    console.log('OAuth Success - User authenticated:', !!req.user);
-    console.log('OAuth Success - User data:', req.user);
-    
     // Create JWT token
     const token = jwt.sign(
       { 
@@ -32,8 +28,6 @@ router.get('/google/callback',
       process.env.SESSION_SECRET || 'your-secret-key',
       { expiresIn: '24h' }
     );
-    
-    console.log('JWT token created successfully');
     
     // Redirect to frontend with token in URL
     res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:3000'}?auth=success&token=${token}`);
