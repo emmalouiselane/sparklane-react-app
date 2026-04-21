@@ -2,14 +2,16 @@ import React from 'react';
 import { useAuthContext } from '../contexts/AuthContext';
 import './Header.css';
 import ConnectionStatus from './ConnectionStatus';
-import { PersonCircle } from 'react-bootstrap-icons';
+import { BoxArrowRight, List } from 'react-bootstrap-icons';
 
 interface HeaderProps {
   user: any;
   error: string | null;
+  isMobileMenuOpen: boolean;
+  onOpenMobileMenu: () => void;
 }
 
-function Header({ user, error }: HeaderProps) {
+function Header({ user, error, isMobileMenuOpen, onOpenMobileMenu }: HeaderProps) {
   const { handleLogout } = useAuthContext();
 
   // Get user initials for fallback
@@ -28,28 +30,43 @@ function Header({ user, error }: HeaderProps) {
 
   return (
     <>
-     <div className="toolbar">
+      <div className="toolbar">
         {user && (
           <>
-            <div className="user-profile">
-              {user.picture || user.photos?.[0]?.value ? (
-                <img 
-                  src={user.picture || user.photos[0].value} 
-                  alt={user.name?.givenName || user.given_name} 
-                  className="user-avatar"
-                />
-              ) : (
-                <div className="user-avatar-fallback">
-                  {getUserInitials(user)}
-                </div>
-              )}
-              <span className="user-name">{user.name?.givenName || user.name || user.given_name}</span>
+            <div className="toolbar-left">
+              <button
+                type="button"
+                className="mobile-menu-btn"
+                aria-label="Open navigation menu"
+                aria-controls="module-navigation"
+                aria-expanded={isMobileMenuOpen}
+                onClick={onOpenMobileMenu}
+              >
+                <List size={20} />
+              </button>
+              <div className="user-profile">
+                {user.picture || user.photos?.[0]?.value ? (
+                  <img
+                    src={user.picture || user.photos[0].value}
+                    alt={user.name?.givenName || user.given_name}
+                    className="user-avatar"
+                  />
+                ) : (
+                  <div className="user-avatar-fallback">
+                    {getUserInitials(user)}
+                  </div>
+                )}
+                <span className="user-name">{user.name?.givenName || user.name || user.given_name}</span>
+              </div>
             </div>
 
             <ConnectionStatus />
 
-            <button onClick={handleLogout} className="logout-btn">
-              Logout
+            <button onClick={handleLogout} className="logout-btn" aria-label="Logout">
+              <span className="logout-btn-text"><BoxArrowRight size={14} /> Logout</span>
+              <span className="logout-btn-emoji" aria-hidden="true">
+                <BoxArrowRight size={18} />
+              </span>
             </button>
           </>
         )}

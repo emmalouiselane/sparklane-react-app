@@ -1,10 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import Login from './components/Login';
 import Header from './components/Header';
-import UpcomingAgenda from './components/UpcomingAgenda';
-import TodoList from './components/TodoList';
+import Sidebar, { ModuleId, ModuleNavItem } from './components/Sidebar';
 import { AuthProvider, useAuthContext } from './contexts/AuthContext';
+import Homepage from './pages/homepage';
+import MealPlannerPage from './pages/meal-planner';
+import MonthlyBudgetPage from './pages/monthly-budget';
 
 import './App.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -12,8 +14,24 @@ import './CustomBootstrap.css';
 
 const GOOGLE_CLIENT_ID = process.env.REACT_APP_GOOGLE_CLIENT_ID || '';
 
+const MODULE_NAV_ITEMS: ModuleNavItem[] = [
+  { id: 'home', label: 'Home' },
+  { id: 'monthly-budget', label: 'Monthly Budget' },
+  { id: 'meal-planner', label: 'Meal Planner' },
+];
+
+const MODULE_COMPONENTS: Record<ModuleId, React.ComponentType> = {
+  home: Homepage,
+  'monthly-budget': MonthlyBudgetPage,
+  'meal-planner': MealPlannerPage,
+};
+
 function AppContent() {
   const { user, isAuthenticated, loading, error, handleLoginSuccess, checkAuthStatus } = useAuthContext();
+  const [activeModule, setActiveModule] = useState<ModuleId>('home');
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(true);
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+  const moduleHeadingRef = useRef<HTMLHeadingElement>(null);
  
   // Check for auth success in URL params
   useEffect(() => {
@@ -44,6 +62,41 @@ function AppContent() {
     }
   }, [checkAuthStatus, handleLoginSuccess]);
 
+  useEffect(() => {
+    moduleHeadingRef.current?.focus();
+  }, [activeModule]);
+
+  useEffect(() => {
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setIsMobileSidebarOpen(false);
+      }
+    };
+
+    window.addEventListener('keydown', handleEscape);
+    return () => window.removeEventListener('keydown', handleEscape);
+  }, []);
+
+  useEffect(() => {
+    document.body.style.overflow = isMobileSidebarOpen ? 'hidden' : '';
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isMobileSidebarOpen]);
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth > 768) {
+        setIsMobileSidebarOpen(false);
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  const ActiveModulePage = MODULE_COMPONENTS[activeModule];
+
   if (loading) {
     return (
       <div className="app">Loading...</div>
@@ -54,21 +107,48 @@ function AppContent() {
     return <Login onLoginSuccess={handleLoginSuccess} />;
   }
 
+  const handleModuleSelect = (module: ModuleId) => {
+    setActiveModule(module);
+    setIsMobileSidebarOpen(false);
+  };
+
   return (
     <div className="app">
       <a href="#main-content" className="skip-link">Skip to main content</a>
-      
-      <Header
-        user={user}
-        error={error}
-      />
 
-      <main className="app-main" id="main-content" role="main">
-        <div className="dashboard-grid">
-          <UpcomingAgenda />
-          <TodoList />
+      <div className={`app-shell${isSidebarCollapsed ? ' sidebar-collapsed' : ''}`}>
+        {isMobileSidebarOpen && (
+          <button
+            type="button"
+            className="sidebar-backdrop"
+            aria-label="Close navigation menu"
+            onClick={() => setIsMobileSidebarOpen(false)}
+          />
+        )}
+
+        <Sidebar
+          items={MODULE_NAV_ITEMS}
+          activeModule={activeModule}
+          onSelectModule={handleModuleSelect}
+          isCollapsed={isSidebarCollapsed}
+          onToggleCollapsed={() => setIsSidebarCollapsed((current) => !current)}
+          isMobileOpen={isMobileSidebarOpen}
+          onCloseMobile={() => setIsMobileSidebarOpen(false)}
+        />
+
+        <div className="app-content">
+          <Header
+            user={user}
+            error={error}
+            isMobileMenuOpen={isMobileSidebarOpen}
+            onOpenMobileMenu={() => setIsMobileSidebarOpen(true)}
+          />
+
+          <main className="app-main" id="main-content" role="main" aria-labelledby="module-heading">
+            <ActiveModulePage />
+          </main>
         </div>
-      </main>
+      </div>
     </div>
   );
 }

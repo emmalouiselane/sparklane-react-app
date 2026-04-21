@@ -1,7 +1,5 @@
 .app {
-  text-align: center;
-  margin: 0 auto;
-  padding: 20px;
+  text-align: left;
   min-height: 100vh;
   background-color: var(--bg-color);
   background-image: var(--bg-pattern-1), var(--bg-pattern-2);
@@ -43,6 +41,46 @@
 
 .app-main {
   text-align: left;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.app-shell {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  min-height: 100vh;
+}
+
+.app-shell.sidebar-collapsed {
+  grid-template-columns: 40px 1fr;
+}
+
+.app-content {
+  padding: 20px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar-backdrop:focus-visible {
+  outline: 3px solid #f18463;
+  outline-offset: 2px;
+}
+
+.sidebar-backdrop {
+  display: none;
+}
+
+.module-title {
+  margin: 0 0 18px;
+}
+
+.module-placeholder {
+  background-color: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  padding: 18px;
 }
 
 .dashboard-grid {
@@ -51,9 +89,68 @@
   gap: 30px;
 }
 
+.homepage-grid {
+  flex: 1;
+  min-height: 0;
+  align-items: stretch;
+}
+
+.homepage-grid > * {
+  min-height: 0;
+}
+
+.homepage-grid .agenda-card,
+.homepage-grid .todo-card {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.homepage-grid .agenda-card .card-body,
+.homepage-grid .todo-card .card-body {
+  overflow: auto;
+}
+
 @media (max-width: 768px) {
+  .app-shell {
+    grid-template-columns: 1fr;
+    min-height: auto;
+  }
+
+  .app-shell.sidebar-collapsed {
+    grid-template-columns: 1fr;
+  }
+
+  .app-content {
+    padding: 16px;
+    min-height: auto;
+  }
+
+  .sidebar-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    border: none;
+    z-index: 1090;
+  }
+
   .dashboard-grid {
     grid-template-columns: 1fr;
+  }
+
+  .homepage-grid {
+    flex: 0 0 auto;
+  }
+
+  .homepage-grid .agenda-card,
+  .homepage-grid .todo-card {
+    height: auto;
+  }
+
+  .homepage-grid .agenda-card .card-body,
+  .homepage-grid .todo-card .card-body {
+    overflow: visible;
   }
 }
 
