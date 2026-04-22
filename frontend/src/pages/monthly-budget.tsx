@@ -2,6 +2,17 @@ import React, { useEffect, useMemo, useState } from 'react';
 import axios from 'axios';
 import { ChevronLeft, ChevronRight, Trash } from 'react-bootstrap-icons';
 import { API_BASE_URL } from '../config/api';
+import { getAuthConfig, getAuthToken } from '../helpers/auth';
+import {
+  addDays,
+  formatCurrency,
+  formatDayLabel,
+  formatShortDateDisplay,
+  getWeekStart,
+  monthLabel,
+  parseInputDate,
+  toInputDate
+} from '../helpers/helper';
 import './monthly-budget.css';
 
 type PaymentType = 'income' | 'expense';
@@ -48,35 +59,9 @@ interface CalendarMonth {
 
 const DAY_NAMES = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
-function toInputDate(date: Date) {
-  const year = date.getFullYear();
-  const month = `${date.getMonth() + 1}`.padStart(2, '0');
-  const day = `${date.getDate()}`.padStart(2, '0');
-  return `${year}-${month}-${day}`;
-}
-
-function parseInputDate(value: string) {
-  const [year, month, day] = value.split('-').map(Number);
-  return new Date(year, month - 1, day, 12, 0, 0, 0);
-}
-
 function clampPayDate(year: number, month: number, payDay: number) {
   const maxDay = new Date(year, month + 1, 0).getDate();
   return new Date(year, month, Math.min(payDay, maxDay), 12, 0, 0, 0);
-}
-
-function addDays(date: Date, days: number) {
-  const clone = new Date(date);
-  clone.setDate(clone.getDate() + days);
-  return clone;
-}
-
-function getWeekStart(date: Date) {
-  const clone = new Date(date);
-  const dayOffset = (clone.getDay() + 6) % 7;
-  clone.setDate(clone.getDate() - dayOffset);
-  clone.setHours(12, 0, 0, 0);
-  return clone;
 }
 
 function addMonthsKeepingDay(date: Date, monthsToAdd: number, dayOfMonth: number) {
@@ -108,22 +93,6 @@ function getMonthsInRange(start: Date, end: Date): CalendarMonth[] {
   }
 
   return months;
-}
-
-function monthLabel(year: number, month: number) {
-  return new Intl.DateTimeFormat('en-GB', { month: 'long', year: 'numeric' }).format(new Date(year, month, 1));
-}
-
-function formatDateDisplay(date: Date) {
-  return new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }).format(date);
-}
-
-function formatDayLabel(date: Date) {
-  return new Intl.DateTimeFormat('en-GB', { weekday: 'short' }).format(date);
-}
-
-function formatCurrency(value: number) {
-  return new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'GBP' }).format(value);
 }
 
 function buildMonthGrid(year: number, month: number) {
@@ -268,19 +237,14 @@ function MonthlyBudgetPage() {
       try {
         setIsLoading(true);
         setError(null);
-        const token = localStorage.getItem('authToken');
+        const token = getAuthToken();
 
         if (!token) {
           setError('Please log in to manage your budget.');
           return;
         }
 
-        const response = await axios.get(`${API_BASE_URL}/api/budget`, {
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`
-          }
-        });
+        const response = await axios.get(`${API_BASE_URL}/api/budget`, getAuthConfig(token));
 
         setPayDay(response.data.payDay ?? 28);
         const parsedPayments = response.data.payments as PaymentItem[];
@@ -408,7 +372,7 @@ function MonthlyBudgetPage() {
       }
 
       try {
-        const token = localStorage.getItem('authToken');
+        const token = getAuthToken();
 
         if (!token) {
           setError('Please log in to manage your budget.');
@@ -432,12 +396,7 @@ function MonthlyBudgetPage() {
                 startDate: recurringStartDate
               };
 
-        const response = await axios.post(`${API_BASE_URL}/api/budget/payments`, payload, {
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`
-          }
-        });
+        const response = await axios.post(`${API_BASE_URL}/api/budget/payments`, payload, getAuthConfig(token));
 
         const savedPayment = response.data.payment;
         const nextPayment: PaymentItem =
@@ -508,7 +467,7 @@ function MonthlyBudgetPage() {
     }
 
     try {
-      const token = localStorage.getItem('authToken');
+      const token = getAuthToken();
 
       if (!token) {
         setError('Please log in to manage your budget.');
@@ -519,11 +478,7 @@ function MonthlyBudgetPage() {
       setPaymentNotice(null);
       setError(null);
 
-      await axios.delete(`${API_BASE_URL}/api/budget/payments/${singleDeleteTarget.sourceId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      });
+      await axios.delete(`${API_BASE_URL}/api/budget/payments/${singleDeleteTarget.sourceId}`, getAuthConfig(token));
 
       setPayments((current) => current.filter((payment) => payment.id !== singleDeleteTarget.sourceId));
       setPaymentNotice('Payment removed.');
@@ -548,7 +503,7 @@ function MonthlyBudgetPage() {
     }
 
     try {
-      const token = localStorage.getItem('authToken');
+      const token = getAuthToken();
 
       if (!token) {
         setError('Please log in to manage your budget.');
@@ -560,11 +515,7 @@ function MonthlyBudgetPage() {
       setError(null);
 
       if (mode === 'all') {
-        await axios.delete(`${API_BASE_URL}/api/budget/payments/${recurringDeleteTarget.sourceId}`, {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        });
+        await axios.delete(`${API_BASE_URL}/api/budget/payments/${recurringDeleteTarget.sourceId}`, getAuthConfig(token));
 
         setPayments((current) => current.filter((payment) => payment.id !== recurringDeleteTarget.sourceId));
         setPaymentNotice('Recurring payment removed completely.');
@@ -572,12 +523,7 @@ function MonthlyBudgetPage() {
         const response = await axios.patch(
           `${API_BASE_URL}/api/budget/payments/${recurringDeleteTarget.sourceId}/recurring-end`,
           { fromDate: recurringDeleteTarget.date },
-          {
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${token}`
-            }
-          }
+          getAuthConfig(token)
         );
 
         if (response.data.deleted) {
@@ -597,7 +543,7 @@ function MonthlyBudgetPage() {
             )
           );
           setPaymentNotice(
-            `${recurringDeleteTarget.title} will now stop after ${formatDateDisplay(parseInputDate(updatedPayment.endDate))}.`
+            `${recurringDeleteTarget.title} will now stop after ${formatShortDateDisplay(parseInputDate(updatedPayment.endDate))}.`
           );
         }
       }
@@ -613,7 +559,7 @@ function MonthlyBudgetPage() {
 
   const handleToggleOccurrencePaid = async (payment: PaymentOccurrence) => {
     try {
-      const token = localStorage.getItem('authToken');
+      const token = getAuthToken();
 
       if (!token) {
         setError('Please log in to manage your budget.');
@@ -630,12 +576,7 @@ function MonthlyBudgetPage() {
           date: payment.date,
           paid: !payment.isPaid
         },
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`
-          }
-        }
+        getAuthConfig(token)
       );
 
       const updatedPayment = response.data.payment;
@@ -653,8 +594,8 @@ function MonthlyBudgetPage() {
 
       setPaymentNotice(
         !payment.isPaid
-          ? `${payment.title} marked as paid for ${formatDateDisplay(parseInputDate(payment.date))}.`
-          : `${payment.title} marked as unpaid for ${formatDateDisplay(parseInputDate(payment.date))}.`
+          ? `${payment.title} marked as paid for ${formatShortDateDisplay(parseInputDate(payment.date))}.`
+          : `${payment.title} marked as unpaid for ${formatShortDateDisplay(parseInputDate(payment.date))}.`
       );
     } catch (requestError: any) {
       console.error('Failed to update paid status', requestError);
@@ -699,7 +640,7 @@ function MonthlyBudgetPage() {
           <ChevronLeft size={18} />
         </button>
         <div className="pay-period-pill">
-          {formatDateDisplay(period.start)} to {formatDateDisplay(period.end)}
+          {formatShortDateDisplay(period.start)} to {formatShortDateDisplay(period.end)}
         </div>
         <button
           type="button"
@@ -800,7 +741,7 @@ function MonthlyBudgetPage() {
                 <li key={payment.id}>
                   <div className={payment.isPaid ? 'payment-details paid' : 'payment-details'}>
                     <strong>{payment.title}</strong>
-                    <span>{formatDateDisplay(parseInputDate(payment.date))}</span>
+                    <span>{formatShortDateDisplay(parseInputDate(payment.date))}</span>
                   </div>
                   <div>
                     <span className={`payment-type ${payment.type}`}>{payment.type}</span>
@@ -873,7 +814,7 @@ function MonthlyBudgetPage() {
                         className={`calendar-day${inCurrentMonth ? '' : ' muted'}${inPayPeriod ? ' in-period' : ''}${isAnchorDate ? ' is-selected' : ''}`}
                         onClick={() => setAnchorDate(key)}
                         aria-pressed={isAnchorDate}
-                        aria-label={`View pay period containing ${formatDateDisplay(cellDate)}`}
+                        aria-label={`View pay period containing ${formatShortDateDisplay(cellDate)}`}
                       >
                         <span className="calendar-date-number">{cellDate.getDate()}</span>
                         {dayPayments.slice(0, 2).map((payment) => (
@@ -884,7 +825,7 @@ function MonthlyBudgetPage() {
                         {dayPayments.length > 2 && <span className="calendar-more">+{dayPayments.length - 2} more</span>}
                         {dayPayments.length > 0 && (
                           <div className="calendar-tooltip" role="tooltip">
-                            <strong className="calendar-tooltip-title">{formatDateDisplay(cellDate)}</strong>
+                            <strong className="calendar-tooltip-title">{formatShortDateDisplay(cellDate)}</strong>
                             {dayPayments.map((payment) => (
                               <div key={`${payment.id}-tooltip`} className="calendar-tooltip-item">
                                 <span className={`calendar-tooltip-type ${payment.type}`}>{payment.type}</span>
@@ -998,7 +939,7 @@ function MonthlyBudgetPage() {
             <div className="recurring-delete-copy">
               <p>
                 Choose how to remove <strong>{recurringDeleteTarget.title}</strong> from{' '}
-                <strong>{formatDateDisplay(parseInputDate(recurringDeleteTarget.date))}</strong>.
+                <strong>{formatShortDateDisplay(parseInputDate(recurringDeleteTarget.date))}</strong>.
               </p>
             </div>
             <div className="payment-modal-actions recurring-delete-actions">
@@ -1050,7 +991,7 @@ function MonthlyBudgetPage() {
             <div className="recurring-delete-copy">
               <p>
                 Remove <strong>{singleDeleteTarget.title}</strong> on{' '}
-                <strong>{formatDateDisplay(parseInputDate(singleDeleteTarget.date))}</strong>?
+                <strong>{formatShortDateDisplay(parseInputDate(singleDeleteTarget.date))}</strong>?
               </p>
             </div>
             <div className="payment-modal-actions recurring-delete-actions">

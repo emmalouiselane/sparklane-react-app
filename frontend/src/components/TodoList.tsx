@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Card, ListGroup, Badge, Spinner, Alert, Modal, Form, Button, Dropdown } from 'react-bootstrap';
-import { CheckSquare, Square, Plus, X, Trash3, Flag, Gear, Pencil, ArrowClockwise } from 'react-bootstrap-icons';
+import { Card, ListGroup, Badge, Spinner, Alert, Modal, Form, Button } from 'react-bootstrap';
+import { CheckSquare, Square, Plus, X, Trash3, Flag, Pencil, ArrowClockwise } from 'react-bootstrap-icons';
 import axios from 'axios';
 import { API_BASE_URL } from '../config/api';
+import { getAuthConfig, getAuthToken } from '../helpers/auth';
 
 import './TodoList.css';
 
@@ -37,19 +38,14 @@ const TodoList: React.FC<TodoListProps> = () => {
       setLoading(true);
       setError(null);
       
-      const token = localStorage.getItem('authToken');
+      const token = getAuthToken();
       
       if (!token) {
         setError('Please log in to view todos');
         return;
       }
       
-      const response = await axios.get(`${API_BASE_URL}/api/todos`, { 
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        }
-      });
+      const response = await axios.get(`${API_BASE_URL}/api/todos`, getAuthConfig(token));
       
       // Sort todos by priority and completion status
       const sortedTodos = response.data.todos.sort((a: Todo, b: Todo) => {
@@ -82,7 +78,7 @@ const TodoList: React.FC<TodoListProps> = () => {
     setIsSubmitting(true);
 
     try {
-      const token = localStorage.getItem('authToken');
+      const token = getAuthToken();
       if (!token) {
         setError('Please log in to create todos');
         return;
@@ -90,20 +86,10 @@ const TodoList: React.FC<TodoListProps> = () => {
 
       if (editingTodo) {
         // Update existing todo
-        await axios.put(`${API_BASE_URL}/api/todos/${editingTodo._id}`, formData, {
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-          }
-        });
+        await axios.put(`${API_BASE_URL}/api/todos/${editingTodo._id}`, formData, getAuthConfig(token));
       } else {
         // Create new todo
-        await axios.post(`${API_BASE_URL}/api/todos`, formData, {
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-          }
-        });
+        await axios.post(`${API_BASE_URL}/api/todos`, formData, getAuthConfig(token));
       }
 
       resetForm();
@@ -118,17 +104,12 @@ const TodoList: React.FC<TodoListProps> = () => {
 
   const handleToggleComplete = async (todo: Todo) => {
     try {
-      const token = localStorage.getItem('authToken');
+      const token = getAuthToken();
       if (!token) return;
 
       await axios.put(`${API_BASE_URL}/api/todos/${todo._id}`, {
         completed: !todo.completed
-      }, {
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        }
-      });
+      }, getAuthConfig(token));
 
       fetchTodos();
     } catch (err: any) {
@@ -139,15 +120,10 @@ const TodoList: React.FC<TodoListProps> = () => {
 
   const handleDeleteTodo = async (todo: Todo) => {
     try {
-      const token = localStorage.getItem('authToken');
+      const token = getAuthToken();
       if (!token) return;
 
-      await axios.delete(`${API_BASE_URL}/api/todos/${todo._id}`, {
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        }
-      });
+      await axios.delete(`${API_BASE_URL}/api/todos/${todo._id}`, getAuthConfig(token));
 
       fetchTodos();
     } catch (err: any) {
@@ -158,7 +134,7 @@ const TodoList: React.FC<TodoListProps> = () => {
 
   const handleClearCompleted = async () => {
     try {
-      const token = localStorage.getItem('authToken');
+      const token = getAuthToken();
       if (!token) return;
 
       const completedTodos = todos.filter(todo => todo.completed);
@@ -166,12 +142,7 @@ const TodoList: React.FC<TodoListProps> = () => {
       // Delete all completed todos
       await Promise.all(
         completedTodos.map(todo =>
-          axios.delete(`${API_BASE_URL}/api/todos/${todo._id}`, {
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${token}`
-            }
-          })
+          axios.delete(`${API_BASE_URL}/api/todos/${todo._id}`, getAuthConfig(token))
         )
       );
 

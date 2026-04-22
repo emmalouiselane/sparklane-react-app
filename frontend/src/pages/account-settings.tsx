@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { API_BASE_URL } from '../config/api';
 import { useAuthContext } from '../contexts/AuthContext';
+import { getAuthConfig, getAuthToken } from '../helpers/auth';
+import { getOrdinalSuffix } from '../helpers/helper';
 import './account-settings.css';
 
 function AccountSettingsPage() {
@@ -17,19 +19,14 @@ function AccountSettingsPage() {
       try {
         setIsLoading(true);
         setError(null);
-        const token = localStorage.getItem('authToken');
+        const token = getAuthToken();
 
         if (!token) {
           setError('Please log in to manage your settings.');
           return;
         }
 
-        const response = await axios.get(`${API_BASE_URL}/api/budget/settings`, {
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`
-          }
-        });
+        const response = await axios.get(`${API_BASE_URL}/api/budget/settings`, getAuthConfig(token));
 
         setPayDay(response.data.payDay ?? 28);
       } catch (requestError: any) {
@@ -45,7 +42,7 @@ function AccountSettingsPage() {
 
   const handlePayDayChange = async (nextPayDay: number) => {
     try {
-      const token = localStorage.getItem('authToken');
+      const token = getAuthToken();
 
       if (!token) {
         setError('Please log in to manage your settings.');
@@ -60,12 +57,7 @@ function AccountSettingsPage() {
       await axios.put(
         `${API_BASE_URL}/api/budget/settings`,
         { payDay: nextPayDay },
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`
-          }
-        }
+        getAuthConfig(token)
       );
 
       setNotice(`Pay day updated to the ${nextPayDay}${getOrdinalSuffix(nextPayDay)} of each month.`);
@@ -143,22 +135,6 @@ function AccountSettingsPage() {
       </section>
     </section>
   );
-}
-
-function getOrdinalSuffix(day: number) {
-  const remainderTen = day % 10;
-  const remainderHundred = day % 100;
-
-  if (remainderTen === 1 && remainderHundred !== 11) {
-    return 'st';
-  }
-  if (remainderTen === 2 && remainderHundred !== 12) {
-    return 'nd';
-  }
-  if (remainderTen === 3 && remainderHundred !== 13) {
-    return 'rd';
-  }
-  return 'th';
 }
 
 export default AccountSettingsPage;

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { API_BASE_URL } from '../config/api';
+import { clearAuthToken, getAuthConfig, getAuthToken, setAuthToken } from '../helpers/auth';
 
 
 export interface UseAuthReturn {
@@ -19,36 +20,28 @@ export function useAuth(): UseAuthReturn {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [token, setToken] = useState<string | null>(null);
 
   const checkAuthStatus = async () => {
     try {
-      const storedToken = localStorage.getItem('authToken');
+      const storedToken = getAuthToken();
       if (!storedToken) {
         setLoading(false);
         return;
       }
 
-      const response = await axios.get(`${API_BASE_URL}/auth/user`, { 
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${storedToken}`
-        }
-      });
+      const response = await axios.get(`${API_BASE_URL}/auth/user`, getAuthConfig(storedToken));
       
       if (response.data.user) {
         setUser(response.data.user);
         setIsAuthenticated(true);
-        setToken(storedToken);
       }
     } catch (err: any) {
       // Handle token expiration
       if (err.response?.status === 401) {
-        localStorage.removeItem('authToken');
+        clearAuthToken();
         setError('Your session has expired. Please log in again.');
         setUser(null);
         setIsAuthenticated(false);
-        setToken(null);
       }
     } finally {
       setLoading(false);
@@ -60,28 +53,21 @@ export function useAuth(): UseAuthReturn {
     setIsAuthenticated(true);
     setError(null);
     if (receivedToken) {
-      setToken(receivedToken);
-      localStorage.setItem('authToken', receivedToken);
+      setAuthToken(receivedToken);
     }
   };
 
   const handleLogout = async () => {
     try {
-      const storedToken = localStorage.getItem('authToken');
-      await axios.post(`${API_BASE_URL}/auth/logout`, {}, { 
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${storedToken}`
-        }
-      });
+      const storedToken = getAuthToken();
+      await axios.post(`${API_BASE_URL}/auth/logout`, {}, getAuthConfig(storedToken));
     } catch (err) {
       console.error('Logout failed:', err);
     } finally {
       setUser(null);
       setIsAuthenticated(false);
       setError(null);
-      setToken(null);
-      localStorage.removeItem('authToken');
+      clearAuthToken();
     }
   };
 

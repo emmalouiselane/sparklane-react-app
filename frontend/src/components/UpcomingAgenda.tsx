@@ -3,6 +3,8 @@ import { Card, ListGroup, Badge, Spinner, Alert, Modal, Form, Button } from 'rea
 import { Calendar3, Clock, GeoAlt, Plus, X } from 'react-bootstrap-icons';
 import axios from 'axios';
 import { API_BASE_URL } from '../config/api';
+import { getAuthConfig, getAuthToken } from '../helpers/auth';
+import { formatAgendaDateTime } from '../helpers/helper';
 
 import './UpcomingAgenda.css';
 import dayjs from 'dayjs';
@@ -46,19 +48,14 @@ const UpcomingAgenda: React.FC<UpcomingAgendaProps> = () => {
       setError(null);
       
       const endpoint = '/api/calendar/events';
-      const token = localStorage.getItem('authToken');
+      const token = getAuthToken();
       
       if (!token) {
         setError('Please log in to view calendar events');
         return;
       }
       
-      const response = await axios.get(`${API_BASE_URL}${endpoint}`, { 
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        }
-      });
+      const response = await axios.get(`${API_BASE_URL}${endpoint}`, getAuthConfig(token));
       
       setEvents(response.data.events.slice(0, 5));
     } catch (err: any) {
@@ -78,18 +75,13 @@ const UpcomingAgenda: React.FC<UpcomingAgendaProps> = () => {
     setIsSubmitting(true);
 
     try {
-      const token = localStorage.getItem('authToken');
+      const token = getAuthToken();
       if (!token) {
         setError('Please log in to create events');
         return;
       }
 
-      const response = await axios.post(`${API_BASE_URL}/api/calendar/events`, formData, {
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        }
-      });
+      await axios.post(`${API_BASE_URL}/api/calendar/events`, formData, getAuthConfig(token));
 
       // Reset form and close modal
       setFormData({
@@ -145,17 +137,6 @@ const UpcomingAgenda: React.FC<UpcomingAgendaProps> = () => {
   useEffect(() => {
     fetchEvents();
   }, [fetchEvents]);
-
-  const formatDateTime = (dateTime: { dateTime?: string; date?: string }) => {
-    if (dateTime.dateTime) {
-      const date = new Date(dateTime.dateTime);
-      return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    } else if (dateTime.date) {
-      const date = new Date(dateTime.date);
-      return date.toLocaleDateString() + ' (All day)';
-    }
-    return "No date available";
-  };
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -232,7 +213,7 @@ const UpcomingAgenda: React.FC<UpcomingAgendaProps> = () => {
                     <div className="agenda-event-info-col-2">
                       <div className="agenda-time">
                         <Clock size={12} />
-                        <p>{formatDateTime(event.start)}</p>                        
+                        <p>{formatAgendaDateTime(event.start)}</p>
                       </div>
                       {getStatusBadge(event.status)}
                     </div>

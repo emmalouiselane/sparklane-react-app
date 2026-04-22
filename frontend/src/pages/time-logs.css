@@ -136,6 +136,33 @@
   opacity: 0.82;
   white-space: nowrap;
   width: 35px;
+  margin-left: 10px;
+}
+
+.time-log-week-item-copy {
+  display: grid;
+  gap: 10px;
+  width: 100%;
+}
+
+.time-log-week-day-groups {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding-left: 58px;
+}
+
+.time-log-week-day-pill {
+  border-radius: 999px;
+  padding: 4px 8px;
+  background: rgba(255, 255, 255, 0.08);
+  font-size: 0.82rem;
+  white-space: nowrap;
+}
+
+.time-log-week-day-pill.empty {
+  opacity: 0.7;
+  font-style: italic;
 }
 
 .time-log-delete-btn {
@@ -156,6 +183,47 @@
   align-items: center;
   padding-top: 10px;
   border-top: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+.time-log-week-summary-btn {
+  width: 100%;
+  border: none;
+  border-radius: 10px;
+  margin-top: 10px;
+  padding: 10px 14px;
+  background: rgba(241, 132, 99, 0.18);
+  border: 1px solid rgba(241, 132, 99, 0.35);
+  color: white;
+  font-weight: 600;
+}
+
+.time-log-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.62);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  z-index: 1200;
+}
+
+.time-log-modal {
+  width: min(560px, 100%);
+  max-height: calc(100vh - 32px);
+  background: rgba(22, 24, 31, 0.96);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 16px;
+  padding: 18px;
+  display: grid;
+  gap: 14px;
+  overflow-y: auto;
+  backdrop-filter: blur(14px);
+}
+
+.time-log-modal-spacer {
+  width: 42px;
+  height: 42px;
 }
 
 @media (max-width: 768px) {

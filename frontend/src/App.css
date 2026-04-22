@@ -159,13 +159,62 @@
 }
 
 .connection-status {
-  margin: auto 0 auto auto;
+  flex-shrink: 0;
 }
 
 .connected {
   color: #03b86fee;
 }
 
+.calendar-warning {
+  color: #f4b247;
+}
+
 .disconnected {
   color: #dc5c35;
+}
+
+.connection-status-group {
+  margin: auto 0 auto auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.connection-status-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.connection-status-pill {
+  border-radius: 999px;
+  padding: 8px 12px;
+  border: 1px solid currentColor;
+  background: rgba(255, 255, 255, 0.08);
+  font-size: 0.86rem;
+  font-weight: 600;
+}
+
+.reauth-btn {
+  border: 1px solid rgba(244, 178, 71, 0.5);
+  background: rgba(244, 178, 71, 0.14);
+  color: #ffe0a3;
+  border-radius: 999px;
+  padding: 8px 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+}
+
+.reauth-btn:hover {
+  background: rgba(244, 178, 71, 0.22);
+}
+
+.reauth-btn:focus-visible {
+  outline: 3px solid #f4b247;
+  outline-offset: 2px;
 }

@@ -2,6 +2,16 @@ import React, { useEffect, useMemo, useState } from 'react';
 import axios from 'axios';
 import { ChevronLeft, ChevronRight, Trash } from 'react-bootstrap-icons';
 import { API_BASE_URL } from '../config/api';
+import { getAuthConfig, getAuthToken } from '../helpers/auth';
+import {
+  addDays,
+  formatDateDisplay,
+  formatHours,
+  formatWeekdayLabel,
+  getWeekStart,
+  parseInputDate,
+  toInputDate
+} from '../helpers/helper';
 import './time-logs.css';
 
 interface TimeLog {
@@ -19,25 +29,21 @@ function TimeLogsPage() {
   const [durationHours, setDurationHours] = useState('');
   const [date, setDate] = useState(toInputDate(new Date()));
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isWeekSummaryOpen, setIsWeekSummaryOpen] = useState(false);
 
   useEffect(() => {
     const fetchTimeLogs = async () => {
       try {
         setIsLoading(true);
         setError(null);
-        const token = localStorage.getItem('authToken');
+        const token = getAuthToken();
 
         if (!token) {
           setError('Please log in to manage your time logs.');
           return;
         }
 
-        const response = await axios.get(`${API_BASE_URL}/api/time-logs`, {
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`
-          }
-        });
+        const response = await axios.get(`${API_BASE_URL}/api/time-logs`, getAuthConfig(token));
 
         const parsedLogs = Array.isArray(response.data.timeLogs) ? response.data.timeLogs : [];
         setTimeLogs(
@@ -87,6 +93,27 @@ function TimeLogsPage() {
     };
   }, [date, groupedLogs]);
 
+  const weekSummary = useMemo(() => {
+    const weekStart = getWeekStart(parseInputDate(date));
+    const weekDates = Array.from({ length: 7 }, (_, index) => toInputDate(addDays(weekStart, index)));
+    const logsInWeek = timeLogs.filter((log) => weekDates.includes(log.date));
+
+    return {
+      startDate: toInputDate(weekStart),
+      endDate: toInputDate(addDays(weekStart, 6)),
+      totalHours: logsInWeek.reduce((sum, log) => sum + log.durationHours, 0),
+      dayGroups: weekDates.map((weekDate) => {
+        const logsForDay = logsInWeek.filter((log) => log.date === weekDate);
+
+        return {
+          date: weekDate,
+          logs: logsForDay,
+          totalHours: logsForDay.reduce((sum, log) => sum + log.durationHours, 0)
+        };
+      })
+    };
+  }, [date, timeLogs]);
+
   const handleAddTimeLog = async (event: React.FormEvent) => {
     event.preventDefault();
 
@@ -98,7 +125,7 @@ function TimeLogsPage() {
     }
 
     try {
-      const token = localStorage.getItem('authToken');
+      const token = getAuthToken();
 
       if (!token) {
         setError('Please log in to manage your time logs.');
@@ -115,12 +142,7 @@ function TimeLogsPage() {
           durationHours: parsedDuration,
           date
         },
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`
-          }
-        }
+        getAuthConfig(token)
       );
 
       const savedLog = response.data.timeLog;
@@ -145,7 +167,7 @@ function TimeLogsPage() {
 
   const handleDeleteTimeLog = async (logId: string) => {
     try {
-      const token = localStorage.getItem('authToken');
+      const token = getAuthToken();
 
       if (!token) {
         setError('Please log in to manage your time logs.');
@@ -154,11 +176,7 @@ function TimeLogsPage() {
 
       setError(null);
 
-      await axios.delete(`${API_BASE_URL}/api/time-logs/${logId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      });
+      await axios.delete(`${API_BASE_URL}/api/time-logs/${logId}`, getAuthConfig(token));
 
       setTimeLogs((current) => current.filter((log) => log.id !== logId));
     } catch (requestError: any) {
@@ -215,91 +233,135 @@ function TimeLogsPage() {
         {isLoading ? (
           <p className="time-log-empty">Loading time logs...</p>
         ) : (
-          <section className="time-log-day-card" key={selectedDayGroup.date}>
+          <>
+            <section className="time-log-day-card" key={selectedDayGroup.date}>
+              <div className="time-log-day-header">
+                <button
+                  type="button"
+                  className="time-log-date-btn"
+                  onClick={() => handleShiftDate(-1)}
+                  aria-label="Previous date"
+                >
+                  <ChevronLeft size={16} />
+                </button>
+                <h5>{formatDateDisplay(selectedDayGroup.date)}</h5>
+                <button
+                  type="button"
+                  className="time-log-date-btn"
+                  onClick={() => handleShiftDate(1)}
+                  aria-label="Next date"
+                >
+                  <ChevronRight size={16} />
+                </button>
+              </div>
+
+              {selectedDayGroup.logs.length === 0 ? (
+                <p className="time-log-empty">No time logs for this date yet.</p>
+              ) : (
+                <>
+                  <ul className="time-log-list">
+                    {selectedDayGroup.logs.map((log) => (
+                      <li key={log.id}>
+                        <div className="time-log-item-copy">
+                          <span>{formatHours(log.durationHours)}</span>
+                          <strong>{log.title}</strong>
+                        </div>
+                        <button
+                          type="button"
+                          className="time-log-delete-btn"
+                          onClick={() => handleDeleteTimeLog(log.id)}
+                          aria-label={`Delete ${log.title} time log`}
+                        >
+                          <Trash size={14} />
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                  <div className="time-log-day-total">
+                    <span>Total</span>
+                    <strong>{formatHours(selectedDayGroup.totalHours)}</strong>
+                  </div>
+                </>
+              )}
+            </section>
+
+            <button
+              type="button"
+              className="time-log-week-summary-btn"
+              onClick={() => setIsWeekSummaryOpen(true)}
+            >
+              View Week Summary
+            </button>
+          </>
+        )}
+      </section>
+
+      {isWeekSummaryOpen && (
+        <div
+          className="time-log-modal-backdrop"
+          role="presentation"
+          onClick={() => setIsWeekSummaryOpen(false)}
+        >
+          <div
+            className="time-log-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="week-summary-heading"
+            onClick={(event) => event.stopPropagation()}
+          >
             <div className="time-log-day-header">
               <button
                 type="button"
                 className="time-log-date-btn"
-                onClick={() => handleShiftDate(-1)}
-                aria-label="Previous date"
+                onClick={() => setIsWeekSummaryOpen(false)}
+                aria-label="Close week summary"
               >
                 <ChevronLeft size={16} />
               </button>
-              <h5>{formatDateDisplay(selectedDayGroup.date)}</h5>
-              <button
-                type="button"
-                className="time-log-date-btn"
-                onClick={() => handleShiftDate(1)}
-                aria-label="Next date"
-              >
-                <ChevronRight size={16} />
-              </button>
+              <h5 id="week-summary-heading">
+                {formatDateDisplay(weekSummary.startDate)} to {formatDateDisplay(weekSummary.endDate)}
+              </h5>
+              <div className="time-log-modal-spacer" aria-hidden="true" />
             </div>
 
-            {selectedDayGroup.logs.length === 0 ? (
-              <p className="time-log-empty">No time logs for this date yet.</p>
+            {weekSummary.dayGroups.every((dayGroup) => dayGroup.logs.length === 0) ? (
+              <p className="time-log-empty">No time logged in this week yet.</p>
             ) : (
               <>
                 <ul className="time-log-list">
-                  {selectedDayGroup.logs.map((log) => (
-                    <li key={log.id}>
-                      <div className="time-log-item-copy">
-                        <span>{formatHours(log.durationHours)}</span>
-                        <strong>{log.title}</strong>
+                  {weekSummary.dayGroups.map((dayGroup) => (
+                    <li key={dayGroup.date}>
+                      <div className="time-log-week-item-copy">
+                        <div className="time-log-item-copy">
+                          <span>{formatHours(dayGroup.totalHours)}</span>
+                          <strong>{formatWeekdayLabel(dayGroup.date)}</strong>
+                        </div>
+                        <div className="time-log-week-day-groups">
+                          {dayGroup.logs.length === 0 ? (
+                            <span className="time-log-week-day-pill empty">No logs</span>
+                          ) : (
+                            dayGroup.logs.map((log) => (
+                              <span key={log.id} className="time-log-week-day-pill">
+                                {log.title} ~ {formatHours(log.durationHours)}
+                              </span>
+                            ))
+                          )}
+                        </div>
                       </div>
-                      <button
-                        type="button"
-                        className="time-log-delete-btn"
-                        onClick={() => handleDeleteTimeLog(log.id)}
-                        aria-label={`Delete ${log.title} time log`}
-                      >
-                        <Trash size={14} />
-                      </button>
                     </li>
                   ))}
                 </ul>
                 <div className="time-log-day-total">
-                  <span>Total</span>
-                  <strong>{formatHours(selectedDayGroup.totalHours)}</strong>
+                  <span>Week Total</span>
+                  <strong>{formatHours(weekSummary.totalHours)}</strong>
                 </div>
               </>
             )}
-          </section>
-        )}
-      </section>
+          </div>
+        </div>
+      )}
     </section>
   );
-}
-
-function toInputDate(date: Date) {
-  const year = date.getFullYear();
-  const month = `${date.getMonth() + 1}`.padStart(2, '0');
-  const day = `${date.getDate()}`.padStart(2, '0');
-  return `${year}-${month}-${day}`;
-}
-
-function parseInputDate(value: string) {
-  const [year, month, day] = value.split('-').map(Number);
-  return new Date(year, month - 1, day, 12, 0, 0, 0);
-}
-
-function addDays(date: Date, days: number) {
-  const clone = new Date(date);
-  clone.setDate(clone.getDate() + days);
-  return clone;
-}
-
-function formatDateDisplay(date: string) {
-  const [year, month, day] = date.split('-').map(Number);
-  return new Intl.DateTimeFormat('en-GB', {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric'
-  }).format(new Date(year, month - 1, day, 12, 0, 0, 0));
-}
-
-function formatHours(hours: number) {
-  return `${hours}h`;
 }
 
 export default TimeLogsPage;
