@@ -5,6 +5,7 @@ import Header from './components/Header';
 import Sidebar, { ModuleId, ModuleNavItem } from './components/Sidebar';
 import { AuthProvider, useAuthContext } from './contexts/AuthContext';
 import Homepage from './pages/homepage';
+import TimeLogsPage from './pages/time-logs';
 import MealPlannerPage from './pages/meal-planner';
 import MonthlyBudgetPage from './pages/monthly-budget';
 import AccountSettingsPage from './pages/account-settings';
@@ -17,6 +18,7 @@ const GOOGLE_CLIENT_ID = process.env.REACT_APP_GOOGLE_CLIENT_ID || '';
 
 const MODULE_NAV_ITEMS: ModuleNavItem[] = [
   { id: 'home', label: 'Home' },
+  { id: 'time-logs', label: 'Time Logs' },
   { id: 'monthly-budget', label: 'Monthly Budget' },
   { id: 'meal-planner', label: 'Meal Planner' },
   { id: 'account-settings', label: 'Account Settings' },
@@ -24,6 +26,7 @@ const MODULE_NAV_ITEMS: ModuleNavItem[] = [
 
 const MODULE_COMPONENTS: Record<ModuleId, React.ComponentType> = {
   home: Homepage,
+  'time-logs': TimeLogsPage,
   'monthly-budget': MonthlyBudgetPage,
   'meal-planner': MealPlannerPage,
   'account-settings': AccountSettingsPage,

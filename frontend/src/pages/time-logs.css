@@ -1,0 +1,165 @@
+.time-logs-page {
+  display: grid;
+  gap: 16px;
+}
+
+.time-log-entry-card,
+.time-log-list-card,
+.time-log-day-card {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  padding: 14px;
+}
+
+.time-log-card-header {
+  display: grid;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+
+.time-log-card-header h2,
+.time-log-card-header p,
+.time-log-day-header h3,
+.time-log-day-total span,
+.time-log-day-total strong {
+  margin: 0;
+}
+
+.time-log-form {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr auto;
+  gap: 10px;
+  align-items: end;
+}
+
+.time-log-form input,
+.time-log-form button {
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  padding: 10px 12px;
+}
+
+.time-log-form input {
+  background: #1e2430;
+  color: white;
+}
+
+.time-log-form button {
+  border: none;
+  background: #dc5c35;
+  color: white;
+  font-weight: 600;
+}
+
+.time-log-date-btn {
+  border: 1px solid rgba(255, 255, 255, 0.28) !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+  color: white;
+  min-height: 42px;
+  min-width: 42px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 !important;
+  border-radius: 8px;
+}
+
+.time-log-error,
+.time-log-empty {
+  margin: 0;
+}
+
+.time-log-error {
+  margin-top: 12px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: rgba(255, 107, 107, 0.16);
+  border: 1px solid rgba(255, 107, 107, 0.4);
+  color: #ffd7d7;
+  font-weight: 600;
+}
+
+.time-log-day-groups {
+  display: grid;
+  gap: 14px;
+}
+
+.time-log-day-card {
+  display: grid;
+  gap: 12px;
+}
+
+.time-log-day-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.time-log-day-header h5 {
+  margin: 0;
+  text-align: center;
+  flex: 1;
+}
+
+.time-log-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.time-log-list li {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  align-items: center;
+  padding: 5px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.time-log-item-copy {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+}
+
+.time-log-item-copy strong {
+  flex: 1;
+}
+
+.time-log-item-copy span {
+  opacity: 0.82;
+  white-space: nowrap;
+  width: 35px;
+}
+
+.time-log-delete-btn {
+  border: none;
+  min-width: 34px;
+  min-height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  background: rgba(255, 107, 107, 0.25);
+  color: white;
+}
+
+.time-log-day-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+@media (max-width: 768px) {
+  .time-log-form {
+    grid-template-columns: 1fr;
+  }
+}

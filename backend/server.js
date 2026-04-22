@@ -11,6 +11,7 @@ require('dotenv').config();
 const authRoutes = require('./routes/auth');
 const calendarRoutes = require('./routes/calendar');
 const budgetRoutes = require('./routes/budget');
+const timeLogsRoutes = require('./routes/timeLogs');
 const todosRoutes = require('./routes/todos');
 
 const app = express();
@@ -121,6 +122,7 @@ app.get('/api/', (req, res) => {
 // Use route files
 app.use('/auth', authRoutes);
 app.use('/api/calendar', calendarRoutes);
+app.use('/api/time-logs', timeLogsRoutes);
 app.use('/api/budget', budgetRoutes);
 app.use('/api/todos', todosRoutes);
 
