@@ -47,12 +47,14 @@
 }
 
 .app-shell {
+  --app-sidebar-width: 260px;
   display: grid;
   grid-template-columns: 260px 1fr;
   min-height: 100vh;
 }
 
 .app-shell.sidebar-collapsed {
+  --app-sidebar-width: 40px;
   grid-template-columns: 40px 1fr;
 }
 
@@ -113,11 +115,13 @@
 
 @media (max-width: 768px) {
   .app-shell {
+    --app-sidebar-width: 0px;
     grid-template-columns: 1fr;
     min-height: auto;
   }
 
   .app-shell.sidebar-collapsed {
+    --app-sidebar-width: 0px;
     grid-template-columns: 1fr;
   }
 

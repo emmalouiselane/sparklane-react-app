@@ -34,6 +34,10 @@ const budgetPaymentSchema = new mongoose.Schema({
     type: String,
     trim: true
   },
+  endDate: {
+    type: String,
+    trim: true
+  },
   paidDates: {
     type: [String],
     default: []

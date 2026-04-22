@@ -109,6 +109,35 @@
   outline-offset: 2px;
 }
 
+.budget-toast {
+  position: fixed;
+  top: 92px;
+  left: calc(var(--app-sidebar-width, 0px) + ((100vw - var(--app-sidebar-width, 0px)) / 2));
+  transform: translateX(-50%);
+  z-index: 1300;
+  min-width: min(420px, calc(100vw - var(--app-sidebar-width, 0px) - 32px));
+  max-width: min(560px, calc(100vw - var(--app-sidebar-width, 0px) - 32px));
+  padding: 12px 16px;
+  border-radius: 12px;
+  border: 1px solid transparent;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.28);
+  backdrop-filter: blur(14px);
+  font-weight: 600;
+  text-align: center;
+}
+
+.budget-toast.success {
+  background: rgba(18, 90, 56, 0.9);
+  border-color: rgba(61, 209, 131, 0.45);
+  color: #e8fff2;
+}
+
+.budget-toast.error {
+  background: rgba(111, 33, 33, 0.92);
+  border-color: rgba(255, 107, 107, 0.45);
+  color: #ffe5e5;
+}
+
 .payment-notice {
   margin: 0;
   padding: 10px 12px;
@@ -139,7 +168,8 @@
 .payment-form button,
 .open-payment-modal-btn,
 .payment-modal-close,
-.secondary-action-btn {
+.secondary-action-btn,
+.danger-action-btn {
   border: none;
   border-radius: 8px;
   padding: 9px 14px;
@@ -217,6 +247,13 @@
   gap: 4px;
 }
 
+.payment-details {
+  display: flex !important;
+  flex-direction: column;
+  justify-content: space-between;
+  align-self: stretch;
+}
+
 .payment-details.paid strong,
 .payment-details.paid span {
   opacity: 0.72;
@@ -228,6 +265,22 @@
 
 .payments-list-card li > div:last-child {
   justify-items: end;
+}
+
+.payment-action-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.payment-delete-btn {
+  min-width: 34px;
+  min-height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px !important;
 }
 
 .payments-list-card button {
@@ -515,6 +568,10 @@
   backdrop-filter: blur(14px);
 }
 
+.recurring-delete-modal {
+  width: min(520px, 100%);
+}
+
 .payment-modal-header {
   display: flex;
   align-items: center;
@@ -534,9 +591,25 @@
   grid-column: 1 / -1;
 }
 
+.recurring-delete-copy p {
+  margin: 0;
+}
+
+.recurring-delete-actions {
+  margin-top: 18px;
+}
+
 .secondary-action-btn,
 .payment-modal-close {
   background: rgba(255, 255, 255, 0.14);
+}
+
+.danger-action-btn {
+  background: rgba(255, 107, 107, 0.9);
+}
+
+.danger-action-btn:hover {
+  background: rgba(255, 107, 107, 1);
 }
 
 @media (max-width: 1024px) {
@@ -562,6 +635,14 @@
 }
 
 @media (max-width: 768px) {
+  .budget-toast {
+    top: 78px;
+    min-width: calc(100vw - 24px);
+    max-width: calc(100vw - 24px);
+    padding: 10px 12px;
+    font-size: 0.92rem;
+  }
+
   .pay-period-navigation {
     grid-template-columns: 42px 1fr 42px;
     gap: 8px;

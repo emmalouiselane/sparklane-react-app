@@ -5,6 +5,42 @@ const BudgetSettings = require('../models/BudgetSettings');
 
 const router = express.Router();
 
+function parseBudgetDate(value) {
+  const [year, month, day] = value.split('-').map(Number);
+  return new Date(year, month - 1, day, 12, 0, 0, 0);
+}
+
+function toBudgetDate(date) {
+  const year = date.getFullYear();
+  const month = `${date.getMonth() + 1}`.padStart(2, '0');
+  const day = `${date.getDate()}`.padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+function addMonthsKeepingDay(date, monthsToAdd, dayOfMonth) {
+  const year = date.getFullYear();
+  const month = date.getMonth() + monthsToAdd;
+  const maxDay = new Date(year, month + 1, 0).getDate();
+  return new Date(year, month, Math.min(dayOfMonth, maxDay), 12, 0, 0, 0);
+}
+
+function getPreviousRecurringOccurrenceDate(startDate, fromDate) {
+  const recurrenceStart = parseBudgetDate(startDate);
+  const targetDate = parseBudgetDate(fromDate);
+  const monthlyAnchorDay = recurrenceStart.getDate();
+  let cursor = new Date(recurrenceStart);
+  let previousOccurrence = null;
+  let guard = 0;
+
+  while (cursor < targetDate && guard < 1200) {
+    previousOccurrence = new Date(cursor);
+    cursor = addMonthsKeepingDay(cursor, 1, monthlyAnchorDay);
+    guard += 1;
+  }
+
+  return previousOccurrence ? toBudgetDate(previousOccurrence) : null;
+}
+
 const authenticateJWT = (req, res, next) => {
   const authHeader = req.headers.authorization;
 
@@ -117,6 +153,7 @@ router.post('/payments', async (req, res) => {
       kind,
       date: kind === 'single' ? date : undefined,
       startDate: kind === 'recurring' ? startDate : undefined,
+      endDate: undefined,
       paidDates: []
     });
 
@@ -129,6 +166,52 @@ router.post('/payments', async (req, res) => {
   } catch (error) {
     console.error('Error creating budget payment:', error);
     res.status(500).json({ error: 'Failed to create payment' });
+  }
+});
+
+router.patch('/payments/:id/recurring-end', async (req, res) => {
+  try {
+    const { fromDate } = req.body;
+
+    if (typeof fromDate !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(fromDate)) {
+      return res.status(400).json({ error: 'A valid recurring occurrence date is required' });
+    }
+
+    const payment = await BudgetPayment.findOne({ _id: req.params.id, userId: req.user.id });
+
+    if (!payment) {
+      return res.status(404).json({ error: 'Payment not found' });
+    }
+
+    if (payment.kind !== 'recurring' || !payment.startDate) {
+      return res.status(400).json({ error: 'Only recurring payments can be trimmed' });
+    }
+
+    const previousOccurrenceDate = getPreviousRecurringOccurrenceDate(payment.startDate, fromDate);
+
+    if (!previousOccurrenceDate) {
+      await BudgetPayment.findByIdAndDelete(req.params.id);
+      return res.json({
+        message: 'Recurring payment removed completely',
+        deleted: true
+      });
+    }
+
+    payment.endDate = previousOccurrenceDate;
+    payment.paidDates = (Array.isArray(payment.paidDates) ? payment.paidDates : []).filter(
+      (paidDate) => paidDate <= previousOccurrenceDate
+    );
+
+    const updatedPayment = await payment.save();
+
+    res.json({
+      message: 'Recurring payment updated successfully',
+      deleted: false,
+      payment: updatedPayment
+    });
+  } catch (error) {
+    console.error('Error trimming recurring payment:', error);
+    res.status(500).json({ error: 'Failed to update recurring payment' });
   }
 });
 

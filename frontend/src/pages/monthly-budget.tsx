@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import axios from 'axios';
-import { ChevronLeft, ChevronRight } from 'react-bootstrap-icons';
+import { ChevronLeft, ChevronRight, Trash } from 'react-bootstrap-icons';
 import { API_BASE_URL } from '../config/api';
 import './monthly-budget.css';
 
@@ -24,6 +24,7 @@ interface RecurringPayment {
   type: PaymentType;
   kind: 'recurring';
   startDate: string; // YYYY-MM-DD
+  endDate?: string;
   paidDates: string[];
 }
 
@@ -191,7 +192,9 @@ function toPaymentOccurrence(payment: PaymentItem, date: string, suffix = ''): P
 function getRecurringOccurrencesInPeriod(payment: RecurringPayment, periodStart: Date, periodEnd: Date) {
   const occurrences: PaymentOccurrence[] = [];
   const recurrenceStart = parseInputDate(payment.startDate);
-  const cappedEnd = periodEnd;
+  const cappedEnd = payment.endDate
+    ? new Date(Math.min(periodEnd.getTime(), parseInputDate(payment.endDate).getTime()))
+    : periodEnd;
 
   if (recurrenceStart > cappedEnd) {
     return occurrences;
@@ -231,6 +234,34 @@ function MonthlyBudgetPage() {
   const [type, setType] = useState<PaymentType>('expense');
   const [updatingOccurrenceId, setUpdatingOccurrenceId] = useState<string | null>(null);
   const [expandedMobileDay, setExpandedMobileDay] = useState<string | null>(null);
+  const [recurringDeleteTarget, setRecurringDeleteTarget] = useState<PaymentOccurrence | null>(null);
+  const [isRecurringDeleteSubmitting, setIsRecurringDeleteSubmitting] = useState(false);
+  const [singleDeleteTarget, setSingleDeleteTarget] = useState<PaymentOccurrence | null>(null);
+  const [isSingleDeleteSubmitting, setIsSingleDeleteSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (!paymentNotice) {
+      return undefined;
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      setPaymentNotice(null);
+    }, 3200);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [paymentNotice]);
+
+  useEffect(() => {
+    if (!error) {
+      return undefined;
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      setError(null);
+    }, 4200);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [error]);
 
   useEffect(() => {
     const fetchBudgetData = async () => {
@@ -266,6 +297,7 @@ function MonthlyBudgetPage() {
                     type: payment.type,
                     kind: 'recurring' as const,
                     startDate: payment.startDate,
+                    endDate: (payment as RecurringPayment).endDate,
                     paidDates: Array.isArray((payment as any).paidDates) ? (payment as any).paidDates : []
                   };
                 }
@@ -426,6 +458,7 @@ function MonthlyBudgetPage() {
                 type: savedPayment.type,
                 kind: 'recurring',
                 startDate: savedPayment.startDate,
+                endDate: savedPayment.endDate,
                 paidDates: Array.isArray(savedPayment.paidDates) ? savedPayment.paidDates : []
               };
 
@@ -444,39 +477,138 @@ function MonthlyBudgetPage() {
     submitPayment();
   };
 
-  const handleDeletePayment = (paymentId: string) => {
-    const deletePayment = async () => {
-      try {
-        const token = localStorage.getItem('authToken');
-
-        if (!token) {
-          setError('Please log in to manage your budget.');
-          return;
-        }
-
-        await axios.delete(`${API_BASE_URL}/api/budget/payments/${paymentId}`, {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        });
-
-        setPayments((current) => current.filter((payment) => payment.id !== paymentId));
-        setPaymentNotice('Payment removed.');
-        setError(null);
-      } catch (requestError: any) {
-        console.error('Failed to delete payment', requestError);
-        setError(requestError.response?.data?.error || 'Failed to delete payment.');
-      }
-    };
-
-    deletePayment();
-  };
-
   const handleOpenAddPaymentModal = () => {
     setPaymentNotice(null);
     setSingleDate(anchorDate);
     setRecurringStartDate(anchorDate);
     setIsAddPaymentModalOpen(true);
+  };
+
+  const handleOpenRecurringDeleteModal = (payment: PaymentOccurrence) => {
+    setRecurringDeleteTarget(payment);
+    setPaymentNotice(null);
+    setError(null);
+  };
+
+  const handleOpenSingleDeleteModal = (payment: PaymentOccurrence) => {
+    setSingleDeleteTarget(payment);
+    setPaymentNotice(null);
+    setError(null);
+  };
+
+  const handleCloseSingleDeleteModal = () => {
+    if (!isSingleDeleteSubmitting) {
+      setSingleDeleteTarget(null);
+    }
+  };
+
+  const handleConfirmSingleDelete = async () => {
+    if (!singleDeleteTarget) {
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem('authToken');
+
+      if (!token) {
+        setError('Please log in to manage your budget.');
+        return;
+      }
+
+      setIsSingleDeleteSubmitting(true);
+      setPaymentNotice(null);
+      setError(null);
+
+      await axios.delete(`${API_BASE_URL}/api/budget/payments/${singleDeleteTarget.sourceId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+
+      setPayments((current) => current.filter((payment) => payment.id !== singleDeleteTarget.sourceId));
+      setPaymentNotice('Payment removed.');
+      setSingleDeleteTarget(null);
+    } catch (requestError: any) {
+      console.error('Failed to delete payment', requestError);
+      setError(requestError.response?.data?.error || 'Failed to delete payment.');
+    } finally {
+      setIsSingleDeleteSubmitting(false);
+    }
+  };
+
+  const handleCloseRecurringDeleteModal = () => {
+    if (!isRecurringDeleteSubmitting) {
+      setRecurringDeleteTarget(null);
+    }
+  };
+
+  const handleRecurringDeleteChoice = async (mode: 'all' | 'this-and-future') => {
+    if (!recurringDeleteTarget) {
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem('authToken');
+
+      if (!token) {
+        setError('Please log in to manage your budget.');
+        return;
+      }
+
+      setIsRecurringDeleteSubmitting(true);
+      setPaymentNotice(null);
+      setError(null);
+
+      if (mode === 'all') {
+        await axios.delete(`${API_BASE_URL}/api/budget/payments/${recurringDeleteTarget.sourceId}`, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+
+        setPayments((current) => current.filter((payment) => payment.id !== recurringDeleteTarget.sourceId));
+        setPaymentNotice('Recurring payment removed completely.');
+      } else {
+        const response = await axios.patch(
+          `${API_BASE_URL}/api/budget/payments/${recurringDeleteTarget.sourceId}/recurring-end`,
+          { fromDate: recurringDeleteTarget.date },
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${token}`
+            }
+          }
+        );
+
+        if (response.data.deleted) {
+          setPayments((current) => current.filter((payment) => payment.id !== recurringDeleteTarget.sourceId));
+          setPaymentNotice('Recurring payment removed completely.');
+        } else {
+          const updatedPayment = response.data.payment;
+          setPayments((current) =>
+            current.map((payment) =>
+              payment.id === recurringDeleteTarget.sourceId && payment.kind === 'recurring'
+                ? {
+                    ...payment,
+                    endDate: updatedPayment.endDate,
+                    paidDates: Array.isArray(updatedPayment.paidDates) ? updatedPayment.paidDates : []
+                  }
+                : payment
+            )
+          );
+          setPaymentNotice(
+            `${recurringDeleteTarget.title} will now stop after ${formatDateDisplay(parseInputDate(updatedPayment.endDate))}.`
+          );
+        }
+      }
+
+      setRecurringDeleteTarget(null);
+    } catch (requestError: any) {
+      console.error('Failed to update recurring payment', requestError);
+      setError(requestError.response?.data?.error || 'Failed to update recurring payment.');
+    } finally {
+      setIsRecurringDeleteSubmitting(false);
+    }
   };
 
   const handleToggleOccurrencePaid = async (payment: PaymentOccurrence) => {
@@ -547,6 +679,16 @@ function MonthlyBudgetPage() {
 
   return (
     <section className="monthly-budget-page" aria-label="Monthly Budget module">
+      {(paymentNotice || error) && (
+        <div
+          className={`budget-toast${error ? ' error' : ' success'}`}
+          role="status"
+          aria-live="polite"
+        >
+          {error || paymentNotice}
+        </div>
+      )}
+
       <div className="pay-period-navigation">
         <button
           type="button"
@@ -569,9 +711,6 @@ function MonthlyBudgetPage() {
         </button>
       </div>
       
-      {error && <p className="payment-error">{error}</p>}
-      {paymentNotice && <p className="payment-notice">{paymentNotice}</p>}
-
       <div className="budget-summary">
         <div>
           <h5>Balance</h5>
@@ -670,21 +809,32 @@ function MonthlyBudgetPage() {
                     )}
                     {payment.isPaid && <span className="payment-paid-badge">Paid</span>}
                     <strong>{formatCurrency(payment.amount)}</strong>
-                    <button
-                      type="button"
-                      className={payment.isPaid ? 'secondary-action-btn payment-status-btn' : 'payment-status-btn'}
-                      onClick={() => handleToggleOccurrencePaid(payment)}
-                      disabled={updatingOccurrenceId === payment.id}
-                    >
-                      {updatingOccurrenceId === payment.id
-                        ? 'Saving...'
-                        : payment.isPaid
-                          ? 'Mark Unpaid'
-                          : 'Mark Paid'}
-                    </button>
-                    <button type="button" onClick={() => handleDeletePayment(payment.sourceId)}>
-                      {payment.kind === 'recurring' ? 'Remove Rule' : 'Remove'}
-                    </button>
+                    <div className="payment-action-row">
+                      <button
+                        type="button"
+                        className={payment.isPaid ? 'secondary-action-btn payment-status-btn' : 'payment-status-btn'}
+                        onClick={() => handleToggleOccurrencePaid(payment)}
+                        disabled={updatingOccurrenceId === payment.id}
+                      >
+                        {updatingOccurrenceId === payment.id
+                          ? 'Saving...'
+                          : payment.isPaid
+                            ? 'Mark Unpaid'
+                            : 'Mark Paid'}
+                      </button>
+                      <button
+                        type="button"
+                        className="payment-delete-btn"
+                        onClick={() =>
+                          payment.kind === 'recurring'
+                            ? handleOpenRecurringDeleteModal(payment)
+                            : handleOpenSingleDeleteModal(payment)
+                        }
+                        aria-label={payment.kind === 'recurring' ? 'Delete recurring payment' : 'Delete payment'}
+                      >
+                        <Trash size={14} />
+                      </button>
+                    </div>
                   </div>
                 </li>
               ))}
@@ -702,7 +852,7 @@ function MonthlyBudgetPage() {
           <div className="calendar-months">
             {months.map(({ year, month }) => (
               <div className="calendar-month" key={`${year}-${month}`}>
-                <h4>{monthLabel(year, month)}</h4>
+                <h5>{monthLabel(year, month)}</h5>
                 <div className="calendar-grid">
                   {DAY_NAMES.map((name) => (
                     <div className="calendar-day-name" key={name}>
@@ -825,6 +975,102 @@ function MonthlyBudgetPage() {
                 <button type="submit">Save Payment</button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {recurringDeleteTarget && (
+        <div
+          className="payment-modal-backdrop"
+          role="presentation"
+          onClick={handleCloseRecurringDeleteModal}
+        >
+          <div
+            className="payment-modal recurring-delete-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="recurring-delete-heading"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="payment-modal-header">
+              <h3 id="recurring-delete-heading">Remove Recurring Payment</h3>
+            </div>
+            <div className="recurring-delete-copy">
+              <p>
+                Choose how to remove <strong>{recurringDeleteTarget.title}</strong> from{' '}
+                <strong>{formatDateDisplay(parseInputDate(recurringDeleteTarget.date))}</strong>.
+              </p>
+            </div>
+            <div className="payment-modal-actions recurring-delete-actions">
+              <button
+                type="button"
+                className="secondary-action-btn"
+                onClick={handleCloseRecurringDeleteModal}
+                disabled={isRecurringDeleteSubmitting}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                className="secondary-action-btn"
+                onClick={() => handleRecurringDeleteChoice('this-and-future')}
+                disabled={isRecurringDeleteSubmitting}
+              >
+                {isRecurringDeleteSubmitting ? 'Saving...' : 'Remove This and Future'}
+              </button>
+              <button
+                type="button"
+                className="danger-action-btn"
+                onClick={() => handleRecurringDeleteChoice('all')}
+                disabled={isRecurringDeleteSubmitting}
+              >
+                {isRecurringDeleteSubmitting ? 'Saving...' : 'Remove All'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {singleDeleteTarget && (
+        <div
+          className="payment-modal-backdrop"
+          role="presentation"
+          onClick={handleCloseSingleDeleteModal}
+        >
+          <div
+            className="payment-modal recurring-delete-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="single-delete-heading"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="payment-modal-header">
+              <h3 id="single-delete-heading">Remove Payment</h3>
+            </div>
+            <div className="recurring-delete-copy">
+              <p>
+                Remove <strong>{singleDeleteTarget.title}</strong> on{' '}
+                <strong>{formatDateDisplay(parseInputDate(singleDeleteTarget.date))}</strong>?
+              </p>
+            </div>
+            <div className="payment-modal-actions recurring-delete-actions">
+              <button
+                type="button"
+                className="secondary-action-btn"
+                onClick={handleCloseSingleDeleteModal}
+                disabled={isSingleDeleteSubmitting}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                className="danger-action-btn"
+                onClick={handleConfirmSingleDelete}
+                disabled={isSingleDeleteSubmitting}
+              >
+                {isSingleDeleteSubmitting ? 'Removing...' : 'Remove'}
+              </button>
+            </div>
           </div>
         </div>
       )}
