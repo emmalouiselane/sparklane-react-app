@@ -1,9 +1,8 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import axios from 'axios';
 
 import { useAuthContext } from '../contexts/AuthContext';
 import { API_BASE_URL } from '../config/api';
-import { getAuthConfig, getAuthToken } from '../helpers/auth';
+import { apiClient } from '../helpers/auth';
 
 import { ArrowClockwise, ExclamationTriangleFill, Plug, PlugFill } from 'react-bootstrap-icons';
 
@@ -19,22 +18,10 @@ function ConnectionStatus() {
 
   const fetchDataConnection = useCallback(async () => {
     try {
-      await axios.get(`${API_BASE_URL}/api/`, {
-        withCredentials: true,
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      });
-
-      const token = getAuthToken();
-
-      if (!token) {
-        setConnectionState('disconnected');
-        return;
-      }
+      await apiClient.get('/api/');
 
       try {
-        await axios.get(`${API_BASE_URL}/api/calendar/events`, getAuthConfig(token));
+        await apiClient.get('/api/calendar/events');
         setConnectionState('connected');
         setError(null);
       } catch (calendarError: any) {

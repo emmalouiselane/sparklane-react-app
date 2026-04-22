@@ -1,5 +1,4 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { GoogleOAuthProvider } from '@react-oauth/google';
 import Login from './components/Login';
 import Header from './components/Header';
 import Sidebar, { ModuleId, ModuleNavItem } from './components/Sidebar';
@@ -13,8 +12,6 @@ import AccountSettingsPage from './pages/account-settings';
 import './App.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './CustomBootstrap.css';
-
-const GOOGLE_CLIENT_ID = process.env.REACT_APP_GOOGLE_CLIENT_ID || '';
 
 const MODULE_NAV_ITEMS: ModuleNavItem[] = [
   { id: 'home', label: 'Home' },
@@ -33,40 +30,24 @@ const MODULE_COMPONENTS: Record<ModuleId, React.ComponentType> = {
 };
 
 function AppContent() {
-  const { user, isAuthenticated, loading, error, handleLoginSuccess, checkAuthStatus } = useAuthContext();
+  const { user, isAuthenticated, loading, error, checkAuthStatus, setError } = useAuthContext();
   const [activeModule, setActiveModule] = useState<ModuleId>('home');
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(true);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const moduleHeadingRef = useRef<HTMLHeadingElement>(null);
  
-  // Check for auth success in URL params
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const authSuccess = urlParams.get('auth');
-    const token = urlParams.get('token');
     
-    if (authSuccess === 'success' && token) {
-      // Store the token
-      localStorage.setItem('authToken', token);
-      
-      // Decode the JWT to get user data
-      try {
-        const payload = JSON.parse(atob(token.split('.')[1]));
-        handleLoginSuccess(payload, token);
-      } catch (error) {
-        console.error('Failed to decode JWT:', error);
-        checkAuthStatus();
-      }
-      
-      // Clear the URL parameters
+    if (authSuccess === 'success') {
       window.history.replaceState({}, document.title, window.location.pathname);
-    } else if (authSuccess === 'success') {
-      // Clear the URL parameter
-      window.history.replaceState({}, document.title, window.location.pathname);
-      // Check authentication status
       checkAuthStatus();
+    } else if (authSuccess === 'error') {
+      window.history.replaceState({}, document.title, window.location.pathname);
+      setError('Google sign-in failed. Please try again.');
     }
-  }, [checkAuthStatus, handleLoginSuccess]);
+  }, [checkAuthStatus, setError]);
 
   useEffect(() => {
     moduleHeadingRef.current?.focus();
@@ -110,7 +91,7 @@ function AppContent() {
   }
 
   if (!isAuthenticated) {
-    return <Login onLoginSuccess={handleLoginSuccess} />;
+    return <Login />;
   }
 
   const handleModuleSelect = (module: ModuleId) => {
@@ -162,11 +143,9 @@ function AppContent() {
 
 function App() {
   return (
-    <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
-      <AuthProvider>
-        <AppContent />
-      </AuthProvider>
-    </GoogleOAuthProvider>
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
   );
 }
 

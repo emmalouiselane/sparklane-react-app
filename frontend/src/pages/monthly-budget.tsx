@@ -1,8 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import axios from 'axios';
 import { ChevronLeft, ChevronRight, Trash } from 'react-bootstrap-icons';
-import { API_BASE_URL } from '../config/api';
-import { getAuthConfig, getAuthToken } from '../helpers/auth';
+import { apiClient } from '../helpers/auth';
 import {
   addDays,
   formatCurrency,
@@ -237,14 +235,7 @@ function MonthlyBudgetPage() {
       try {
         setIsLoading(true);
         setError(null);
-        const token = getAuthToken();
-
-        if (!token) {
-          setError('Please log in to manage your budget.');
-          return;
-        }
-
-        const response = await axios.get(`${API_BASE_URL}/api/budget`, getAuthConfig(token));
+        const response = await apiClient.get('/api/budget');
 
         setPayDay(response.data.payDay ?? 28);
         const parsedPayments = response.data.payments as PaymentItem[];
@@ -372,13 +363,6 @@ function MonthlyBudgetPage() {
       }
 
       try {
-        const token = getAuthToken();
-
-        if (!token) {
-          setError('Please log in to manage your budget.');
-          return;
-        }
-
         const payload =
           kind === 'single'
             ? {
@@ -396,7 +380,7 @@ function MonthlyBudgetPage() {
                 startDate: recurringStartDate
               };
 
-        const response = await axios.post(`${API_BASE_URL}/api/budget/payments`, payload, getAuthConfig(token));
+        const response = await apiClient.post('/api/budget/payments', payload);
 
         const savedPayment = response.data.payment;
         const nextPayment: PaymentItem =
@@ -467,18 +451,11 @@ function MonthlyBudgetPage() {
     }
 
     try {
-      const token = getAuthToken();
-
-      if (!token) {
-        setError('Please log in to manage your budget.');
-        return;
-      }
-
       setIsSingleDeleteSubmitting(true);
       setPaymentNotice(null);
       setError(null);
 
-      await axios.delete(`${API_BASE_URL}/api/budget/payments/${singleDeleteTarget.sourceId}`, getAuthConfig(token));
+      await apiClient.delete(`/api/budget/payments/${singleDeleteTarget.sourceId}`);
 
       setPayments((current) => current.filter((payment) => payment.id !== singleDeleteTarget.sourceId));
       setPaymentNotice('Payment removed.');
@@ -503,27 +480,19 @@ function MonthlyBudgetPage() {
     }
 
     try {
-      const token = getAuthToken();
-
-      if (!token) {
-        setError('Please log in to manage your budget.');
-        return;
-      }
-
       setIsRecurringDeleteSubmitting(true);
       setPaymentNotice(null);
       setError(null);
 
       if (mode === 'all') {
-        await axios.delete(`${API_BASE_URL}/api/budget/payments/${recurringDeleteTarget.sourceId}`, getAuthConfig(token));
+        await apiClient.delete(`/api/budget/payments/${recurringDeleteTarget.sourceId}`);
 
         setPayments((current) => current.filter((payment) => payment.id !== recurringDeleteTarget.sourceId));
         setPaymentNotice('Recurring payment removed completely.');
       } else {
-        const response = await axios.patch(
-          `${API_BASE_URL}/api/budget/payments/${recurringDeleteTarget.sourceId}/recurring-end`,
-          { fromDate: recurringDeleteTarget.date },
-          getAuthConfig(token)
+        const response = await apiClient.patch(
+          `/api/budget/payments/${recurringDeleteTarget.sourceId}/recurring-end`,
+          { fromDate: recurringDeleteTarget.date }
         );
 
         if (response.data.deleted) {
@@ -559,25 +528,14 @@ function MonthlyBudgetPage() {
 
   const handleToggleOccurrencePaid = async (payment: PaymentOccurrence) => {
     try {
-      const token = getAuthToken();
-
-      if (!token) {
-        setError('Please log in to manage your budget.');
-        return;
-      }
-
       setUpdatingOccurrenceId(payment.id);
       setPaymentNotice(null);
       setError(null);
 
-      const response = await axios.patch(
-        `${API_BASE_URL}/api/budget/payments/${payment.sourceId}/paid`,
-        {
-          date: payment.date,
-          paid: !payment.isPaid
-        },
-        getAuthConfig(token)
-      );
+      const response = await apiClient.patch(`/api/budget/payments/${payment.sourceId}/paid`, {
+        date: payment.date,
+        paid: !payment.isPaid
+      });
 
       const updatedPayment = response.data.payment;
 

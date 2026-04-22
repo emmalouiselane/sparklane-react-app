@@ -1,9 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Card, ListGroup, Badge, Spinner, Alert, Modal, Form, Button } from 'react-bootstrap';
 import { Calendar3, Clock, GeoAlt, Plus, X } from 'react-bootstrap-icons';
-import axios from 'axios';
-import { API_BASE_URL } from '../config/api';
-import { getAuthConfig, getAuthToken } from '../helpers/auth';
+import { apiClient } from '../helpers/auth';
 import { formatAgendaDateTime } from '../helpers/helper';
 
 import './UpcomingAgenda.css';
@@ -47,15 +45,7 @@ const UpcomingAgenda: React.FC<UpcomingAgendaProps> = () => {
       setLoading(true);
       setError(null);
       
-      const endpoint = '/api/calendar/events';
-      const token = getAuthToken();
-      
-      if (!token) {
-        setError('Please log in to view calendar events');
-        return;
-      }
-      
-      const response = await axios.get(`${API_BASE_URL}${endpoint}`, getAuthConfig(token));
+      const response = await apiClient.get('/api/calendar/events');
       
       setEvents(response.data.events.slice(0, 5));
     } catch (err: any) {
@@ -75,13 +65,7 @@ const UpcomingAgenda: React.FC<UpcomingAgendaProps> = () => {
     setIsSubmitting(true);
 
     try {
-      const token = getAuthToken();
-      if (!token) {
-        setError('Please log in to create events');
-        return;
-      }
-
-      await axios.post(`${API_BASE_URL}/api/calendar/events`, formData, getAuthConfig(token));
+      await apiClient.post('/api/calendar/events', formData);
 
       // Reset form and close modal
       setFormData({

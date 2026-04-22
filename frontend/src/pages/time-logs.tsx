@@ -1,8 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import axios from 'axios';
 import { ChevronLeft, ChevronRight, Trash } from 'react-bootstrap-icons';
-import { API_BASE_URL } from '../config/api';
-import { getAuthConfig, getAuthToken } from '../helpers/auth';
+import { apiClient } from '../helpers/auth';
 import {
   addDays,
   formatDateDisplay,
@@ -36,14 +34,7 @@ function TimeLogsPage() {
       try {
         setIsLoading(true);
         setError(null);
-        const token = getAuthToken();
-
-        if (!token) {
-          setError('Please log in to manage your time logs.');
-          return;
-        }
-
-        const response = await axios.get(`${API_BASE_URL}/api/time-logs`, getAuthConfig(token));
+        const response = await apiClient.get('/api/time-logs');
 
         const parsedLogs = Array.isArray(response.data.timeLogs) ? response.data.timeLogs : [];
         setTimeLogs(
@@ -125,25 +116,14 @@ function TimeLogsPage() {
     }
 
     try {
-      const token = getAuthToken();
-
-      if (!token) {
-        setError('Please log in to manage your time logs.');
-        return;
-      }
-
       setIsSubmitting(true);
       setError(null);
 
-      const response = await axios.post(
-        `${API_BASE_URL}/api/time-logs`,
-        {
-          title: title.trim(),
-          durationHours: parsedDuration,
-          date
-        },
-        getAuthConfig(token)
-      );
+      const response = await apiClient.post('/api/time-logs', {
+        title: title.trim(),
+        durationHours: parsedDuration,
+        date
+      });
 
       const savedLog = response.data.timeLog;
       setTimeLogs((current) => [
@@ -167,16 +147,9 @@ function TimeLogsPage() {
 
   const handleDeleteTimeLog = async (logId: string) => {
     try {
-      const token = getAuthToken();
-
-      if (!token) {
-        setError('Please log in to manage your time logs.');
-        return;
-      }
-
       setError(null);
 
-      await axios.delete(`${API_BASE_URL}/api/time-logs/${logId}`, getAuthConfig(token));
+      await apiClient.delete(`/api/time-logs/${logId}`);
 
       setTimeLogs((current) => current.filter((log) => log.id !== logId));
     } catch (requestError: any) {

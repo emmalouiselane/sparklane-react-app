@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
-import { API_BASE_URL } from '../config/api';
 import { useAuthContext } from '../contexts/AuthContext';
-import { getAuthConfig, getAuthToken } from '../helpers/auth';
+import { apiClient } from '../helpers/auth';
 import { getOrdinalSuffix } from '../helpers/helper';
 import './account-settings.css';
 
@@ -19,14 +17,7 @@ function AccountSettingsPage() {
       try {
         setIsLoading(true);
         setError(null);
-        const token = getAuthToken();
-
-        if (!token) {
-          setError('Please log in to manage your settings.');
-          return;
-        }
-
-        const response = await axios.get(`${API_BASE_URL}/api/budget/settings`, getAuthConfig(token));
+        const response = await apiClient.get('/api/budget/settings');
 
         setPayDay(response.data.payDay ?? 28);
       } catch (requestError: any) {
@@ -42,23 +33,12 @@ function AccountSettingsPage() {
 
   const handlePayDayChange = async (nextPayDay: number) => {
     try {
-      const token = getAuthToken();
-
-      if (!token) {
-        setError('Please log in to manage your settings.');
-        return;
-      }
-
       setPayDay(nextPayDay);
       setIsSaving(true);
       setNotice(null);
       setError(null);
 
-      await axios.put(
-        `${API_BASE_URL}/api/budget/settings`,
-        { payDay: nextPayDay },
-        getAuthConfig(token)
-      );
+      await apiClient.put('/api/budget/settings', { payDay: nextPayDay });
 
       setNotice(`Pay day updated to the ${nextPayDay}${getOrdinalSuffix(nextPayDay)} of each month.`);
     } catch (requestError: any) {

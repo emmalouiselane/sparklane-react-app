@@ -4,11 +4,7 @@ import { API_BASE_URL } from '../config/api';
 
 import './Login.css';
 
-interface LoginProps {
-  onLoginSuccess: (user: any) => void;
-}
-
-const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
+const Login: React.FC = () => {
   const handleGoogleLogin = () => {
     // Redirect to Google OAuth on the backend
     window.location.href = `${API_BASE_URL}/auth/google`;

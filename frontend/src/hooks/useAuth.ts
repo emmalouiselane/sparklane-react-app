@@ -1,7 +1,5 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
-import { API_BASE_URL } from '../config/api';
-import { clearAuthToken, getAuthConfig, getAuthToken, setAuthToken } from '../helpers/auth';
+import { apiClient } from '../helpers/auth';
 
 
 export interface UseAuthReturn {
@@ -9,7 +7,6 @@ export interface UseAuthReturn {
   isAuthenticated: boolean;
   loading: boolean;
   error: string | null;
-  handleLoginSuccess: (userData: any, receivedToken?: string) => void;
   handleLogout: () => Promise<void>;
   checkAuthStatus: () => Promise<void>;
   setError: (error: string | null) => void;
@@ -23,22 +20,17 @@ export function useAuth(): UseAuthReturn {
 
   const checkAuthStatus = async () => {
     try {
-      const storedToken = getAuthToken();
-      if (!storedToken) {
-        setLoading(false);
-        return;
-      }
-
-      const response = await axios.get(`${API_BASE_URL}/auth/user`, getAuthConfig(storedToken));
+      const response = await apiClient.get('/auth/user');
       
       if (response.data.user) {
         setUser(response.data.user);
         setIsAuthenticated(true);
+      } else {
+        setUser(null);
+        setIsAuthenticated(false);
       }
     } catch (err: any) {
-      // Handle token expiration
       if (err.response?.status === 401) {
-        clearAuthToken();
         setError('Your session has expired. Please log in again.');
         setUser(null);
         setIsAuthenticated(false);
@@ -48,26 +40,15 @@ export function useAuth(): UseAuthReturn {
     }
   };
 
-  const handleLoginSuccess = (userData: any, receivedToken?: string) => {
-    setUser(userData);
-    setIsAuthenticated(true);
-    setError(null);
-    if (receivedToken) {
-      setAuthToken(receivedToken);
-    }
-  };
-
   const handleLogout = async () => {
     try {
-      const storedToken = getAuthToken();
-      await axios.post(`${API_BASE_URL}/auth/logout`, {}, getAuthConfig(storedToken));
+      await apiClient.post('/auth/logout', {});
     } catch (err) {
       console.error('Logout failed:', err);
     } finally {
       setUser(null);
       setIsAuthenticated(false);
       setError(null);
-      clearAuthToken();
     }
   };
 
@@ -80,7 +61,6 @@ export function useAuth(): UseAuthReturn {
     isAuthenticated,
     loading,
     error,
-    handleLoginSuccess,
     handleLogout,
     checkAuthStatus,
     setError,

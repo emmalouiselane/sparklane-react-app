@@ -1,33 +1,11 @@
 const express = require('express');
 const { google } = require('googleapis');
-const jwt = require('jsonwebtoken');
+const { requireAuth, requireTrustedOrigin } = require('../middleware/auth');
 
 const router = express.Router();
 
-// JWT middleware for protected routes
-const authenticateJWT = (req, res, next) => {
-  const authHeader = req.headers.authorization;
-  
-  if (authHeader) {
-    const token = authHeader.split(' ')[1];
-    
-    jwt.verify(token, process.env.SESSION_SECRET || 'your-secret-key', (err, user) => {
-      if (err) {
-        console.log('Calendar JWT verification failed:', err.message);
-        return res.status(401).json({ error: 'Invalid token' });
-      }
-      
-      req.user = user;
-      next();
-    });
-  } else {
-    console.log('Calendar - No authorization header found');
-    res.status(401).json({ error: 'No token provided' });
-  }
-};
-
-// Apply JWT middleware to all calendar routes
-router.use(authenticateJWT);
+router.use(requireAuth);
+router.use(requireTrustedOrigin);
 
 // Get calendar events (next 7 days)
 router.get('/events', async (req, res) => {
