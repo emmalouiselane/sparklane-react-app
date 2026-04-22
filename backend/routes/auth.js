@@ -51,7 +51,7 @@ router.post('/logout', requireTrustedOrigin, (req, res) => {
 
       res.clearCookie('sessionId', {
         httpOnly: true,
-        sameSite: 'lax',
+        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
         secure: process.env.NODE_ENV === 'production'
       });
       return res.json({ message: 'Logged out successfully' });

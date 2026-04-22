@@ -22,6 +22,8 @@ const todosRoutes = require('./routes/todos');
 const app = express();
 const PORT = process.env.PORT || 5000;
 const SESSION_SECRET = process.env.SESSION_SECRET;
+const isProduction = process.env.NODE_ENV === 'production';
+
 const REQUIRED_ENV_VARS = [
   'SESSION_SECRET',
   'TOKEN_ENCRYPTION_KEY',
@@ -48,6 +50,9 @@ app.use(morgan('combined'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Trust proxy for Railway (needed for secure cookies to work)
+app.set('trust proxy', 1);
+
 // Session middleware
 app.use(session({
   secret: SESSION_SECRET,
@@ -55,8 +60,8 @@ app.use(session({
   saveUninitialized: false,
   store: new MongoSessionStore(),
   cookie: { 
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax',
+    secure: isProduction,
+    sameSite: isProduction ? 'none' : 'lax',
     maxAge: 24 * 60 * 60 * 1000, 
     httpOnly: true, 
   },
@@ -68,9 +73,6 @@ app.use(session({
 app.use((req, res, next) => {
   next();
 });
-
-// Trust proxy for Railway (needed for secure cookies to work)
-app.set('trust proxy', 1);
 
 // Passport middleware
 app.use(passport.initialize());
