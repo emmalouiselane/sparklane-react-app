@@ -32,6 +32,60 @@
   display: flex;
   align-items: center;
   gap: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.06);
+  color: white;
+  border-radius: 999px;
+  padding: 4px;
+  cursor: pointer;
+
+  .user-name {
+    margin-right: 15px;
+  }
+}
+
+.user-profile:focus-visible {
+  outline: 3px solid #f18463;
+  outline-offset: 2px;
+}
+
+.profile-menu {
+  position: relative;
+}
+
+.profile-menu-popover {
+  position: absolute;
+  top: calc(100% + 10px);
+  left: 0;
+  min-width: 200px;
+  background: rgba(18, 20, 28, 0.98);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 12px;
+  padding: 8px;
+  box-shadow: 0 16px 32px rgba(0, 0, 0, 0.28);
+  z-index: 40;
+}
+
+.profile-menu-item {
+  width: 100%;
+  border: none;
+  background: transparent;
+  color: white;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  text-align: left;
+}
+
+.profile-menu-item:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.profile-menu-item:focus-visible {
+  outline: 2px solid #f18463;
+  outline-offset: 2px;
 }
 
 .mobile-menu-btn {
@@ -129,5 +183,14 @@
     display: inline;
     font-size: 18px;
     line-height: 1;
+  }
+
+  .user-name {
+    display: none;
+  }
+
+  .profile-menu-popover {
+    left: 0;
+    right: auto;
   }
 }

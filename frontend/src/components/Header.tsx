@@ -1,18 +1,21 @@
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useAuthContext } from '../contexts/AuthContext';
 import './Header.css';
 import ConnectionStatus from './ConnectionStatus';
-import { BoxArrowRight, List } from 'react-bootstrap-icons';
+import { BoxArrowRight, Gear, List } from 'react-bootstrap-icons';
 
 interface HeaderProps {
   user: any;
   error: string | null;
   isMobileMenuOpen: boolean;
   onOpenMobileMenu: () => void;
+  onOpenAccountSettings: () => void;
 }
 
-function Header({ user, error, isMobileMenuOpen, onOpenMobileMenu }: HeaderProps) {
+function Header({ user, error, isMobileMenuOpen, onOpenMobileMenu, onOpenAccountSettings }: HeaderProps) {
   const { handleLogout } = useAuthContext();
+  const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+  const profileMenuRef = useRef<HTMLDivElement>(null);
 
   // Get user initials for fallback
   const getUserInitials = (user: any) => {
@@ -27,6 +30,32 @@ function Header({ user, error, isMobileMenuOpen, onOpenMobileMenu }: HeaderProps
     }
     return 'U'; // Default fallback
   };
+
+  useEffect(() => {
+    if (!isProfileMenuOpen) {
+      return undefined;
+    }
+
+    const handlePointerDown = (event: MouseEvent) => {
+      if (!profileMenuRef.current?.contains(event.target as Node)) {
+        setIsProfileMenuOpen(false);
+      }
+    };
+
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setIsProfileMenuOpen(false);
+      }
+    };
+
+    window.addEventListener('mousedown', handlePointerDown);
+    window.addEventListener('keydown', handleEscape);
+
+    return () => {
+      window.removeEventListener('mousedown', handlePointerDown);
+      window.removeEventListener('keydown', handleEscape);
+    };
+  }, [isProfileMenuOpen]);
 
   return (
     <>
@@ -44,19 +73,44 @@ function Header({ user, error, isMobileMenuOpen, onOpenMobileMenu }: HeaderProps
               >
                 <List size={20} />
               </button>
-              <div className="user-profile">
-                {user.picture || user.photos?.[0]?.value ? (
-                  <img
-                    src={user.picture || user.photos[0].value}
-                    alt={user.name?.givenName || user.given_name}
-                    className="user-avatar"
-                  />
-                ) : (
-                  <div className="user-avatar-fallback">
-                    {getUserInitials(user)}
+              <div className="profile-menu" ref={profileMenuRef}>
+                <button
+                  type="button"
+                  className="user-profile"
+                  aria-haspopup="menu"
+                  aria-expanded={isProfileMenuOpen}
+                  onClick={() => setIsProfileMenuOpen((current) => !current)}
+                >
+                  {user.picture || user.photos?.[0]?.value ? (
+                    <img
+                      src={user.picture || user.photos[0].value}
+                      alt={user.name?.givenName || user.given_name}
+                      className="user-avatar"
+                    />
+                  ) : (
+                    <div className="user-avatar-fallback">
+                      {getUserInitials(user)}
+                    </div>
+                  )}
+                  <span className="user-name">{user.name?.givenName || user.name || user.given_name}</span>
+                </button>
+
+                {isProfileMenuOpen && (
+                  <div className="profile-menu-popover" role="menu" aria-label="Account menu">
+                    <button
+                      type="button"
+                      className="profile-menu-item"
+                      role="menuitem"
+                      onClick={() => {
+                        onOpenAccountSettings();
+                        setIsProfileMenuOpen(false);
+                      }}
+                    >
+                      <Gear size={15} />
+                      <span>Account Settings</span>
+                    </button>
                   </div>
                 )}
-                <span className="user-name">{user.name?.givenName || user.name || user.given_name}</span>
               </div>
             </div>
 

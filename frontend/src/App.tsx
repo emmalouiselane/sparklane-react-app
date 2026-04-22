@@ -7,6 +7,7 @@ import { AuthProvider, useAuthContext } from './contexts/AuthContext';
 import Homepage from './pages/homepage';
 import MealPlannerPage from './pages/meal-planner';
 import MonthlyBudgetPage from './pages/monthly-budget';
+import AccountSettingsPage from './pages/account-settings';
 
 import './App.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -18,12 +19,14 @@ const MODULE_NAV_ITEMS: ModuleNavItem[] = [
   { id: 'home', label: 'Home' },
   { id: 'monthly-budget', label: 'Monthly Budget' },
   { id: 'meal-planner', label: 'Meal Planner' },
+  { id: 'account-settings', label: 'Account Settings' },
 ];
 
 const MODULE_COMPONENTS: Record<ModuleId, React.ComponentType> = {
   home: Homepage,
   'monthly-budget': MonthlyBudgetPage,
   'meal-planner': MealPlannerPage,
+  'account-settings': AccountSettingsPage,
 };
 
 function AppContent() {
@@ -142,6 +145,7 @@ function AppContent() {
             error={error}
             isMobileMenuOpen={isMobileSidebarOpen}
             onOpenMobileMenu={() => setIsMobileSidebarOpen(true)}
+            onOpenAccountSettings={() => setActiveModule('account-settings')}
           />
 
           <main className="app-main" id="main-content" role="main" aria-labelledby="module-heading">

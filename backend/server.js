@@ -10,6 +10,7 @@ require('dotenv').config();
 // Import routes
 const authRoutes = require('./routes/auth');
 const calendarRoutes = require('./routes/calendar');
+const budgetRoutes = require('./routes/budget');
 const todosRoutes = require('./routes/todos');
 
 const app = express();
@@ -23,7 +24,7 @@ app.use(cors({
     'https://sparklane-react-app.up.railway.app'
   ],
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   exposedHeaders: ['Set-Cookie']
 }));
@@ -84,10 +85,7 @@ passport.deserializeUser((user, done) => {
 const connectDB = async () => {
   try {
     const mongoose = require('mongoose');
-    await mongoose.connect(process.env.MONGODB_URI, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
+    await mongoose.connect(process.env.MONGODB_URI);
   } catch (error) {
     console.error('Database connection error:', error);
     process.exit(1);
@@ -123,6 +121,7 @@ app.get('/api/', (req, res) => {
 // Use route files
 app.use('/auth', authRoutes);
 app.use('/api/calendar', calendarRoutes);
+app.use('/api/budget', budgetRoutes);
 app.use('/api/todos', todosRoutes);
 
 // Error handling middleware

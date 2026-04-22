@@ -1,8 +1,8 @@
 import React from 'react';
-import { PiggyBank, ForkKnife, HouseDoor } from 'react-bootstrap-icons';
+import { PiggyBank, ForkKnife, HouseDoor, PersonGear } from 'react-bootstrap-icons';
 import './Sidebar.css';
 
-export type ModuleId = 'home' | 'monthly-budget' | 'meal-planner';
+export type ModuleId = 'home' | 'monthly-budget' | 'meal-planner' | 'account-settings';
 
 export interface ModuleNavItem {
   id: ModuleId;
@@ -27,6 +27,8 @@ function getNavIcon(moduleId: ModuleId) {
       return <PiggyBank size={16} />;
     case 'meal-planner':
       return <ForkKnife size={16} />;
+    case 'account-settings':
+      return <PersonGear size={16} />;
     default:
       return null;
   }
