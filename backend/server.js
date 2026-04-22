@@ -9,6 +9,8 @@ require('dotenv').config();
 const { allowedOrigins } = require('./middleware/auth');
 const AuthAccount = require('./models/AuthAccount');
 const MongoSessionStore = require('./lib/MongoSessionStore');
+const { apiRateLimiter, authRateLimiter } = require('./lib/rateLimit');
+const { encryptToken } = require('./lib/tokenCrypto');
 
 // Import routes
 const authRoutes = require('./routes/auth');
@@ -20,9 +22,18 @@ const todosRoutes = require('./routes/todos');
 const app = express();
 const PORT = process.env.PORT || 5000;
 const SESSION_SECRET = process.env.SESSION_SECRET;
+const REQUIRED_ENV_VARS = [
+  'SESSION_SECRET',
+  'TOKEN_ENCRYPTION_KEY',
+  'GOOGLE_CLIENT_ID',
+  'GOOGLE_CLIENT_SECRET',
+  'MONGODB_URI'
+];
 
-if (!SESSION_SECRET) {
-  throw new Error('SESSION_SECRET is required');
+const missingEnvVars = REQUIRED_ENV_VARS.filter((envVar) => !process.env[envVar]);
+
+if (missingEnvVars.length > 0) {
+  throw new Error(`Missing required environment variables: ${missingEnvVars.join(', ')}`);
 }
 
 // Middleware
@@ -31,8 +42,7 @@ app.use(cors({
   origin: allowedOrigins,
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  exposedHeaders: ['Set-Cookie']
+  allowedHeaders: ['Content-Type']
 }));
 app.use(morgan('combined'));
 app.use(express.json());
@@ -85,8 +95,8 @@ passport.use(new GoogleStrategy({
         email: profile.emails?.[0]?.value || '',
         emails: Array.isArray(profile.emails) ? profile.emails : [],
         photos: Array.isArray(profile.photos) ? profile.photos : [],
-        accessToken,
-        ...(refreshToken ? { refreshToken } : {})
+        accessToken: encryptToken(accessToken),
+        ...(refreshToken ? { refreshToken: encryptToken(refreshToken) } : {})
       },
       {
         upsert: true,
@@ -153,6 +163,8 @@ app.get('/api/', (req, res) => {
 });
 
 // Use route files
+app.use('/auth', authRateLimiter);
+app.use('/api', apiRateLimiter);
 app.use('/auth', authRoutes);
 app.use('/api/calendar', calendarRoutes);
 app.use('/api/time-logs', timeLogsRoutes);

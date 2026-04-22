@@ -1,6 +1,7 @@
 const express = require('express');
 const { google } = require('googleapis');
 const { requireAuth, requireTrustedOrigin } = require('../middleware/auth');
+const { decryptStoredToken } = require('../lib/tokenCrypto');
 
 const router = express.Router();
 
@@ -10,14 +11,17 @@ router.use(requireTrustedOrigin);
 // Get calendar events (next 7 days)
 router.get('/events', async (req, res) => {
   try {
+    const accessToken = decryptStoredToken(req.user.accessToken);
+    const refreshToken = decryptStoredToken(req.user.refreshToken);
+
     const oauth2Client = new google.auth.OAuth2(
       process.env.GOOGLE_CLIENT_ID,
       process.env.GOOGLE_CLIENT_SECRET
     );
 
     oauth2Client.setCredentials({
-      access_token: req.user.accessToken,
-      refresh_token: req.user.refreshToken
+      access_token: accessToken,
+      refresh_token: refreshToken
     });
 
     const calendar = google.calendar({ version: 'v3', auth: oauth2Client });
@@ -56,6 +60,8 @@ router.get('/events', async (req, res) => {
 router.post('/events', async (req, res) => {
   try {
     const { title, description, startTime, endTime, location } = req.body;
+    const accessToken = decryptStoredToken(req.user.accessToken);
+    const refreshToken = decryptStoredToken(req.user.refreshToken);
 
     if (!title || !startTime || !endTime) {
       return res.status(400).json({ error: 'Title, start time, and end time are required' });
@@ -67,8 +73,8 @@ router.post('/events', async (req, res) => {
     );
 
     oauth2Client.setCredentials({
-      access_token: req.user.accessToken,
-      refresh_token: req.user.refreshToken
+      access_token: accessToken,
+      refresh_token: refreshToken
     });
 
     const calendar = google.calendar({ version: 'v3', auth: oauth2Client });
