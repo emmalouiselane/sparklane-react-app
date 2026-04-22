@@ -7,6 +7,8 @@ const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const session = require('express-session');
 require('dotenv').config();
 const { allowedOrigins } = require('./middleware/auth');
+const AuthAccount = require('./models/AuthAccount');
+const MongoSessionStore = require('./lib/MongoSessionStore');
 
 // Import routes
 const authRoutes = require('./routes/auth');
@@ -17,6 +19,11 @@ const todosRoutes = require('./routes/todos');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+const SESSION_SECRET = process.env.SESSION_SECRET;
+
+if (!SESSION_SECRET) {
+  throw new Error('SESSION_SECRET is required');
+}
 
 // Middleware
 app.use(helmet());
@@ -33,9 +40,10 @@ app.use(express.urlencoded({ extended: true }));
 
 // Session middleware
 app.use(session({
-  secret: process.env.SESSION_SECRET || 'your-secret-key',
+  secret: SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
+  store: new MongoSessionStore(),
   cookie: { 
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'lax',
@@ -63,20 +71,48 @@ passport.use(new GoogleStrategy({
   clientID: process.env.GOOGLE_CLIENT_ID,
   clientSecret: process.env.GOOGLE_CLIENT_SECRET,
   callbackURL: `${process.env.RAILWAY_PUBLIC_URL || process.env.RAILWAY_PUBLIC_DOMAIN || 'http://localhost:5000'}/auth/google/callback`
-}, (accessToken, refreshToken, profile, done) => {
-  // Store tokens for calendar access
-  profile.accessToken = accessToken;
-  profile.refreshToken = refreshToken;
-  return done(null, profile);
+}, async (accessToken, refreshToken, profile, done) => {
+  try {
+    const authAccount = await AuthAccount.findOneAndUpdate(
+      { googleId: profile.id },
+      {
+        googleId: profile.id,
+        displayName: profile.displayName,
+        name: {
+          givenName: profile.name?.givenName || '',
+          familyName: profile.name?.familyName || ''
+        },
+        email: profile.emails?.[0]?.value || '',
+        emails: Array.isArray(profile.emails) ? profile.emails : [],
+        photos: Array.isArray(profile.photos) ? profile.photos : [],
+        accessToken,
+        ...(refreshToken ? { refreshToken } : {})
+      },
+      {
+        upsert: true,
+        new: true,
+        setDefaultsOnInsert: true
+      }
+    );
+
+    return done(null, authAccount);
+  } catch (error) {
+    return done(error);
+  }
 }));
 
 // Serialize and deserialize user
 passport.serializeUser((user, done) => {
-  done(null, user);
+  done(null, user.id);
 });
 
-passport.deserializeUser((user, done) => {
-  done(null, user);
+passport.deserializeUser(async (userId, done) => {
+  try {
+    const user = await AuthAccount.findById(userId);
+    done(null, user);
+  } catch (error) {
+    done(error);
+  }
 });
 
 // Database connection

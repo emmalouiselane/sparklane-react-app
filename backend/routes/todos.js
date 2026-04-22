@@ -1,6 +1,6 @@
 const express = require('express');
 const Todo = require('../models/Todo');
-const { requireAuth, requireTrustedOrigin } = require('../middleware/auth');
+const { getAppUserId, requireAuth, requireTrustedOrigin } = require('../middleware/auth');
 
 const router = express.Router();
 
@@ -10,7 +10,8 @@ router.use(requireTrustedOrigin);
 // Get user-specific todos
 router.get('/', async (req, res) => {
   try {
-    const userTodos = await Todo.find({ userId: req.user.id }).sort({ completed: 1, priority: 1, createdAt: -1 });
+    const userId = getAppUserId(req.user);
+    const userTodos = await Todo.find({ userId }).sort({ completed: 1, priority: 1, createdAt: -1 });
     res.json({ todos: userTodos });
   } catch (error) {
     console.error('Error fetching todos:', error);
@@ -28,7 +29,7 @@ router.post('/', async (req, res) => {
     }
 
     const todo = new Todo({
-      userId: req.user.id,
+      userId: getAppUserId(req.user),
       title,
       description: description || '',
       priority: priority || 'medium'
@@ -52,7 +53,8 @@ router.put('/:id', async (req, res) => {
     const { id } = req.params;
     const { title, description, priority, completed } = req.body;
 
-    const todo = await Todo.findOne({ _id: id, userId: req.user.id });
+    const userId = getAppUserId(req.user);
+    const todo = await Todo.findOne({ _id: id, userId });
     
     if (!todo) {
       return res.status(404).json({ error: 'Todo not found' });
@@ -85,7 +87,8 @@ router.delete('/:id', async (req, res) => {
   try {
     const { id } = req.params;
 
-    const todo = await Todo.findOne({ _id: id, userId: req.user.id });
+    const userId = getAppUserId(req.user);
+    const todo = await Todo.findOne({ _id: id, userId });
     
     if (!todo) {
       return res.status(404).json({ error: 'Todo not found' });

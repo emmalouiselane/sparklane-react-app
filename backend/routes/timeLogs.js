@@ -1,6 +1,6 @@
 const express = require('express');
 const TimeLog = require('../models/TimeLog');
-const { requireAuth, requireTrustedOrigin } = require('../middleware/auth');
+const { getAppUserId, requireAuth, requireTrustedOrigin } = require('../middleware/auth');
 
 const router = express.Router();
 
@@ -9,7 +9,8 @@ router.use(requireTrustedOrigin);
 
 router.get('/', async (req, res) => {
   try {
-    const timeLogs = await TimeLog.find({ userId: req.user.id }).sort({ date: -1, createdAt: -1 });
+    const userId = getAppUserId(req.user);
+    const timeLogs = await TimeLog.find({ userId }).sort({ date: -1, createdAt: -1 });
     res.json({ timeLogs });
   } catch (error) {
     console.error('Error fetching time logs:', error);
@@ -34,7 +35,7 @@ router.post('/', async (req, res) => {
     }
 
     const timeLog = new TimeLog({
-      userId: req.user.id,
+      userId: getAppUserId(req.user),
       title: title.trim(),
       durationHours,
       date
@@ -54,7 +55,8 @@ router.post('/', async (req, res) => {
 
 router.delete('/:id', async (req, res) => {
   try {
-    const timeLog = await TimeLog.findOne({ _id: req.params.id, userId: req.user.id });
+    const userId = getAppUserId(req.user);
+    const timeLog = await TimeLog.findOne({ _id: req.params.id, userId });
 
     if (!timeLog) {
       return res.status(404).json({ error: 'Time log not found' });

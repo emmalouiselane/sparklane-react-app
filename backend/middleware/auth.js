@@ -14,7 +14,7 @@ function sanitizeUser(user) {
   }
 
   return {
-    id: user.id,
+    id: user.googleId || user.id,
     displayName: user.displayName,
     name: user.name,
     emails: user.emails,
@@ -22,6 +22,10 @@ function sanitizeUser(user) {
     picture: user.photos?.[0]?.value,
     email: user.emails?.[0]?.value
   };
+}
+
+function getAppUserId(user) {
+  return user?.googleId || user?.id || null;
 }
 
 function requireAuth(req, res, next) {
@@ -48,6 +52,7 @@ function requireTrustedOrigin(req, res, next) {
 
 module.exports = {
   allowedOrigins: Array.from(allowedOrigins),
+  getAppUserId,
   requireAuth,
   requireTrustedOrigin,
   sanitizeUser

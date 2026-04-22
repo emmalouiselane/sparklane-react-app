@@ -1,7 +1,7 @@
 const express = require('express');
 const BudgetPayment = require('../models/BudgetPayment');
 const BudgetSettings = require('../models/BudgetSettings');
-const { requireAuth, requireTrustedOrigin } = require('../middleware/auth');
+const { getAppUserId, requireAuth, requireTrustedOrigin } = require('../middleware/auth');
 
 const router = express.Router();
 
@@ -46,9 +46,10 @@ router.use(requireTrustedOrigin);
 
 router.get('/', async (req, res) => {
   try {
+    const userId = getAppUserId(req.user);
     const [settings, payments] = await Promise.all([
-      BudgetSettings.findOne({ userId: req.user.id }),
-      BudgetPayment.find({ userId: req.user.id }).sort({ createdAt: -1 })
+      BudgetSettings.findOne({ userId }),
+      BudgetPayment.find({ userId }).sort({ createdAt: -1 })
     ]);
 
     res.json({
@@ -63,7 +64,8 @@ router.get('/', async (req, res) => {
 
 router.get('/settings', async (req, res) => {
   try {
-    const settings = await BudgetSettings.findOne({ userId: req.user.id });
+    const userId = getAppUserId(req.user);
+    const settings = await BudgetSettings.findOne({ userId });
 
     res.json({
       payDay: settings?.payDay ?? 28
@@ -77,13 +79,14 @@ router.get('/settings', async (req, res) => {
 router.put('/settings', async (req, res) => {
   try {
     const { payDay } = req.body;
+    const userId = getAppUserId(req.user);
 
     if (!Number.isInteger(payDay) || payDay < 1 || payDay > 31) {
       return res.status(400).json({ error: 'Pay day must be an integer between 1 and 31' });
     }
 
     const settings = await BudgetSettings.findOneAndUpdate(
-      { userId: req.user.id },
+      { userId },
       { payDay },
       { new: true, upsert: true, runValidators: true }
     );
@@ -127,7 +130,7 @@ router.post('/payments', async (req, res) => {
     }
 
     const payment = new BudgetPayment({
-      userId: req.user.id,
+      userId: getAppUserId(req.user),
       title: title.trim(),
       amount,
       type,
@@ -158,7 +161,8 @@ router.patch('/payments/:id/recurring-end', async (req, res) => {
       return res.status(400).json({ error: 'A valid recurring occurrence date is required' });
     }
 
-    const payment = await BudgetPayment.findOne({ _id: req.params.id, userId: req.user.id });
+    const userId = getAppUserId(req.user);
+    const payment = await BudgetPayment.findOne({ _id: req.params.id, userId });
 
     if (!payment) {
       return res.status(404).json({ error: 'Payment not found' });
@@ -208,7 +212,8 @@ router.patch('/payments/:id/paid', async (req, res) => {
       return res.status(400).json({ error: 'Paid status must be true or false' });
     }
 
-    const payment = await BudgetPayment.findOne({ _id: req.params.id, userId: req.user.id });
+    const userId = getAppUserId(req.user);
+    const payment = await BudgetPayment.findOne({ _id: req.params.id, userId });
 
     if (!payment) {
       return res.status(404).json({ error: 'Payment not found' });
@@ -237,7 +242,8 @@ router.patch('/payments/:id/paid', async (req, res) => {
 
 router.delete('/payments/:id', async (req, res) => {
   try {
-    const payment = await BudgetPayment.findOne({ _id: req.params.id, userId: req.user.id });
+    const userId = getAppUserId(req.user);
+    const payment = await BudgetPayment.findOne({ _id: req.params.id, userId });
 
     if (!payment) {
       return res.status(404).json({ error: 'Payment not found' });
