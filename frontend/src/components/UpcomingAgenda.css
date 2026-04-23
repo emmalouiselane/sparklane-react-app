@@ -8,12 +8,9 @@
   .no-events {
     h2 {
       font-size: var(--font-size-xl);
-      margin: 5px 0;
+      margin: 5px 0 2rem 0;
     }
     
-    p {
-      color: var(--bs-secondary-color);
-    }
   }
 
   .card-header {

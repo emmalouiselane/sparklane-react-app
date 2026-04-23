@@ -709,7 +709,7 @@
   .payments-list-card {
     display: flex;
     flex-direction: column;
-    max-height: min(72vh, 920px);
+    max-height: min(84vh, 920px);
     overflow: hidden;
   }
 
