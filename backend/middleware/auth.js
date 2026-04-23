@@ -1,18 +1,23 @@
-const jwt = require('jsonwebtoken');
-const AuthAccount = require('../models/AuthAccount');
-
 const SAFE_METHODS = new Set(['GET', 'HEAD', 'OPTIONS']);
-const AUTH_TOKEN_SECRET = process.env.AUTH_TOKEN_SECRET || process.env.SESSION_SECRET;
-const AUTH_TOKEN_TTL = '7d';
-const AUTH_TOKEN_COOKIE_NAME = 'authToken';
 
-const allowedOrigins = new Set(
-  [
+function collectAllowedOrigins() {
+  const configuredOrigins = [
     process.env.FRONTEND_URL,
-    'http://localhost:3000',
-    'https://sparklane-react-app.up.railway.app'
-  ].filter(Boolean)
-);
+    process.env.APP_URL,
+    process.env.CORS_ALLOWED_ORIGINS
+  ]
+    .filter(Boolean)
+    .flatMap((value) => value.split(','))
+    .map((value) => value.trim())
+    .filter(Boolean);
+
+  return new Set([
+    ...configuredOrigins,
+    'http://localhost:3000'
+  ]);
+}
+
+const allowedOrigins = collectAllowedOrigins();
 
 function sanitizeUser(user) {
   if (!user) {
@@ -34,89 +39,9 @@ function getAppUserId(user) {
   return user?.googleId || user?.id || null;
 }
 
-function createAuthToken(user) {
-  return jwt.sign(
-    {
-      sub: user.id,
-      googleId: user.googleId,
-      email: user.email
-    },
-    AUTH_TOKEN_SECRET,
-    { expiresIn: AUTH_TOKEN_TTL }
-  );
-}
-
-function extractBearerToken(req) {
-  const authorizationHeader = req.get('authorization');
-
-  if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
-    return null;
-  }
-
-  return authorizationHeader.slice('Bearer '.length).trim();
-}
-
-function parseCookies(req) {
-  const rawCookieHeader = req.get('cookie');
-
-  if (!rawCookieHeader) {
-    return {};
-  }
-
-  return rawCookieHeader.split(';').reduce((cookies, cookiePart) => {
-    const separatorIndex = cookiePart.indexOf('=');
-
-    if (separatorIndex === -1) {
-      return cookies;
-    }
-
-    const name = cookiePart.slice(0, separatorIndex).trim();
-    const value = cookiePart.slice(separatorIndex + 1).trim();
-
-    if (name) {
-      cookies[name] = decodeURIComponent(value);
-    }
-
-    return cookies;
-  }, {});
-}
-
-async function requireAuth(req, res, next) {
+function requireAuth(req, res, next) {
   if (req.isAuthenticated && req.isAuthenticated() && req.user) {
     return next();
-  }
-
-  const bearerToken = extractBearerToken(req);
-
-  if (bearerToken) {
-    try {
-      const decodedToken = jwt.verify(bearerToken, AUTH_TOKEN_SECRET);
-      const user = await AuthAccount.findById(decodedToken.sub);
-
-      if (user) {
-        req.user = user;
-        return next();
-      }
-    } catch (error) {
-      // Fall through to the cookie fallback when the bearer token is missing, invalid, or expired.
-    }
-  }
-
-  const cookies = parseCookies(req);
-  const authToken = cookies[AUTH_TOKEN_COOKIE_NAME];
-
-  if (authToken) {
-    try {
-      const decodedToken = jwt.verify(authToken, AUTH_TOKEN_SECRET);
-      const user = await AuthAccount.findById(decodedToken.sub);
-
-      if (user) {
-        req.user = user;
-        return next();
-      }
-    } catch (error) {
-      // Fall through to the 401 response when the token is missing, invalid, or expired.
-    }
   }
 
   return res.status(401).json({ error: 'Authentication required' });
@@ -138,8 +63,6 @@ function requireTrustedOrigin(req, res, next) {
 
 module.exports = {
   allowedOrigins: Array.from(allowedOrigins),
-  AUTH_TOKEN_COOKIE_NAME,
-  createAuthToken,
   getAppUserId,
   requireAuth,
   requireTrustedOrigin,

@@ -1,15 +1,15 @@
 const express = require('express');
 const passport = require('passport');
-const { AUTH_TOKEN_COOKIE_NAME, createAuthToken, requireAuth, requireTrustedOrigin, sanitizeUser } = require('../middleware/auth');
+const { requireAuth, requireTrustedOrigin, sanitizeUser } = require('../middleware/auth');
 
 const router = express.Router();
 const isProduction = process.env.NODE_ENV === 'production';
-const authCookieOptions = {
+const cookieOptions = {
   httpOnly: true,
-  sameSite: isProduction ? 'none' : 'lax',
+  sameSite: 'lax',
   secure: isProduction,
-  maxAge: 7 * 24 * 60 * 60 * 1000,
-  path: '/'
+  path: '/',
+  ...(process.env.COOKIE_DOMAIN ? { domain: process.env.COOKIE_DOMAIN } : {})
 };
 
 // Google OAuth routes
@@ -27,7 +27,6 @@ router.get('/google/callback',
   (req, res, next) => {
     const authenticatedUser = req.user;
     const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
-    const authToken = createAuthToken(authenticatedUser);
 
     req.session.regenerate((sessionError) => {
       if (sessionError) {
@@ -44,8 +43,7 @@ router.get('/google/callback',
             return next(saveError);
           }
 
-          res.cookie(AUTH_TOKEN_COOKIE_NAME, authToken, authCookieOptions);
-          return res.redirect(`${frontendUrl}?auth=success#token=${encodeURIComponent(authToken)}`);
+          return res.redirect(`${frontendUrl}?auth=success`);
         });
       });
     });
@@ -68,11 +66,8 @@ router.post('/logout', requireTrustedOrigin, (req, res) => {
       }
 
       res.clearCookie('sessionId', {
-        httpOnly: true,
-        sameSite: isProduction ? 'none' : 'lax',
-        secure: isProduction
+        ...cookieOptions
       });
-      res.clearCookie(AUTH_TOKEN_COOKIE_NAME, authCookieOptions);
       return res.json({ message: 'Logged out successfully' });
     });
   });

@@ -23,6 +23,21 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 const SESSION_SECRET = process.env.SESSION_SECRET;
 const isProduction = process.env.NODE_ENV === 'production';
+const backendPublicUrl =
+  process.env.BACKEND_PUBLIC_URL ||
+  process.env.API_URL ||
+  process.env.RAILWAY_PUBLIC_URL ||
+  process.env.RAILWAY_PUBLIC_DOMAIN ||
+  'http://localhost:5000';
+  
+const sessionCookieSettings = {
+  secure: isProduction,
+  sameSite: 'lax',
+  maxAge: 24 * 60 * 60 * 1000,
+  httpOnly: true,
+  path: '/',
+  ...(process.env.COOKIE_DOMAIN ? { domain: process.env.COOKIE_DOMAIN } : {})
+};
 
 const REQUIRED_ENV_VARS = [
   'SESSION_SECRET',
@@ -59,12 +74,7 @@ app.use(session({
   resave: false,
   saveUninitialized: false,
   store: new MongoSessionStore(),
-  cookie: { 
-    secure: isProduction,
-    sameSite: isProduction ? 'none' : 'lax',
-    maxAge: 24 * 60 * 60 * 1000, 
-    httpOnly: true, 
-  },
+  cookie: sessionCookieSettings,
   name: 'sessionId', 
   rolling: true 
 }));
@@ -82,7 +92,7 @@ app.use(passport.session());
 passport.use(new GoogleStrategy({
   clientID: process.env.GOOGLE_CLIENT_ID,
   clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-  callbackURL: `${process.env.RAILWAY_PUBLIC_URL || process.env.RAILWAY_PUBLIC_DOMAIN || 'http://localhost:5000'}/auth/google/callback`
+  callbackURL: `${backendPublicUrl}/auth/google/callback`
 }, async (accessToken, refreshToken, profile, done) => {
   try {
     const authAccount = await AuthAccount.findOneAndUpdate(
