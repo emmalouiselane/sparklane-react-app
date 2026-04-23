@@ -16,7 +16,9 @@ const cookieOptions = {
 router.get('/google', passport.authenticate('google', { 
   scope: ['profile', 'email', 'https://www.googleapis.com/auth/calendar', 'https://www.googleapis.com/auth/calendar.events'],
   state: true,
-  prompt: 'select_account'
+  prompt: 'consent select_account',
+  accessType: 'offline',
+  includeGrantedScopes: true
 }));
 
 router.get('/google/callback', 
