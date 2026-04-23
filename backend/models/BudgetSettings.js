@@ -17,6 +17,4 @@ const budgetSettingsSchema = new mongoose.Schema({
   timestamps: true
 });
 
-budgetSettingsSchema.index({ userId: 1 }, { unique: true });
-
 module.exports = mongoose.model('BudgetSettings', budgetSettingsSchema);

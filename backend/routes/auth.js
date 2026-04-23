@@ -1,14 +1,21 @@
 const express = require('express');
 const passport = require('passport');
-const { requireAuth, requireTrustedOrigin, sanitizeUser } = require('../middleware/auth');
+const { AUTH_TOKEN_COOKIE_NAME, createAuthToken, requireAuth, requireTrustedOrigin, sanitizeUser } = require('../middleware/auth');
 
 const router = express.Router();
+const isProduction = process.env.NODE_ENV === 'production';
+const authCookieOptions = {
+  httpOnly: true,
+  sameSite: isProduction ? 'none' : 'lax',
+  secure: isProduction,
+  maxAge: 7 * 24 * 60 * 60 * 1000,
+  path: '/'
+};
 
 // Google OAuth routes
 router.get('/google', passport.authenticate('google', { 
   scope: ['profile', 'email', 'https://www.googleapis.com/auth/calendar', 'https://www.googleapis.com/auth/calendar.events'],
-  state: true,
-  prompt: 'select_account'
+  state: true
 }));
 
 router.get('/google/callback', 
@@ -18,6 +25,8 @@ router.get('/google/callback',
   }),
   (req, res, next) => {
     const authenticatedUser = req.user;
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+    const authToken = createAuthToken(authenticatedUser);
 
     req.session.regenerate((sessionError) => {
       if (sessionError) {
@@ -29,7 +38,14 @@ router.get('/google/callback',
           return next(loginError);
         }
 
-        return res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:3000'}?auth=success`);
+        return req.session.save((saveError) => {
+          if (saveError) {
+            return next(saveError);
+          }
+
+          res.cookie(AUTH_TOKEN_COOKIE_NAME, authToken, authCookieOptions);
+          return res.redirect(`${frontendUrl}?auth=success`);
+        });
       });
     });
   }
@@ -52,9 +68,10 @@ router.post('/logout', requireTrustedOrigin, (req, res) => {
 
       res.clearCookie('sessionId', {
         httpOnly: true,
-        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
-        secure: process.env.NODE_ENV === 'production'
+        sameSite: isProduction ? 'none' : 'lax',
+        secure: isProduction
       });
+      res.clearCookie(AUTH_TOKEN_COOKIE_NAME, authCookieOptions);
       return res.json({ message: 'Logged out successfully' });
     });
   });
