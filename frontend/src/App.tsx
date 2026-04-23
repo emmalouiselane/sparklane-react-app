@@ -13,6 +13,7 @@ import './App.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './CustomBootstrap.css';
 
+const ACTIVE_MODULE_STORAGE_KEY = 'sparklane_active_module';
 const MODULE_NAV_ITEMS: ModuleNavItem[] = [
   { id: 'home', label: 'Home' },
   { id: 'time-logs', label: 'Time Logs' },
@@ -29,9 +30,23 @@ const MODULE_COMPONENTS: Record<ModuleId, React.ComponentType> = {
   'account-settings': AccountSettingsPage,
 };
 
+function getStoredActiveModule(): ModuleId {
+  if (typeof window === 'undefined') {
+    return 'home';
+  }
+
+  const storedModule = window.localStorage.getItem(ACTIVE_MODULE_STORAGE_KEY);
+
+  if (storedModule && storedModule in MODULE_COMPONENTS) {
+    return storedModule as ModuleId;
+  }
+
+  return 'home';
+}
+
 function AppContent() {
   const { user, isAuthenticated, loading, error, checkAuthStatus, setError } = useAuthContext();
-  const [activeModule, setActiveModule] = useState<ModuleId>('home');
+  const [activeModule, setActiveModule] = useState<ModuleId>(() => getStoredActiveModule());
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(true);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const moduleHeadingRef = useRef<HTMLHeadingElement>(null);
@@ -51,6 +66,10 @@ function AppContent() {
 
   useEffect(() => {
     moduleHeadingRef.current?.focus();
+  }, [activeModule]);
+
+  useEffect(() => {
+    window.localStorage.setItem(ACTIVE_MODULE_STORAGE_KEY, activeModule);
   }, [activeModule]);
 
   useEffect(() => {
