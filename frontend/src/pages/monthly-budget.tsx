@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { ChevronLeft, ChevronRight, PencilSquare, Trash } from 'react-bootstrap-icons';
+import { CheckLg, ChevronLeft, ChevronRight, Eye, EyeSlash, PencilSquare, QuestionLg, Trash } from 'react-bootstrap-icons';
 import { apiClient } from '../helpers/auth';
 import {
   addDays,
@@ -235,6 +235,7 @@ function MonthlyBudgetPage() {
   const [error, setError] = useState<string | null>(null);
   const [isAddPaymentModalOpen, setIsAddPaymentModalOpen] = useState(false);
   const [paymentNotice, setPaymentNotice] = useState<string | null>(null);
+  const [showAllPayments, setShowAllPayments] = useState(false);
   const [kind, setKind] = useState<PaymentKind>('single');
   const [title, setTitle] = useState('');
   const [amount, setAmount] = useState('');
@@ -354,6 +355,15 @@ function MonthlyBudgetPage() {
 
     return { income, expenses, balance: income - expenses, outstandingExpenses };
   }, [paymentsInPeriod]);
+
+  const visiblePaymentsInPeriod = useMemo(
+    () => (showAllPayments ? paymentsInPeriod : paymentsInPeriod.filter((payment) => !payment.isPaid)),
+    [paymentsInPeriod, showAllPayments]
+  );
+  const hasPaidPaymentsInPeriod = useMemo(
+    () => paymentsInPeriod.some((payment) => payment.isPaid),
+    [paymentsInPeriod]
+  );
 
   const paymentsByDay = useMemo(() => {
     return paymentsInPeriod.reduce<Record<string, PaymentOccurrence[]>>((acc, payment) => {
@@ -765,7 +775,24 @@ function MonthlyBudgetPage() {
         </section>
 
         <section className="payments-list-card">
-          <h3>Payments In Period</h3>
+          <div className="payments-list-card-header">
+            <h3>Payments In Period</h3>
+            <button
+              type="button"
+              className="payments-visibility-btn"
+              onClick={() => {
+                if (hasPaidPaymentsInPeriod) {
+                  setShowAllPayments((current) => !current);
+                }
+              }}
+              aria-pressed={showAllPayments}
+              aria-label={showAllPayments ? 'Show unpaid payments only' : 'Show all payments'}
+              title={showAllPayments ? 'Show unpaid only' : 'View all payments'}
+              disabled={!hasPaidPaymentsInPeriod}
+            >
+              {showAllPayments ? <EyeSlash size={16} aria-hidden="true" /> : <Eye size={16} aria-hidden="true" />}
+            </button>
+          </div>
 
           <div className="payments-list-card-summary">
             <div>
@@ -780,21 +807,23 @@ function MonthlyBudgetPage() {
 
           {isLoading ? (
             <p className="empty-state">Loading budget data...</p>
-          ) : paymentsInPeriod.length === 0 ? (
-            <p className="empty-state">No payments in this pay period yet.</p>
+          ) : visiblePaymentsInPeriod.length === 0 ? (
+            <p className="empty-state">
+              {showAllPayments ? 'No payments in this pay period yet.' : 'No unpaid payments in this pay period.'}
+            </p>
           ) : (
             <ul>
-              {paymentsInPeriod.map((payment) => (
+              {visiblePaymentsInPeriod.map((payment) => (
                 <li key={payment.id}>
                   <div className={payment.isPaid ? 'payment-details paid' : 'payment-details'}>
                     <strong>{payment.title}</strong>
+                    {payment.kind === 'recurring' && (
+                      <span className="payment-recurring-badge">Recurring monthly</span>
+                    )}
                     <span>{formatShortDateDisplay(parseInputDate(payment.date))}</span>
                   </div>
                   <div>
                     <span className={`payment-type ${payment.type}`}>{payment.type}</span>
-                    {payment.kind === 'recurring' && (
-                      <span className="payment-recurring-badge">Recurring monthly</span>
-                    )}
                     {payment.isPaid && <span className="payment-paid-badge">Paid</span>}
                     <strong>{formatCurrency(payment.amount)}</strong>
                     <div className="payment-action-row">
@@ -802,21 +831,28 @@ function MonthlyBudgetPage() {
                         type="button"
                         className="secondary-action-btn payment-edit-btn"
                         onClick={() => handleOpenEditModal(payment)}
+                        aria-label={`Edit ${payment.title}`}
                       >
                         <PencilSquare size={14} />
-                        <span>Edit</span>
                       </button>
                       <button
                         type="button"
-                        className={payment.isPaid ? 'secondary-action-btn payment-status-btn' : 'payment-status-btn'}
+                        className={payment.isPaid ? 'secondary-action-btn payment-status-btn unpaid' : 'payment-status-btn paid'}
                         onClick={() => handleToggleOccurrencePaid(payment)}
                         disabled={updatingOccurrenceId === payment.id}
+                        aria-label={
+                          updatingOccurrenceId === payment.id
+                            ? `Saving ${payment.title}`
+                            : payment.isPaid
+                              ? `Mark ${payment.title} as unpaid`
+                              : `Mark ${payment.title} as paid`
+                        }
                       >
                         {updatingOccurrenceId === payment.id
                           ? 'Saving...'
                           : payment.isPaid
-                            ? 'Mark Unpaid'
-                            : 'Mark Paid'}
+                            ? <QuestionLg size={14} />
+                            : <CheckLg size={14} />}
                       </button>
                       <button
                         type="button"

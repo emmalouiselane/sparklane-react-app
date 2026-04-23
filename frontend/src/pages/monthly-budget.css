@@ -219,10 +219,57 @@
   text-align: center;
 }
 
+.payments-list-card-header {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 12px;
+}
+
+.payments-list-card-header h3 {
+  margin: 0;
+  grid-column: 2;
+  text-align: center;
+}
+
+.payments-visibility-btn {
+  grid-column: 3;
+  justify-self: end;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  min-width: 38px;
+  min-height: 38px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.08);
+  color: white;
+  cursor: pointer;
+}
+
+.payments-visibility-btn:hover {
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.payments-visibility-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.payments-visibility-btn:disabled:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.payments-visibility-btn:focus-visible {
+  outline: 2px solid #f18463;
+  outline-offset: 2px;
+}
+
 .payments-list-card-summary {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   text-align: center;
+  margin-top: 16px;
 }
 
 .payments-list-card ul {
@@ -270,14 +317,18 @@
 .payment-action-row {
   display: flex;
   gap: 8px;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  flex-direction: row;
   justify-content: flex-end;
 }
 
 .payment-edit-btn {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  justify-content: center;
+  min-width: 34px;
+  min-height: 34px;
+  padding: 6px !important;
   background: rgba(255, 255, 255, 0.14) !important;
 }
 
@@ -299,7 +350,20 @@
 }
 
 .payment-status-btn {
+  min-width: 34px;
+  min-height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px !important;
+}
+
+.payment-status-btn.paid {
   background: rgba(61, 209, 131, 0.28) !important;
+}
+
+.payment-status-btn.unpaid {
+  background: rgba(225, 164, 66, 0.32) !important;
 }
 
 .payment-type {
@@ -319,6 +383,7 @@
 .payment-recurring-badge {
   font-size: 0.72rem;
   opacity: 0.9;
+  margin-top: 2px;
 }
 
 .payment-paid-badge {
@@ -624,6 +689,26 @@
   background: rgba(255, 107, 107, 1);
 }
 
+@media (min-width: 1025px) {
+  .payments-list-card,
+  .payments-calendar-card {
+    height: 100%;
+    min-height: 0;
+  }
+
+  .payments-list-card {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .payments-list-card ul {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    padding-right: 6px;
+  }
+}
+
 @media (max-width: 1024px) {
   .budget-controls {
     grid-template-columns: 1fr 1fr;
@@ -708,6 +793,7 @@
   }
 
   .payments-calendar-header,
+  .payments-list-card-header,
   .payment-modal-header,
   .payment-modal-actions {
     flex-direction: column;
