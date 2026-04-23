@@ -62,6 +62,11 @@ interface CalendarMonth {
   month: number; // 0-11
 }
 
+interface DaySummaryTarget {
+  date: string;
+  payments: PaymentOccurrence[];
+}
+
 const DAY_NAMES = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
 function clampPayDate(year: number, month: number, payDay: number) {
@@ -252,6 +257,8 @@ function MonthlyBudgetPage() {
   const [editAmount, setEditAmount] = useState('');
   const [editScope, setEditScope] = useState<EditScope>('all');
   const [isEditSubmitting, setIsEditSubmitting] = useState(false);
+  const [daySummaryTarget, setDaySummaryTarget] = useState<DaySummaryTarget | null>(null);
+  const [showAllDaySummaryPayments, setShowAllDaySummaryPayments] = useState(false);
 
   useEffect(() => {
     if (!paymentNotice) {
@@ -667,6 +674,25 @@ function MonthlyBudgetPage() {
     setIsAddPaymentModalOpen(false);
   };
 
+  const handleCloseDaySummaryModal = () => {
+    setDaySummaryTarget(null);
+    setShowAllDaySummaryPayments(false);
+  };
+
+  const visibleDaySummaryPayments = useMemo(
+    () =>
+      daySummaryTarget
+        ? (showAllDaySummaryPayments
+            ? daySummaryTarget.payments
+            : daySummaryTarget.payments.filter((payment) => !payment.isPaid))
+        : [],
+    [daySummaryTarget, showAllDaySummaryPayments]
+  );
+  const hasPaidDaySummaryPayments = useMemo(
+    () => Boolean(daySummaryTarget?.payments.some((payment) => payment.isPaid)),
+    [daySummaryTarget]
+  );
+
   const goToPreviousPayPeriod = () => {
     setAnchorDate(toInputDate(addDays(period.start, -1)));
   };
@@ -906,31 +932,34 @@ function MonthlyBudgetPage() {
                         onClick={() => setAnchorDate(key)}
                         aria-pressed={isAnchorDate}
                         aria-label={`View pay period containing ${formatShortDateDisplay(cellDate)}`}
-                      >
-                        <span className="calendar-date-number">{cellDate.getDate()}</span>
-                        {dayPayments.slice(0, 2).map((payment) => (
-                          <span key={payment.id} className={`calendar-payment ${payment.type}${payment.isPaid ? ' paid' : ''}`}>
-                            {payment.title} ({formatCurrency(payment.amount)})
-                          </span>
-                        ))}
-                        {dayPayments.length > 2 && <span className="calendar-more">+{dayPayments.length - 2} more</span>}
-                        {dayPayments.length > 0 && (
-                          <div className="calendar-tooltip" role="tooltip">
-                            <strong className="calendar-tooltip-title">{formatShortDateDisplay(cellDate)}</strong>
-                            {dayPayments.map((payment) => (
-                              <div key={`${payment.id}-tooltip`} className="calendar-tooltip-item">
-                                <span className={`calendar-tooltip-type ${payment.type}`}>{payment.type}</span>
-                                <span className={payment.isPaid ? 'calendar-tooltip-name paid' : 'calendar-tooltip-name'}>
-                                  {payment.title}
-                                </span>
-                                <strong>{formatCurrency(payment.amount)}</strong>
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                      </button>
-                    );
-                  })}
+                        >
+                          <span className="calendar-date-number">{cellDate.getDate()}</span>
+                          {dayPayments.slice(0, 2).map((payment) => (
+                            <span key={payment.id} className={`calendar-payment ${payment.type}${payment.isPaid ? ' paid' : ''}`}>
+                              {payment.title} ({formatCurrency(payment.amount)})
+                            </span>
+                          ))}
+                          {dayPayments.length > 2 && <span className="calendar-more">+{dayPayments.length - 2} more</span>}
+                          {dayPayments.length > 0 && (
+                            <button
+                              type="button"
+                              className="calendar-summary-btn"
+                              onClick={(event) => {
+                                event.stopPropagation();
+                                setDaySummaryTarget({
+                                  date: key,
+                                  payments: dayPayments
+                                });
+                                setShowAllDaySummaryPayments(false);
+                              }}
+                              aria-label={`View all payments for ${formatShortDateDisplay(cellDate)}`}
+                            >
+                              View day
+                            </button>
+                          )}
+                        </button>
+                      );
+                    })}
                 </div>
               </div>
             ))}
@@ -1162,6 +1191,72 @@ function MonthlyBudgetPage() {
                 disabled={isSingleDeleteSubmitting}
               >
                 {isSingleDeleteSubmitting ? 'Removing...' : 'Remove'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {daySummaryTarget && (
+        <div
+          className="payment-modal-backdrop"
+          role="presentation"
+          onClick={handleCloseDaySummaryModal}
+        >
+            <div
+              className="payment-modal day-summary-modal"
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="day-summary-heading"
+            onClick={(event) => event.stopPropagation()}
+            >
+              <div className="payment-modal-header">
+                <h3 id="day-summary-heading">
+                  Payments for {formatShortDateDisplay(parseInputDate(daySummaryTarget.date))}
+                </h3>
+                <button
+                  type="button"
+                  className="payments-visibility-btn"
+                  onClick={() => {
+                    if (hasPaidDaySummaryPayments) {
+                      setShowAllDaySummaryPayments((current) => !current);
+                    }
+                  }}
+                  aria-pressed={showAllDaySummaryPayments}
+                  aria-label={showAllDaySummaryPayments ? 'Show unpaid payments only' : 'Show all payments'}
+                  title={showAllDaySummaryPayments ? 'Show unpaid only' : 'View all payments'}
+                  disabled={!hasPaidDaySummaryPayments}
+                >
+                  {showAllDaySummaryPayments ? <EyeSlash size={16} aria-hidden="true" /> : <Eye size={16} aria-hidden="true" />}
+                </button>
+              </div>
+              {visibleDaySummaryPayments.length === 0 ? (
+                <p className="empty-state">
+                  {showAllDaySummaryPayments ? 'No payments for this day.' : 'No unpaid payments for this day.'}
+                </p>
+              ) : (
+                <div className="day-summary-list">
+                  {visibleDaySummaryPayments.map((payment) => (
+                    <div key={`${payment.id}-summary`} className="day-summary-item">
+                      <div className={payment.isPaid ? 'payment-details paid' : 'payment-details'}>
+                        <strong>{payment.title}</strong>
+                        {payment.kind === 'recurring' && (
+                          <span className="payment-recurring-badge">Recurring monthly</span>
+                        )}
+                        <span>{formatShortDateDisplay(parseInputDate(payment.date))}</span>
+                      </div>
+                      <div>
+                        <span className={`payment-type ${payment.type}`}>{payment.type}</span>
+                        {payment.isPaid && <span className="payment-paid-badge">Paid</span>}
+                        <strong>{formatCurrency(payment.amount)}</strong>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+              <div className="payment-modal-actions">
+                <button type="button" className="secondary-action-btn" onClick={handleCloseDaySummaryModal}>
+                  Close
               </button>
             </div>
           </div>
