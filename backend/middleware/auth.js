@@ -46,6 +46,16 @@ function createAuthToken(user) {
   );
 }
 
+function extractBearerToken(req) {
+  const authorizationHeader = req.get('authorization');
+
+  if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
+    return null;
+  }
+
+  return authorizationHeader.slice('Bearer '.length).trim();
+}
+
 function parseCookies(req) {
   const rawCookieHeader = req.get('cookie');
 
@@ -74,6 +84,22 @@ function parseCookies(req) {
 async function requireAuth(req, res, next) {
   if (req.isAuthenticated && req.isAuthenticated() && req.user) {
     return next();
+  }
+
+  const bearerToken = extractBearerToken(req);
+
+  if (bearerToken) {
+    try {
+      const decodedToken = jwt.verify(bearerToken, AUTH_TOKEN_SECRET);
+      const user = await AuthAccount.findById(decodedToken.sub);
+
+      if (user) {
+        req.user = user;
+        return next();
+      }
+    } catch (error) {
+      // Fall through to the cookie fallback when the bearer token is missing, invalid, or expired.
+    }
   }
 
   const cookies = parseCookies(req);

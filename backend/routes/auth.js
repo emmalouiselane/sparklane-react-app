@@ -15,7 +15,8 @@ const authCookieOptions = {
 // Google OAuth routes
 router.get('/google', passport.authenticate('google', { 
   scope: ['profile', 'email', 'https://www.googleapis.com/auth/calendar', 'https://www.googleapis.com/auth/calendar.events'],
-  state: true
+  state: true,
+  prompt: 'select_account'
 }));
 
 router.get('/google/callback', 
@@ -44,7 +45,7 @@ router.get('/google/callback',
           }
 
           res.cookie(AUTH_TOKEN_COOKIE_NAME, authToken, authCookieOptions);
-          return res.redirect(`${frontendUrl}?auth=success`);
+          return res.redirect(`${frontendUrl}?auth=success#token=${encodeURIComponent(authToken)}`);
         });
       });
     });

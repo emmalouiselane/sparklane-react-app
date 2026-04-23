@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { apiClient } from '../helpers/auth';
+import { clearStoredAuthToken, getStoredAuthToken } from '../helpers/authToken';
 
 
 export interface UseAuthReturn {
@@ -31,7 +32,12 @@ export function useAuth(): UseAuthReturn {
       }
     } catch (err: any) {
       if (err.response?.status === 401) {
-        setError('Your session has expired. Please log in again.');
+        const hasStoredAuthToken = Boolean(getStoredAuthToken());
+        if (hasStoredAuthToken) {
+          clearStoredAuthToken();
+        }
+
+        setError(hasStoredAuthToken ? 'Login could not be restored. Please sign in again.' : 'Your session has expired. Please log in again.');
         setUser(null);
         setIsAuthenticated(false);
       }
@@ -46,6 +52,7 @@ export function useAuth(): UseAuthReturn {
     } catch (err) {
       console.error('Logout failed:', err);
     } finally {
+      clearStoredAuthToken();
       setUser(null);
       setIsAuthenticated(false);
       setError(null);
