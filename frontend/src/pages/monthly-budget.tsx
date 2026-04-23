@@ -304,7 +304,19 @@ function MonthlyBudgetPage() {
       occurrences.push(...getRecurringOccurrencesInPeriod(payment, period.start, period.end));
     });
 
-    return occurrences.sort((a, b) => parseInputDate(a.date).getTime() - parseInputDate(b.date).getTime());
+    return occurrences.sort((a, b) => {
+      const dateDifference = parseInputDate(a.date).getTime() - parseInputDate(b.date).getTime();
+
+      if (dateDifference !== 0) {
+        return dateDifference;
+      }
+
+      if (a.type !== b.type) {
+        return a.type === 'income' ? -1 : 1;
+      }
+
+      return b.amount - a.amount;
+    });
   }, [payments, period]);
 
   const totals = useMemo(() => {
