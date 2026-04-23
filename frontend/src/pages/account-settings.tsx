@@ -4,6 +4,16 @@ import { apiClient } from '../helpers/auth';
 import { getOrdinalSuffix } from '../helpers/helper';
 import './account-settings.css';
 
+function describePayDay(payDay: number) {
+  const ordinalDay = `${payDay}${getOrdinalSuffix(payDay)}`;
+
+  if (payDay <= 28) {
+    return `the ${ordinalDay} of each month`;
+  }
+
+  return `the ${ordinalDay} of each month, or the last available day in shorter months`;
+}
+
 function AccountSettingsPage() {
   const { user } = useAuthContext();
   const [payDay, setPayDay] = useState<number>(28);
@@ -40,7 +50,7 @@ function AccountSettingsPage() {
 
       await apiClient.put('/api/budget/settings', { payDay: nextPayDay });
 
-      setNotice(`Pay day updated to the ${nextPayDay}${getOrdinalSuffix(nextPayDay)} of each month.`);
+      setNotice(`Pay day updated to ${describePayDay(nextPayDay)}.`);
     } catch (requestError: any) {
       console.error('Failed to update pay day', requestError);
       setError(requestError.response?.data?.error || 'Failed to save pay day.');
@@ -110,7 +120,7 @@ function AccountSettingsPage() {
             ? 'Loading your budget settings...'
             : isSaving
               ? 'Saving your new pay day...'
-              : `Current pay periods start on the ${payDay}${getOrdinalSuffix(payDay)} of each month.`}
+              : `Current pay periods start on ${describePayDay(payDay)}.`}
         </p>
       </section>
     </section>

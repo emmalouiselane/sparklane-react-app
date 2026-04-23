@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { ChevronLeft, ChevronRight, Trash } from 'react-bootstrap-icons';
+import { ChevronLeft, ChevronRight, PencilSquare, Trash } from 'react-bootstrap-icons';
 import { apiClient } from '../helpers/auth';
 import {
   addDays,
@@ -15,6 +15,12 @@ import './monthly-budget.css';
 
 type PaymentType = 'income' | 'expense';
 type PaymentKind = 'single' | 'recurring';
+type EditScope = 'single-instance' | 'this-and-future' | 'all';
+
+interface AmountOverride {
+  date: string;
+  amount: number;
+}
 
 interface SinglePayment {
   id: string;
@@ -35,6 +41,7 @@ interface RecurringPayment {
   startDate: string; // YYYY-MM-DD
   endDate?: string;
   paidDates: string[];
+  amountOverrides: AmountOverride[];
 }
 
 type PaymentItem = SinglePayment | RecurringPayment;
@@ -144,11 +151,16 @@ function getVisibleMonthGrid(
 }
 
 function toPaymentOccurrence(payment: PaymentItem, date: string, suffix = ''): PaymentOccurrence {
+  const overrideAmount =
+    payment.kind === 'recurring'
+      ? payment.amountOverrides.find((override) => override.date === date)?.amount
+      : undefined;
+
   return {
     id: `${payment.id}-${date}${suffix}`,
     sourceId: payment.id,
     title: payment.title,
-    amount: payment.amount,
+    amount: overrideAmount ?? payment.amount,
     type: payment.type,
     date,
     kind: payment.kind,
@@ -185,6 +197,36 @@ function getRecurringOccurrencesInPeriod(payment: RecurringPayment, periodStart:
   return occurrences;
 }
 
+function normalizePayment(payment: any): PaymentItem | null {
+  if (payment && payment.kind === 'recurring') {
+    return {
+      id: payment.id || payment._id,
+      title: payment.title,
+      amount: payment.amount,
+      type: payment.type,
+        kind: 'recurring',
+        startDate: payment.startDate,
+        endDate: payment.endDate,
+        paidDates: Array.isArray(payment.paidDates) ? payment.paidDates : [],
+        amountOverrides: Array.isArray(payment.amountOverrides) ? payment.amountOverrides : []
+      };
+    }
+
+  if (payment && (payment.kind === 'single' || 'date' in payment)) {
+    return {
+      id: payment.id || payment._id,
+      title: payment.title,
+      amount: payment.amount,
+      type: payment.type,
+      kind: 'single',
+      date: payment.date,
+      paidDates: Array.isArray(payment.paidDates) ? payment.paidDates : []
+    };
+  }
+
+  return null;
+}
+
 function MonthlyBudgetPage() {
   const [payDay, setPayDay] = useState<number>(28);
   const [anchorDate, setAnchorDate] = useState<string>(toInputDate(new Date()));
@@ -205,6 +247,10 @@ function MonthlyBudgetPage() {
   const [isRecurringDeleteSubmitting, setIsRecurringDeleteSubmitting] = useState(false);
   const [singleDeleteTarget, setSingleDeleteTarget] = useState<PaymentOccurrence | null>(null);
   const [isSingleDeleteSubmitting, setIsSingleDeleteSubmitting] = useState(false);
+  const [editTarget, setEditTarget] = useState<PaymentOccurrence | null>(null);
+  const [editAmount, setEditAmount] = useState('');
+  const [editScope, setEditScope] = useState<EditScope>('all');
+  const [isEditSubmitting, setIsEditSubmitting] = useState(false);
 
   useEffect(() => {
     if (!paymentNotice) {
@@ -243,32 +289,7 @@ function MonthlyBudgetPage() {
         try {
           if (Array.isArray(parsedPayments)) {
             const migrated = parsedPayments
-              .map((payment) => {
-                if (payment && payment.kind === 'recurring') {
-                  return {
-                    id: payment.id || (payment as any)._id,
-                    title: payment.title,
-                    amount: payment.amount,
-                    type: payment.type,
-                    kind: 'recurring' as const,
-                    startDate: payment.startDate,
-                    endDate: (payment as RecurringPayment).endDate,
-                    paidDates: Array.isArray((payment as any).paidDates) ? (payment as any).paidDates : []
-                  };
-                }
-                if (payment && (payment.kind === 'single' || 'date' in payment)) {
-                  return {
-                    id: payment.id || (payment as any)._id,
-                    title: payment.title,
-                    amount: payment.amount,
-                    type: payment.type,
-                    kind: 'single' as const,
-                    date: (payment as SinglePayment).date,
-                    paidDates: Array.isArray((payment as any).paidDates) ? (payment as any).paidDates : []
-                  };
-                }
-                return null;
-              })
+              .map((payment) => normalizePayment(payment))
               .filter((payment): payment is PaymentItem => payment !== null);
             setPayments(migrated);
           }
@@ -375,6 +396,7 @@ function MonthlyBudgetPage() {
       }
 
       try {
+        const selectedPaymentDate = kind === 'single' ? singleDate : recurringStartDate;
         const payload =
           kind === 'single'
             ? {
@@ -395,31 +417,18 @@ function MonthlyBudgetPage() {
         const response = await apiClient.post('/api/budget/payments', payload);
 
         const savedPayment = response.data.payment;
-        const nextPayment: PaymentItem =
-          savedPayment.kind === 'single'
-            ? {
-                id: savedPayment._id,
-                title: savedPayment.title,
-                amount: savedPayment.amount,
-                date: savedPayment.date,
-                type: savedPayment.type,
-                kind: 'single',
-                paidDates: Array.isArray(savedPayment.paidDates) ? savedPayment.paidDates : []
-              }
-            : {
-                id: savedPayment._id,
-                title: savedPayment.title,
-                amount: savedPayment.amount,
-                type: savedPayment.type,
-                kind: 'recurring',
-                startDate: savedPayment.startDate,
-                endDate: savedPayment.endDate,
-                paidDates: Array.isArray(savedPayment.paidDates) ? savedPayment.paidDates : []
-              };
+        const nextPayment = normalizePayment(savedPayment);
+
+        if (!nextPayment) {
+          throw new Error('Failed to parse saved payment.');
+        }
 
         setPayments((current) => [nextPayment, ...current]);
-        setAnchorDate(kind === 'single' ? singleDate : recurringStartDate);
-        setPaymentNotice(`${title.trim()} added to this pay period.`);
+        setPaymentNotice(
+          kind === 'single'
+            ? `${title.trim()} added for ${formatShortDateDisplay(parseInputDate(selectedPaymentDate))}.`
+            : `${title.trim()} starts on ${formatShortDateDisplay(parseInputDate(selectedPaymentDate))}.`
+        );
         setError(null);
         resetPaymentForm();
         setIsAddPaymentModalOpen(false);
@@ -434,8 +443,6 @@ function MonthlyBudgetPage() {
 
   const handleOpenAddPaymentModal = () => {
     setPaymentNotice(null);
-    setSingleDate(anchorDate);
-    setRecurringStartDate(anchorDate);
     setIsAddPaymentModalOpen(true);
   };
 
@@ -443,6 +450,22 @@ function MonthlyBudgetPage() {
     setRecurringDeleteTarget(payment);
     setPaymentNotice(null);
     setError(null);
+  };
+
+  const handleOpenEditModal = (payment: PaymentOccurrence) => {
+    setEditTarget(payment);
+    setEditAmount(payment.amount.toFixed(2));
+    setEditScope(payment.kind === 'recurring' ? 'single-instance' : 'all');
+    setPaymentNotice(null);
+    setError(null);
+  };
+
+  const handleCloseEditModal = () => {
+    if (!isEditSubmitting) {
+      setEditTarget(null);
+      setEditAmount('');
+      setEditScope('all');
+    }
   };
 
   const handleOpenSingleDeleteModal = (payment: PaymentOccurrence) => {
@@ -572,6 +595,60 @@ function MonthlyBudgetPage() {
       setError(requestError.response?.data?.error || 'Failed to update paid status.');
     } finally {
       setUpdatingOccurrenceId(null);
+    }
+  };
+
+  const handleSubmitEditAmount = async (event: React.FormEvent) => {
+    event.preventDefault();
+
+    if (!editTarget) {
+      return;
+    }
+
+    const parsedAmount = Number(editAmount);
+
+    if (Number.isNaN(parsedAmount) || parsedAmount <= 0) {
+      setError('Please enter a valid payment amount.');
+      return;
+    }
+
+    try {
+      setIsEditSubmitting(true);
+      setPaymentNotice(null);
+      setError(null);
+
+      const response = await apiClient.patch(`/api/budget/payments/${editTarget.sourceId}`, {
+        amount: parsedAmount,
+        scope: editTarget.kind === 'recurring' ? editScope : 'all',
+        date: editTarget.date
+      });
+      const updatedPayment = normalizePayment(response.data.payment);
+      const createdPayment = normalizePayment(response.data.createdPayment);
+
+      if (!updatedPayment) {
+        throw new Error('Failed to parse updated payment.');
+      }
+
+      setPayments((current) => {
+        const nextPayments = current.map((payment) =>
+          payment.id === editTarget.sourceId ? updatedPayment : payment
+        );
+
+        if (createdPayment) {
+          return [createdPayment, ...nextPayments];
+        }
+
+        return nextPayments;
+      });
+      setPaymentNotice(`${editTarget.title} amount updated.`);
+      setEditTarget(null);
+      setEditAmount('');
+      setEditScope('all');
+    } catch (requestError: any) {
+      console.error('Failed to update payment amount', requestError);
+      setError(requestError.response?.data?.error || 'Failed to update payment amount.');
+    } finally {
+      setIsEditSubmitting(false);
     }
   };
 
@@ -721,6 +798,14 @@ function MonthlyBudgetPage() {
                     {payment.isPaid && <span className="payment-paid-badge">Paid</span>}
                     <strong>{formatCurrency(payment.amount)}</strong>
                     <div className="payment-action-row">
+                      <button
+                        type="button"
+                        className="secondary-action-btn payment-edit-btn"
+                        onClick={() => handleOpenEditModal(payment)}
+                      >
+                        <PencilSquare size={14} />
+                        <span>Edit</span>
+                      </button>
                       <button
                         type="button"
                         className={payment.isPaid ? 'secondary-action-btn payment-status-btn' : 'payment-status-btn'}
@@ -884,6 +969,67 @@ function MonthlyBudgetPage() {
                   Cancel
                 </button>
                 <button type="submit">Save Payment</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {editTarget && (
+        <div
+          className="payment-modal-backdrop"
+          role="presentation"
+          onClick={handleCloseEditModal}
+        >
+          <div
+            className="payment-modal recurring-delete-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="edit-payment-heading"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="payment-modal-header">
+              <h3 id="edit-payment-heading">Edit Payment Amount</h3>
+            </div>
+            <div className="recurring-delete-copy">
+              <p>
+                Update <strong>{editTarget.title}</strong> for{' '}
+                <strong>{formatShortDateDisplay(parseInputDate(editTarget.date))}</strong>.
+              </p>
+              {editTarget.kind === 'recurring' && (
+                <p>Choose whether to update only this occurrence, this and future occurrences, or the whole series.</p>
+              )}
+            </div>
+            <form className="payment-form edit-payment-form" onSubmit={handleSubmitEditAmount}>
+              <input
+                type="number"
+                inputMode="decimal"
+                min="0.01"
+                step="0.01"
+                placeholder="Amount"
+                value={editAmount}
+                onChange={(event) => setEditAmount(event.target.value)}
+                required
+              />
+              {editTarget.kind === 'recurring' && (
+                <select value={editScope} onChange={(event) => setEditScope(event.target.value as EditScope)}>
+                  <option value="single-instance">Single Instance</option>
+                  <option value="this-and-future">This and Future</option>
+                  <option value="all">All Instances</option>
+                </select>
+              )}
+              <div className="payment-modal-actions">
+                <button
+                  type="button"
+                  className="secondary-action-btn"
+                  onClick={handleCloseEditModal}
+                  disabled={isEditSubmitting}
+                >
+                  Cancel
+                </button>
+                <button type="submit" disabled={isEditSubmitting}>
+                  {isEditSubmitting ? 'Saving...' : 'Save Amount'}
+                </button>
               </div>
             </form>
           </div>

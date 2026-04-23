@@ -41,6 +41,23 @@ const budgetPaymentSchema = new mongoose.Schema({
   paidDates: {
     type: [String],
     default: []
+  },
+  amountOverrides: {
+    type: [
+      {
+        date: {
+          type: String,
+          required: true,
+          trim: true
+        },
+        amount: {
+          type: Number,
+          required: true,
+          min: 0
+        }
+      }
+    ],
+    default: []
   }
 }, {
   timestamps: true

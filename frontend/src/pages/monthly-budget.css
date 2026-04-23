@@ -274,6 +274,13 @@
   justify-content: flex-end;
 }
 
+.payment-edit-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.14) !important;
+}
+
 .payment-delete-btn {
   min-width: 34px;
   min-height: 34px;
@@ -570,6 +577,11 @@
 
 .recurring-delete-modal {
   width: min(520px, 100%);
+}
+
+.edit-payment-form {
+  grid-template-columns: 1fr;
+  margin-top: 18px;
 }
 
 .payment-modal-header {

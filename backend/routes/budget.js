@@ -41,6 +41,20 @@ function getPreviousRecurringOccurrenceDate(startDate, fromDate) {
   return previousOccurrence ? toBudgetDate(previousOccurrence) : null;
 }
 
+function isValidBudgetDate(value) {
+  return typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(value);
+}
+
+function normalizeAmountOverrides(payment) {
+  if (!Array.isArray(payment.amountOverrides)) {
+    return [];
+  }
+
+  return payment.amountOverrides
+    .filter((override) => isValidBudgetDate(override?.date) && typeof override?.amount === 'number')
+    .sort((a, b) => a.date.localeCompare(b.date));
+}
+
 router.use(requireAuth);
 router.use(requireTrustedOrigin);
 
@@ -237,6 +251,142 @@ router.patch('/payments/:id/paid', async (req, res) => {
   } catch (error) {
     console.error('Error updating paid status:', error);
     res.status(500).json({ error: 'Failed to update paid status' });
+  }
+});
+
+router.patch('/payments/:id', async (req, res) => {
+  try {
+    const { amount, scope = 'all', date } = req.body;
+    const userId = getAppUserId(req.user);
+
+    if (typeof amount !== 'number' || Number.isNaN(amount) || amount <= 0) {
+      return res.status(400).json({ error: 'Amount must be a positive number' });
+    }
+
+    const payment = await BudgetPayment.findOne({ _id: req.params.id, userId });
+
+    if (!payment) {
+      return res.status(404).json({ error: 'Payment not found' });
+    }
+
+    if (payment.kind === 'single') {
+      payment.amount = amount;
+      const updatedPayment = await payment.save();
+
+      return res.json({
+        message: 'Payment updated successfully',
+        payment: updatedPayment
+      });
+    }
+
+    if (!['single-instance', 'this-and-future', 'all'].includes(scope)) {
+      return res.status(400).json({ error: 'Invalid update scope' });
+    }
+
+    if ((scope === 'single-instance' || scope === 'this-and-future') && !isValidBudgetDate(date)) {
+      return res.status(400).json({ error: 'A valid recurring occurrence date is required' });
+    }
+
+    if (!payment.startDate) {
+      return res.status(400).json({ error: 'Recurring payment is missing a start date' });
+    }
+
+    if (scope === 'all') {
+      payment.amount = amount;
+      payment.amountOverrides = [];
+      const updatedPayment = await payment.save();
+
+      return res.json({
+        message: 'Recurring payment updated successfully',
+        payment: updatedPayment
+      });
+    }
+
+    if (scope === 'single-instance') {
+      const existingOverrides = normalizeAmountOverrides(payment).filter((override) => override.date !== date);
+      payment.amountOverrides = [...existingOverrides, { date, amount }];
+
+      const updatedPayment = await payment.save();
+
+      return res.json({
+        message: 'Payment occurrence updated successfully',
+        payment: updatedPayment
+      });
+    }
+
+    const previousOccurrenceDate = getPreviousRecurringOccurrenceDate(payment.startDate, date);
+    const originalEndDate = payment.endDate;
+
+    if (!previousOccurrenceDate) {
+      payment.startDate = date;
+      payment.amount = amount;
+      payment.amountOverrides = normalizeAmountOverrides(payment)
+        .filter((override) => override.date >= date)
+        .map((override) => ({
+          date: override.date,
+          amount: override.amount
+        }));
+
+      const updatedPayment = await payment.save();
+
+      return res.json({
+        message: 'Recurring payment updated successfully',
+        payment: updatedPayment,
+        createdPayment: null,
+        deletedOriginal: false
+      });
+    }
+
+    const existingOverrides = normalizeAmountOverrides(payment);
+    const carriedOverrides = existingOverrides
+      .filter((override) => override.date >= date)
+      .map((override) => ({
+        date: override.date,
+        amount: override.date === date ? amount : override.amount
+      }));
+
+    if (!carriedOverrides.some((override) => override.date === date)) {
+      carriedOverrides.unshift({ date, amount });
+    }
+
+    const futurePaidDates = (Array.isArray(payment.paidDates) ? payment.paidDates : []).filter((paidDate) => paidDate >= date);
+
+    payment.endDate = previousOccurrenceDate;
+    payment.paidDates = (Array.isArray(payment.paidDates) ? payment.paidDates : []).filter(
+      (paidDate) => paidDate <= previousOccurrenceDate
+    );
+    payment.amountOverrides = existingOverrides
+      .filter((override) => override.date <= previousOccurrenceDate)
+      .map((override) => ({
+        date: override.date,
+        amount: override.amount
+      }));
+
+    const newPayment = new BudgetPayment({
+      userId,
+      title: payment.title,
+      amount,
+      type: payment.type,
+      kind: payment.kind,
+      startDate: date,
+      endDate: originalEndDate && originalEndDate >= date ? originalEndDate : undefined,
+      paidDates: futurePaidDates,
+      amountOverrides: carriedOverrides
+    });
+
+    const [updatedPayment, createdPayment] = await Promise.all([
+      payment.save(),
+      newPayment.save()
+    ]);
+
+    res.json({
+      message: 'Recurring payment updated successfully',
+      payment: updatedPayment,
+      createdPayment
+    });
+  } catch (error) {
+    console.error('Error updating budget payment:', error);
+    res.status(500).json({ error: 'Failed to update payment' });
   }
 });
 
