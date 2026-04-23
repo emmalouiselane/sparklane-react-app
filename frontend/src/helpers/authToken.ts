@@ -17,3 +17,9 @@ export function extractAuthTokenFromHash(hash: string): string | null {
   const params = new URLSearchParams(normalizedHash);
   return params.get('token');
 }
+
+export function extractAuthTokenFromSearch(search: string): string | null {
+  const normalizedSearch = search.startsWith('?') ? search.slice(1) : search;
+  const params = new URLSearchParams(normalizedSearch);
+  return params.get('token');
+}

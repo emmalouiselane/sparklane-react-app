@@ -3,7 +3,7 @@ import Login from './components/Login';
 import Header from './components/Header';
 import Sidebar, { ModuleId, ModuleNavItem } from './components/Sidebar';
 import { AuthProvider, useAuthContext } from './contexts/AuthContext';
-import { extractAuthTokenFromHash, storeAuthToken } from './helpers/authToken';
+import { extractAuthTokenFromHash, extractAuthTokenFromSearch, storeAuthToken } from './helpers/authToken';
 import Homepage from './pages/homepage';
 import TimeLogsPage from './pages/time-logs';
 import MealPlannerPage from './pages/meal-planner';
@@ -40,7 +40,7 @@ function AppContent() {
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const authSuccess = urlParams.get('auth');
-    const authToken = extractAuthTokenFromHash(window.location.hash);
+    const authToken = extractAuthTokenFromSearch(window.location.search) || extractAuthTokenFromHash(window.location.hash);
     
     if (authSuccess === 'success') {
       if (authToken) {
