@@ -65,6 +65,27 @@
   flex-direction: column;
 }
 
+
+.app-content .site-footer {
+  margin-top: auto;
+}
+
+.public-app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--bg-color);
+  background-image: var(--bg-pattern-1), var(--bg-pattern-2);
+  background-size: 80px 80px, 80px 80px;
+  background-position: 0 0, 40px 0;
+  background-repeat: repeat, repeat;
+}
+
+.public-app .login-container {
+  flex: 1;
+  min-height: 0;
+}
+
 .sidebar-backdrop:focus-visible {
   outline: 3px solid #f18463;
   outline-offset: 2px;

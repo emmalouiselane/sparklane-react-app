@@ -8,6 +8,7 @@ import TimeLogsPage from './pages/time-logs';
 import MealPlannerPage from './pages/meal-planner';
 import MonthlyBudgetPage from './pages/monthly-budget';
 import AccountSettingsPage from './pages/account-settings';
+import Footer from './components/Footer';
 
 import './App.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -110,7 +111,12 @@ function AppContent() {
   }
 
   if (!isAuthenticated) {
-    return <Login />;
+    return (
+      <div className="public-app">
+        <Login />
+        <Footer />
+      </div>
+    );
   }
 
   const handleModuleSelect = (module: ModuleId) => {
@@ -154,6 +160,7 @@ function AppContent() {
           <main className="app-main" id="main-content" role="main" aria-labelledby="module-heading">
             <ActiveModulePage />
           </main>
+          <Footer />
         </div>
       </div>
     </div>

@@ -39,7 +39,8 @@
   gap: 10px;
 }
 
-.meal-planner-links a {
+.meal-planner-links a,
+.meal-planner-links button {
   display: block;
   padding: 10px 12px;
   border-radius: 10px;
@@ -47,14 +48,17 @@
   border: 1px solid rgba(255, 255, 255, 0.12);
   color: inherit;
   text-decoration: none;
+  text-align: center;
 }
 
-.meal-planner-links a:hover {
+.meal-planner-links a:hover,
+.meal-planner-links button:hover {
   background: rgba(255, 255, 255, 0.1);
 }
 
-.meal-planner-links a:focus-visible {
-  outline: 2px solid #f18463;
+.meal-planner-links a:focus-visible,
+.meal-planner-links button:focus-visible {
+  outline: 2px solid var(--focus-ring-color);
   outline-offset: 2px;
 }
 
