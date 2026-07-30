@@ -9,6 +9,8 @@ import MealPlannerPage from './pages/meal-planner';
 import MonthlyBudgetPage from './pages/monthly-budget';
 import AccountSettingsPage from './pages/account-settings';
 import Footer from './components/Footer';
+import PrivacyPolicyPage from './pages/privacy-policy';
+import TermsOfServicePage from './pages/terms-of-service';
 
 import './App.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -167,37 +169,22 @@ function AppContent() {
   );
 }
 
-function PublicLegalRedirect({ documentPath }: { documentPath: string }) {
-  useEffect(() => {
-    window.location.replace(documentPath);
-  }, [documentPath]);
-
-  return (
-    <div className="public-app">
-      <main className="legal-redirect" role="main">
-        <p>Opening the legal page…</p>
-        <a href={documentPath}>Continue</a>
-      </main>
-    </div>
-  );
-}
-
 function App() {
   const pathname = window.location.pathname.replace(/\/+$/, '') || '/';
 
   if (pathname === '/privacy') {
-    return <PublicLegalRedirect documentPath="/privacy.html" />;
+    return <PrivacyPolicyPage />;
   }
-  else if (pathname === '/terms') {
-    return <PublicLegalRedirect documentPath="/terms.html" />;
+
+  if (pathname === '/terms') {
+    return <TermsOfServicePage />;
   }
-  else {
-    return (
-      <AuthProvider>
-        <AppContent />
-      </AuthProvider>
-    );
-  }  
+
+  return (
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
+  );
 }
 
 export default App;

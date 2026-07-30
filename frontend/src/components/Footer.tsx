@@ -5,8 +5,8 @@ const Footer: React.FC = () => (
   <footer className="site-footer">
     <span>© {new Date().getFullYear()} Spark Lane Dev</span>
     <nav aria-label="Legal">
-      <a href="/privacy.html">Privacy Policy</a>
-      <a href="/terms.html">Terms of Service</a>
+      <a href="/privacy">Privacy Policy</a>
+      <a href="/terms">Terms of Service</a>
     </nav>
   </footer>
 );
