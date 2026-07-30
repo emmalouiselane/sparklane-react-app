@@ -21,6 +21,13 @@ const Login: React.FC = () => {
             <p>Sparklane helps you organize your day in one place.</p>
             <p>Connect Google Calendar to view and create events, track your time, manage to-dos, and keep your personal budget organized.</p>
           </div>
+
+          <div className="login-data-use">
+            <h3>How we use your Google data</h3>
+            <p>Google profile information is used to sign you in and identify your account. </p>
+            <p>With your permission, Google Calendar data is used only to display your upcoming events and create events you request. </p>
+            <p>We do not sell your Google data or use it for advertising. </p>
+          </div>
           
 
           <div className="google-login-button">
