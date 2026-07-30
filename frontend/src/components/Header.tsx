@@ -127,7 +127,7 @@ function Header({ user, error, isMobileMenuOpen, onOpenMobileMenu, onOpenAccount
       </div>
       <header className="app-header" role="banner">
         <div className="header-content">
-          <h1>Personal Assistant</h1>
+          <h1>Sparklane Personal Assistant</h1>
           <i>Spark Lane Dev</i>
         </div>
         {error && <div className="error" role="alert" aria-live="polite">{error}</div>}

@@ -15,17 +15,18 @@
 
 .login-card {
   background: white;
-  padding: 2rem 3rem;
+  padding: 1rem;
   border-radius: 12px;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
   text-align: center;
   min-width: 350px;
+  max-width: 80%;
+  margin: auto;
 
   h1 {
     color: #35373ee7;
     margin-top: 0.5rem;
     margin-bottom: 0.25rem;
-    font-size: 1.25rem;
     font-weight: 600;
   }
 
@@ -33,13 +34,12 @@
     color: #333;
     margin-top: 0.5rem;
     margin-bottom: 0.5rem;
-    font-size: 1.8rem;
+    font-size: 1.5rem;
     font-weight: 600;
   }
 
   p {
     color: #666;
-    margin-bottom: 2rem;
     font-size: 1rem;
   }
 
@@ -48,11 +48,12 @@
   }
 } 
 
+.login-purpose {
+  margin: 0 1rem;
+}
+
 .google-login-button {
   display: flex;
   justify-content: center;
-  margin-top: 1rem;
-  margin-bottom: 1rem;
+  margin: 1rem auto;
 }
-
-

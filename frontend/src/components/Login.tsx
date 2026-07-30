@@ -14,22 +14,27 @@ const Login: React.FC = () => {
     <div className="login-container">
       <main role="main">
         <section className="login-card">
-          <h1>Welcome!</h1>
-          <h2>Spark Lane Dev ~ Personal Assistant</h2>
+          <h1>Sparklane Personal Assistant</h1>
+          <h2>Your personal productivity workspace</h2>
+
+          <div className="login-purpose">
+            <p>Sparklane helps you organize your day in one place.</p>
+            <p>Connect Google Calendar to view and create events, track your time, manage to-dos, and keep your personal budget organized.</p>
+          </div>
           
+
           <div className="google-login-button">
             <Button 
               variant="primary" 
               size="lg"
               onClick={handleGoogleLogin}
-              className="w-100"
             >
               Sign in with Google
             </Button>
           </div>
 
-          <i>The tools I build are available to all.</i>
-          <p>If you would like access to this Personal Assistant or have any feedback, <a href="mailto:emma@sparklane.dev">please let me know</a></p>
+          <i>Free to use for individuals aged 18 and over.</i>
+          <p>If you would like to use Sparklane Personal Assistant, <a href="mailto:emma@sparklane.dev">please let me know!</a></p>
         </section>
       </main>
     </div>
