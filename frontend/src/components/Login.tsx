@@ -14,6 +14,8 @@ const Login: React.FC = () => {
     <div className="login-container">
       <main role="main">
         <section className="login-card">
+          <img src="/logo512.png" alt="Sparklane" className="login-logo" />
+          
           <h1>Sparklane Personal Assistant</h1>
           <h2>Your personal productivity workspace</h2>
 

@@ -83,3 +83,11 @@
   font-size: 0.9rem;
   line-height: 1.5;
 }
+.login-logo {
+  display: block;
+  width: 92px;
+  height: 92px;
+  object-fit: contain;
+  margin: 0 auto 1rem;
+  border-radius: 22px;
+}
