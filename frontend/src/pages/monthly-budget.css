@@ -320,6 +320,7 @@
   flex-wrap: nowrap;
   flex-direction: row;
   justify-content: flex-end;
+  max-height: 34px;
 }
 
 .payment-edit-btn {

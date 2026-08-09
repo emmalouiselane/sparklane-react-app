@@ -13,7 +13,7 @@ function ConnectionStatus() {
   const [connectionState, setConnectionState] = useState<ConnectionState>('disconnected');
 
   const handleReauthenticate = () => {
-    window.location.href = `${API_BASE_URL}/auth/google`;
+    window.location.href = `${API_BASE_URL}/auth/google/calendar`;
   };
 
   const fetchDataConnection = useCallback(async () => {

@@ -130,6 +130,25 @@ npm start
 4. Test thoroughly
 5. Submit a pull request
 
+## Google OAuth security configuration
+
+The backend uses Google OpenID Connect authorization-code flow with PKCE, state, and nonce. Configure these exact redirect URIs in the Google Cloud OAuth client:
+
+- `http://localhost:5000/auth/google/callback`
+- `http://localhost:5000/auth/google/calendar/callback`
+
+Replace the host with the production value from `BACKEND_PUBLIC_URL`. Redirect URIs must match exactly.
+
+Calendar permission is requested separately from sign-in at `/auth/google/calendar`. The production frontend and backend must use HTTPS. Keep `GOOGLE_CLIENT_SECRET`, `SESSION_SECRET`, `TOKEN_ENCRYPTION_KEY`, and `MONGODB_URI` in the deployment secret manager.
+
+### Cross-Account Protection
+
+Enable the RISC API in the same Google Cloud project as the OAuth client, create the required service account, and register the HTTPS receiver:
+
+`POST https://your-api.example.com/security-events`
+
+The receiver validates Google-signed security event tokens, deduplicates `jti`, revokes local sessions, and removes affected Google tokens. Follow Google's current registration steps at https://developers.google.com/identity/protocols/risc. RISC signals are intended for security, anti-fraud, and session-management purposes only.
+
 ## License
 
 MIT License

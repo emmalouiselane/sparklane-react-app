@@ -1,7 +1,7 @@
 const express = require('express');
 const { google } = require('googleapis');
 const { requireAuth, requireTrustedOrigin } = require('../middleware/auth');
-const { decryptStoredToken, encryptToken } = require('../lib/tokenCrypto');
+const { decryptStoredToken, encryptToken, tokenIdentifiers } = require('../lib/tokenCrypto');
 
 const router = express.Router();
 
@@ -41,6 +41,9 @@ async function getAuthorizedCalendarClient(user) {
 
     if (credentials.refresh_token) {
       user.refreshToken = encryptToken(credentials.refresh_token);
+      const identifiers = tokenIdentifiers(credentials.refresh_token);
+      user.refreshTokenPrefix = identifiers.prefix;
+      user.refreshTokenDoubleHash = identifiers.doubleHash;
     }
 
     if (credentials.access_token || credentials.refresh_token) {

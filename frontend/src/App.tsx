@@ -58,12 +58,15 @@ function AppContent() {
     const urlParams = new URLSearchParams(window.location.search);
     const authSuccess = urlParams.get('auth');
     
-    if (authSuccess === 'success') {
+    if (authSuccess === 'success' || authSuccess === 'calendar-success') {
       window.history.replaceState({}, document.title, window.location.pathname);
       checkAuthStatus();
     } else if (authSuccess === 'error') {
       window.history.replaceState({}, document.title, window.location.pathname);
       setError('Google sign-in failed. Please try again.');
+    } else if (authSuccess === 'calendar-error') {
+      window.history.replaceState({}, document.title, window.location.pathname);
+      setError('Google Calendar authorization failed. Please try again.');
     }
   }, [checkAuthStatus, setError]);
 
