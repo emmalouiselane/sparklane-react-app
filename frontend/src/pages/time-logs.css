@@ -6,8 +6,8 @@
 .time-log-entry-card,
 .time-log-list-card,
 .time-log-day-card {
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: var(--color-surface-elevated);
+  border: 1px solid var(--color-border-soft);
   border-radius: 12px;
   padding: 14px;
 }
@@ -36,26 +36,26 @@
 .time-log-form input,
 .time-log-form button {
   border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.28);
+  border: 1px solid var(--color-border-soft);
   padding: 10px 12px;
 }
 
 .time-log-form input {
-  background: #1e2430;
-  color: white;
+  background: var(--color-surface);
+  color: var(--color-text);
 }
 
 .time-log-form button {
   border: none;
-  background: #dc5c35;
-  color: white;
+  background: var(--color-primary);
+  color: var(--primary-foreground);
   font-weight: 600;
 }
 
 .time-log-date-btn {
-  border: 1px solid rgba(255, 255, 255, 0.28) !important;
-  background: rgba(255, 255, 255, 0.08) !important;
-  color: white;
+  border: 1px solid var(--color-border-soft) !important;
+  background: var(--color-surface-elevated) !important;
+  color: var(--color-text);
   min-height: 42px;
   min-width: 42px;
   display: inline-flex;
@@ -118,7 +118,7 @@
   align-items: center;
   padding: 5px;
   border-radius: 8px;
-  background: rgba(255, 255, 255, 0.06);
+  background: var(--color-surface-elevated);
 }
 
 .time-log-item-copy {
@@ -155,7 +155,7 @@
 .time-log-week-day-pill {
   border-radius: 999px;
   padding: 4px 8px;
-  background: rgba(255, 255, 255, 0.08);
+  background: var(--color-surface-elevated);
   font-size: 0.82rem;
   white-space: nowrap;
 }
@@ -174,7 +174,7 @@
   justify-content: center;
   border-radius: 8px;
   background: rgba(255, 107, 107, 0.25);
-  color: white;
+  color: var(--color-text);
 }
 
 .time-log-day-total {
@@ -182,7 +182,7 @@
   justify-content: space-between;
   align-items: center;
   padding-top: 10px;
-  border-top: 1px solid rgba(255, 255, 255, 0.14);
+  border-top: 1px solid var(--color-border-soft);
 }
 
 .time-log-week-summary-btn {
@@ -191,9 +191,9 @@
   border-radius: 10px;
   margin-top: 10px;
   padding: 10px 14px;
-  background: rgba(241, 132, 99, 0.18);
-  border: 1px solid rgba(241, 132, 99, 0.35);
-  color: white;
+  background: var(--color-primary-soft);
+  border: 1px solid var(--color-primary-border);
+  color: var(--color-text);
   font-weight: 600;
 }
 
@@ -211,8 +211,8 @@
 .time-log-modal {
   width: min(560px, 100%);
   max-height: calc(100vh - 32px);
-  background: rgba(22, 24, 31, 0.96);
-  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: var(--color-surface-elevated);
+  border: 1px solid var(--color-border-soft);
   border-radius: 16px;
   padding: 18px;
   display: grid;

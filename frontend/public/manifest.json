@@ -1,6 +1,6 @@
 {
-  "short_name": "Sparklane PA",
-  "name": "Sparklane Personal Assistant",
+  "short_name": "Spark Lane PA",
+  "name": "Spark Lane Personal Assistant",
   "icons": [
     {
       "src": "favicon.ico",
@@ -22,6 +22,6 @@
   ],
   "start_url": ".",
   "display": "standalone",
-  "theme_color": "#171b22",
-  "background_color": "#171b22"
+  "theme_color": "#101713",
+  "background_color": "#101713"
 }

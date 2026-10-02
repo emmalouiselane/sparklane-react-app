@@ -1,0 +1,160 @@
+/* Shared palette and typography from the main Spark Lane site (default dark theme). */
+@font-face {
+  font-family: 'Montserrat Variable';
+  src: url('./assets/fonts/montserrat-latin-wght-normal.woff2') format('woff2');
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Montserrat Variable';
+  src: url('./assets/fonts/montserrat-latin-wght-italic.woff2') format('woff2');
+  font-style: italic;
+  font-weight: 100 900;
+  font-display: swap;
+}
+
+:root {
+  color-scheme: dark;
+  --font-body: 'Montserrat Variable', 'Montserrat', sans-serif;
+  --color-background: #101713;
+  --color-text: #e8f0e8;
+  --color-heading: #e8f0e8;
+  --color-text-light: #c1d2c4;
+  --color-primary: #78b58a;
+  --primary-foreground: #101713;
+  --color-highlight: #8bc79a;
+  --color-accent-highlight: #a7d8ad;
+  --color-surface: #1d2a22;
+  --color-surface-elevated: #25372b;
+  --color-accent-light: #344b3b;
+  --color-border-soft: rgba(190, 220, 198, 0.16);
+  --color-bg-glow-1: rgba(139, 199, 154, 0.1);
+  --color-bg-glow-2: rgba(196, 109, 71, 0.07);
+  --color-primary-soft: rgba(120, 181, 138, 0.18);
+  --color-primary-border: rgba(120, 181, 138, 0.45);
+  --color-danger: #ef8a66;
+  --shadow-soft: 0 18px 40px rgba(0, 0, 0, 0.22);
+  --shadow-lift: 0 24px 52px rgba(0, 0, 0, 0.3);
+  --bg-color: var(--color-background);
+
+  --bs-body-font-family: var(--font-body);
+  --bs-body-bg: var(--color-background);
+  --bs-body-color: var(--color-text);
+  --bs-secondary-color: var(--color-text-light);
+  --bs-tertiary-color: var(--color-text-light);
+  --bs-emphasis-color: var(--color-heading);
+  --bs-primary: var(--color-primary);
+  --bs-primary-rgb: 120, 181, 138;
+  --bs-link-color: var(--color-highlight);
+  --bs-link-color-rgb: 139, 199, 154;
+  --bs-link-hover-color: var(--color-accent-highlight);
+  --bs-link-hover-color-rgb: 167, 216, 173;
+  --bs-border-color: var(--color-border-soft);
+  --bs-tertiary-bg: var(--color-surface);
+}
+
+:root[data-theme='light'] {
+  color-scheme: light;
+  --color-background: #f6eadc;
+  --color-text: #38251c;
+  --color-heading: #38251c;
+  --color-text-light: #7a5b49;
+  --color-primary: #a45133;
+  --primary-foreground: #fff7ed;
+  --color-highlight: #91462e;
+  --color-accent-highlight: #d18555;
+  --color-surface: #fff7ed;
+  --color-surface-elevated: #fff9f2;
+  --color-accent-light: #f0d2bd;
+  --color-border-soft: rgba(123, 71, 47, 0.18);
+  --color-bg-glow-1: rgba(184, 95, 60, 0.16);
+  --color-bg-glow-2: rgba(120, 181, 138, 0.07);
+  --color-primary-soft: rgba(164, 81, 51, 0.14);
+  --color-primary-border: rgba(145, 70, 46, 0.42);
+  --color-danger: #b64532;
+  --shadow-soft: 0 18px 40px rgba(124, 72, 48, 0.1);
+  --shadow-lift: 0 24px 50px rgba(124, 72, 48, 0.16);
+  --bs-body-bg: var(--color-background);
+  --bs-body-color: var(--color-text);
+  --bs-secondary-color: var(--color-text-light);
+  --bs-tertiary-color: var(--color-text-light);
+  --bs-emphasis-color: var(--color-heading);
+  --bs-primary: var(--color-primary);
+  --bs-primary-rgb: 164, 81, 51;
+  --bs-link-color: var(--color-highlight);
+  --bs-link-color-rgb: 145, 70, 46;
+  --bs-link-hover-color: var(--color-accent-highlight);
+  --bs-link-hover-color-rgb: 209, 133, 85;
+  --bs-border-color: var(--color-border-soft);
+  --bs-tertiary-bg: var(--color-surface);
+}
+
+body {
+  font-family: var(--font-body);
+  background: var(--color-background);
+  color: var(--color-text);
+}
+
+h1, h2, h3, h4, h5, h6, .h4 {
+  color: var(--color-heading);
+  font-family: var(--font-body);
+  font-weight: 700;
+  letter-spacing: -0.04em;
+}
+
+h1 { font-weight: 900; }
+a { text-underline-offset: 0.14em; }
+
+.app, .public-app {
+  background-image:
+    radial-gradient(circle at 12% 10%, var(--color-bg-glow-1), transparent 38%),
+    radial-gradient(circle at 88% 18%, var(--color-bg-glow-2), transparent 42%);
+  background-size: auto;
+  background-position: 0 0;
+  background-repeat: no-repeat;
+}
+
+.brand-tag {
+  display: block;
+  margin-top: 0.45rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-text-light);
+}
+
+.app-header {
+  padding: 1.5rem;
+  border-radius: 1.75rem;
+  box-shadow: var(--shadow-soft);
+}
+
+.header-content h1 { letter-spacing: -0.06em; }
+.sidebar-title { font-weight: 800; letter-spacing: -0.06em; }
+.sidebar-link { border-radius: 999px; font-size: 0.92rem; font-weight: 700; }
+.sidebar-link.is-active { color: var(--color-accent-highlight); }
+.logout-btn { background: var(--color-accent-light); border-radius: 999px; }
+.logout-btn:hover { background: var(--color-surface-elevated); }
+.user-avatar-fallback, .settings-avatar-fallback { color: var(--primary-foreground); }
+
+.form-control, .form-select {
+  background-color: var(--color-surface);
+  border-color: var(--color-border-soft);
+  color: var(--color-text);
+}
+
+.form-control::placeholder { color: var(--color-text-light); opacity: 0.8; }
+.form-control:focus, .form-select:focus {
+  background-color: var(--color-surface);
+  border-color: var(--color-highlight);
+  color: var(--color-text);
+  box-shadow: 0 0 0 0.2rem var(--color-primary-soft);
+}
+
+.form-check-input:checked { background-color: var(--color-primary); border-color: var(--color-primary); }
+.form-check-input:focus { border-color: var(--color-highlight); box-shadow: 0 0 0 0.2rem var(--color-primary-soft); }
+.btn-close { filter: invert(1) grayscale(1) brightness(2); }
+:root[data-theme='light'] .btn-close { filter: none; }

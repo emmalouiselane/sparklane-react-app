@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { CheckLg, ChevronLeft, ChevronRight, Eye, EyeSlash, PencilSquare, QuestionLg, Trash } from 'react-bootstrap-icons';
+import toast from 'react-hot-toast';
 import { apiClient } from '../helpers/auth';
 import {
   addDays,
@@ -16,6 +17,7 @@ import './monthly-budget.css';
 type PaymentType = 'income' | 'expense';
 type PaymentKind = 'single' | 'recurring';
 type EditScope = 'single-instance' | 'this-and-future' | 'all';
+type MobileBudgetView = 'weekly' | 'payments';
 
 interface AmountOverride {
   date: string;
@@ -237,9 +239,7 @@ function MonthlyBudgetPage() {
   const [anchorDate, setAnchorDate] = useState<string>(toInputDate(new Date()));
   const [payments, setPayments] = useState<PaymentItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [isAddPaymentModalOpen, setIsAddPaymentModalOpen] = useState(false);
-  const [paymentNotice, setPaymentNotice] = useState<string | null>(null);
   const [showAllPayments, setShowAllPayments] = useState(false);
   const [kind, setKind] = useState<PaymentKind>('single');
   const [title, setTitle] = useState('');
@@ -259,36 +259,12 @@ function MonthlyBudgetPage() {
   const [isEditSubmitting, setIsEditSubmitting] = useState(false);
   const [daySummaryTarget, setDaySummaryTarget] = useState<DaySummaryTarget | null>(null);
   const [showAllDaySummaryPayments, setShowAllDaySummaryPayments] = useState(false);
-
-  useEffect(() => {
-    if (!paymentNotice) {
-      return undefined;
-    }
-
-    const timeoutId = window.setTimeout(() => {
-      setPaymentNotice(null);
-    }, 3200);
-
-    return () => window.clearTimeout(timeoutId);
-  }, [paymentNotice]);
-
-  useEffect(() => {
-    if (!error) {
-      return undefined;
-    }
-
-    const timeoutId = window.setTimeout(() => {
-      setError(null);
-    }, 4200);
-
-    return () => window.clearTimeout(timeoutId);
-  }, [error]);
+  const [mobileBudgetView, setMobileBudgetView] = useState<MobileBudgetView>('weekly');
 
   useEffect(() => {
     const fetchBudgetData = async () => {
       try {
         setIsLoading(true);
-        setError(null);
         const response = await apiClient.get('/api/budget');
 
         setPayDay(response.data.payDay ?? 28);
@@ -303,11 +279,11 @@ function MonthlyBudgetPage() {
           }
         } catch (parseError) {
           console.error('Failed to parse budget payments', parseError);
-          setError('Failed to load budget payments.');
+          toast.error('Failed to load budget payments.');
         }
       } catch (requestError: any) {
         console.error('Failed to fetch budget data', requestError);
-        setError(requestError.response?.data?.error || 'Failed to load budget data.');
+        toast.error(requestError.response?.data?.error || 'Failed to load budget data.');
       } finally {
         setIsLoading(false);
       }
@@ -408,7 +384,7 @@ function MonthlyBudgetPage() {
       const parsedAmount = Number(amount);
 
       if (!title.trim() || Number.isNaN(parsedAmount) || parsedAmount <= 0) {
-        setError('Please enter a valid payment title and amount.');
+        toast.error('Please enter a valid payment title and amount.');
         return;
       }
 
@@ -441,17 +417,16 @@ function MonthlyBudgetPage() {
         }
 
         setPayments((current) => [nextPayment, ...current]);
-        setPaymentNotice(
+        toast.success(
           kind === 'single'
             ? `${title.trim()} added for ${formatShortDateDisplay(parseInputDate(selectedPaymentDate))}.`
             : `${title.trim()} starts on ${formatShortDateDisplay(parseInputDate(selectedPaymentDate))}.`
         );
-        setError(null);
         resetPaymentForm();
         setIsAddPaymentModalOpen(false);
       } catch (requestError: any) {
         console.error('Failed to save payment', requestError);
-        setError(requestError.response?.data?.error || 'Failed to save payment.');
+        toast.error(requestError.response?.data?.error || 'Failed to save payment.');
       }
     };
 
@@ -459,22 +434,17 @@ function MonthlyBudgetPage() {
   };
 
   const handleOpenAddPaymentModal = () => {
-    setPaymentNotice(null);
     setIsAddPaymentModalOpen(true);
   };
 
   const handleOpenRecurringDeleteModal = (payment: PaymentOccurrence) => {
     setRecurringDeleteTarget(payment);
-    setPaymentNotice(null);
-    setError(null);
   };
 
   const handleOpenEditModal = (payment: PaymentOccurrence) => {
     setEditTarget(payment);
     setEditAmount(payment.amount.toFixed(2));
     setEditScope(payment.kind === 'recurring' ? 'single-instance' : 'all');
-    setPaymentNotice(null);
-    setError(null);
   };
 
   const handleCloseEditModal = () => {
@@ -487,8 +457,6 @@ function MonthlyBudgetPage() {
 
   const handleOpenSingleDeleteModal = (payment: PaymentOccurrence) => {
     setSingleDeleteTarget(payment);
-    setPaymentNotice(null);
-    setError(null);
   };
 
   const handleCloseSingleDeleteModal = () => {
@@ -504,17 +472,15 @@ function MonthlyBudgetPage() {
 
     try {
       setIsSingleDeleteSubmitting(true);
-      setPaymentNotice(null);
-      setError(null);
 
       await apiClient.delete(`/api/budget/payments/${singleDeleteTarget.sourceId}`);
 
       setPayments((current) => current.filter((payment) => payment.id !== singleDeleteTarget.sourceId));
-      setPaymentNotice('Payment removed.');
+      toast.success('Payment removed.');
       setSingleDeleteTarget(null);
     } catch (requestError: any) {
       console.error('Failed to delete payment', requestError);
-      setError(requestError.response?.data?.error || 'Failed to delete payment.');
+      toast.error(requestError.response?.data?.error || 'Failed to delete payment.');
     } finally {
       setIsSingleDeleteSubmitting(false);
     }
@@ -533,14 +499,12 @@ function MonthlyBudgetPage() {
 
     try {
       setIsRecurringDeleteSubmitting(true);
-      setPaymentNotice(null);
-      setError(null);
 
       if (mode === 'all') {
         await apiClient.delete(`/api/budget/payments/${recurringDeleteTarget.sourceId}`);
 
         setPayments((current) => current.filter((payment) => payment.id !== recurringDeleteTarget.sourceId));
-        setPaymentNotice('Recurring payment removed completely.');
+        toast.success('Recurring payment removed completely.');
       } else {
         const response = await apiClient.patch(
           `/api/budget/payments/${recurringDeleteTarget.sourceId}/recurring-end`,
@@ -549,7 +513,7 @@ function MonthlyBudgetPage() {
 
         if (response.data.deleted) {
           setPayments((current) => current.filter((payment) => payment.id !== recurringDeleteTarget.sourceId));
-          setPaymentNotice('Recurring payment removed completely.');
+          toast.success('Recurring payment removed completely.');
         } else {
           const updatedPayment = response.data.payment;
           setPayments((current) =>
@@ -563,7 +527,7 @@ function MonthlyBudgetPage() {
                 : payment
             )
           );
-          setPaymentNotice(
+          toast.success(
             `${recurringDeleteTarget.title} will now stop after ${formatShortDateDisplay(parseInputDate(updatedPayment.endDate))}.`
           );
         }
@@ -572,7 +536,7 @@ function MonthlyBudgetPage() {
       setRecurringDeleteTarget(null);
     } catch (requestError: any) {
       console.error('Failed to update recurring payment', requestError);
-      setError(requestError.response?.data?.error || 'Failed to update recurring payment.');
+      toast.error(requestError.response?.data?.error || 'Failed to update recurring payment.');
     } finally {
       setIsRecurringDeleteSubmitting(false);
     }
@@ -581,8 +545,6 @@ function MonthlyBudgetPage() {
   const handleToggleOccurrencePaid = async (payment: PaymentOccurrence) => {
     try {
       setUpdatingOccurrenceId(payment.id);
-      setPaymentNotice(null);
-      setError(null);
 
       const response = await apiClient.patch(`/api/budget/payments/${payment.sourceId}/paid`, {
         date: payment.date,
@@ -602,14 +564,14 @@ function MonthlyBudgetPage() {
         )
       );
 
-      setPaymentNotice(
+      toast.success(
         !payment.isPaid
           ? `${payment.title} marked as paid for ${formatShortDateDisplay(parseInputDate(payment.date))}.`
           : `${payment.title} marked as unpaid for ${formatShortDateDisplay(parseInputDate(payment.date))}.`
       );
     } catch (requestError: any) {
       console.error('Failed to update paid status', requestError);
-      setError(requestError.response?.data?.error || 'Failed to update paid status.');
+      toast.error(requestError.response?.data?.error || 'Failed to update paid status.');
     } finally {
       setUpdatingOccurrenceId(null);
     }
@@ -625,14 +587,12 @@ function MonthlyBudgetPage() {
     const parsedAmount = Number(editAmount);
 
     if (Number.isNaN(parsedAmount) || parsedAmount <= 0) {
-      setError('Please enter a valid payment amount.');
+      toast.error('Please enter a valid payment amount.');
       return;
     }
 
     try {
       setIsEditSubmitting(true);
-      setPaymentNotice(null);
-      setError(null);
 
       const response = await apiClient.patch(`/api/budget/payments/${editTarget.sourceId}`, {
         amount: parsedAmount,
@@ -657,13 +617,13 @@ function MonthlyBudgetPage() {
 
         return nextPayments;
       });
-      setPaymentNotice(`${editTarget.title} amount updated.`);
+      toast.success(`${editTarget.title} amount updated.`);
       setEditTarget(null);
       setEditAmount('');
       setEditScope('all');
     } catch (requestError: any) {
       console.error('Failed to update payment amount', requestError);
-      setError(requestError.response?.data?.error || 'Failed to update payment amount.');
+      toast.error(requestError.response?.data?.error || 'Failed to update payment amount.');
     } finally {
       setIsEditSubmitting(false);
     }
@@ -703,16 +663,6 @@ function MonthlyBudgetPage() {
 
   return (
     <section className="monthly-budget-page" aria-label="Monthly Budget module">
-      {(paymentNotice || error) && (
-        <div
-          className={`budget-toast${error ? ' error' : ' success'}`}
-          role="status"
-          aria-live="polite"
-        >
-          {error || paymentNotice}
-        </div>
-      )}
-
       <div className="pay-period-navigation">
         <button
           type="button"
@@ -747,7 +697,37 @@ function MonthlyBudgetPage() {
       </div>
 
       <div className="budget-views">
-        <section className="mobile-week-card">
+        <div className="budget-mobile-tabs" role="tablist" aria-label="Monthly budget views">
+          <button
+            type="button"
+            id="weekly-view-tab"
+            role="tab"
+            aria-selected={mobileBudgetView === 'weekly'}
+            aria-controls="weekly-view-panel"
+            tabIndex={mobileBudgetView === 'weekly' ? 0 : -1}
+            onClick={() => setMobileBudgetView('weekly')}
+          >
+            Weekly View
+          </button>
+          <button
+            type="button"
+            id="payments-in-period-tab"
+            role="tab"
+            aria-selected={mobileBudgetView === 'payments'}
+            aria-controls="payments-in-period-panel"
+            tabIndex={mobileBudgetView === 'payments' ? 0 : -1}
+            onClick={() => setMobileBudgetView('payments')}
+          >
+            Payments in Period
+          </button>
+        </div>
+
+        <section
+          id="weekly-view-panel"
+          className={`mobile-week-card${mobileBudgetView === 'weekly' ? ' is-mobile-active' : ''}`}
+          role="tabpanel"
+          aria-labelledby="weekly-view-tab"
+        >
           <div className="payments-calendar-header">
             <h3>Weekly View</h3>
             <button type="button" className="open-payment-modal-btn" onClick={handleOpenAddPaymentModal}>
@@ -800,7 +780,12 @@ function MonthlyBudgetPage() {
           </div>
         </section>
 
-        <section className="payments-list-card">
+        <section
+          id="payments-in-period-panel"
+          className={`payments-list-card${mobileBudgetView === 'payments' ? ' is-mobile-active' : ''}`}
+          role="tabpanel"
+          aria-labelledby="payments-in-period-tab"
+        >
           <div className="payments-list-card-header">
             <h3>Payments In Period</h3>
             <button

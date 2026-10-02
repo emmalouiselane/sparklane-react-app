@@ -8,8 +8,8 @@
 .payments-list-card,
 .payments-calendar-card,
 .mobile-week-card {
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: var(--color-surface-elevated);
+  border: 1px solid var(--color-border-soft);
   border-radius: 12px;
   padding: 14px;
 }
@@ -32,11 +32,11 @@
 .payment-form input,
 .payment-form select {
   width: 100%;
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  border: 1px solid var(--color-border-soft);
   border-radius: 8px;
   padding: 8px 10px;
-  background-color: #1e2430;
-  color: white;
+  background-color: var(--color-surface);
+  color: var(--color-text);
 }
 
 .budget-field select,
@@ -50,22 +50,22 @@
 .payment-form select:focus-visible,
 .budget-field input:focus-visible,
 .payment-form input:focus-visible {
-  outline: 2px solid #f18463;
+  outline: 2px solid var(--color-primary);
   outline-offset: 2px;
 }
 
 .budget-field select option,
 .payment-form select option {
-  background-color: #1e2430;
-  color: white;
+  background-color: var(--color-surface);
+  color: var(--color-text);
 }
 
 .budget-static-value {
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  border: 1px solid var(--color-border-soft);
   border-radius: 8px;
   padding: 8px 10px;
-  background: rgba(0, 0, 0, 0.18);
-  color: white;
+  background: var(--color-surface);
+  color: var(--color-text);
   min-height: 41px;
   display: flex;
   align-items: center;
@@ -81,71 +81,32 @@
 .pay-period-pill {
   padding: 10px;
   border-radius: 8px;
-  background: rgba(241, 132, 99, 0.2);
-  border: 1px solid rgba(241, 132, 99, 0.45);
+  background: var(--color-primary-soft);
+  border: 1px solid var(--color-primary-border);
   font-weight: 600;
   text-align: center;
 }
 
 .pay-period-chevron {
-  border: 1px solid rgba(241, 132, 99, 0.45);
+  border: 1px solid var(--color-primary-border);
   border-radius: 10px;
   width: 42px;
   height: 100%;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: rgba(241, 132, 99, 0.14);
-  color: white;
+  background: var(--color-primary-soft);
+  color: var(--color-text);
   cursor: pointer;
 }
 
 .pay-period-chevron:hover {
-  background: rgba(241, 132, 99, 0.24);
+  background: var(--color-accent-light);
 }
 
 .pay-period-chevron:focus-visible {
-  outline: 2px solid #f18463;
+  outline: 2px solid var(--color-primary);
   outline-offset: 2px;
-}
-
-.budget-toast {
-  position: fixed;
-  top: 92px;
-  left: calc(var(--app-sidebar-width, 0px) + ((100vw - var(--app-sidebar-width, 0px)) / 2));
-  transform: translateX(-50%);
-  z-index: 1300;
-  min-width: min(420px, calc(100vw - var(--app-sidebar-width, 0px) - 32px));
-  max-width: min(560px, calc(100vw - var(--app-sidebar-width, 0px) - 32px));
-  padding: 12px 16px;
-  border-radius: 12px;
-  border: 1px solid transparent;
-  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.28);
-  backdrop-filter: blur(14px);
-  font-weight: 600;
-  text-align: center;
-}
-
-.budget-toast.success {
-  background: rgba(18, 90, 56, 0.9);
-  border-color: rgba(61, 209, 131, 0.45);
-  color: #e8fff2;
-}
-
-.budget-toast.error {
-  background: rgba(111, 33, 33, 0.92);
-  border-color: rgba(255, 107, 107, 0.45);
-  color: #ffe5e5;
-}
-
-.payment-notice {
-  margin: 0;
-  padding: 10px 12px;
-  border-radius: 10px;
-  background: rgba(61, 209, 131, 0.16);
-  border: 1px solid rgba(61, 209, 131, 0.4);
-  color: #d7ffe7;
-  font-weight: 600;
 }
 
 .payment-error {
@@ -170,12 +131,28 @@
 .payment-modal-close,
 .secondary-action-btn,
 .danger-action-btn {
+  min-height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   border: none;
   border-radius: 8px;
   padding: 9px 14px;
-  color: white;
-  background: #dc5c35;
+  line-height: 1.2;
+  text-align: center;
+  color: var(--color-text);
   font-weight: 600;
+}
+
+.payment-form button:not(.secondary-action-btn),
+.open-payment-modal-btn {
+  color: var(--primary-foreground);
+  background: var(--color-primary);
+}
+
+.payment-form button:not(.secondary-action-btn):hover,
+.open-payment-modal-btn:hover {
+  background: var(--color-highlight);
 }
 
 .payments-calendar-header {
@@ -209,6 +186,10 @@
   min-height: 0;
 }
 
+.budget-mobile-tabs {
+  display: none;
+}
+
 .mobile-week-card {
   display: none;
 }
@@ -217,6 +198,11 @@
 .payments-calendar-card h3 {
   margin: 0 0 10px;
   text-align: center;
+}
+
+.payments-calendar-card .payments-calendar-header h3,
+.mobile-week-card .payments-calendar-header h3 {
+  margin: 0;
 }
 
 .payments-list-card-header {
@@ -235,20 +221,20 @@
 .payments-visibility-btn {
   grid-column: 3;
   justify-self: end;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid var(--color-border-soft);
   border-radius: 8px;
   min-width: 38px;
   min-height: 38px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: rgba(255, 255, 255, 0.08);
-  color: white;
+  background: var(--color-surface-elevated);
+  color: var(--color-text);
   cursor: pointer;
 }
 
 .payments-visibility-btn:hover {
-  background: rgba(255, 255, 255, 0.14);
+  background: var(--color-border-soft);
 }
 
 .payments-visibility-btn:disabled {
@@ -257,11 +243,11 @@
 }
 
 .payments-visibility-btn:disabled:hover {
-  background: rgba(255, 255, 255, 0.08);
+  background: var(--color-surface-elevated);
 }
 
 .payments-visibility-btn:focus-visible {
-  outline: 2px solid #f18463;
+  outline: 2px solid var(--color-primary);
   outline-offset: 2px;
 }
 
@@ -277,6 +263,7 @@
   margin: 10px 0 0;
   padding: 0;
   display: grid;
+  align-content: start;
   gap: 10px;
 }
 
@@ -284,9 +271,13 @@
   display: flex;
   justify-content: space-between;
   gap: 10px;
-  padding: 10px;
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.06);
+  padding: 0 10px 10px;
+  border-bottom: 1px solid var(--color-border-soft);
+  background: var(--color-surface-elevated);
+}
+
+.payments-list-card li:last-child {
+  border-bottom-color: transparent;
 }
 
 .payments-list-card li > div {
@@ -330,7 +321,7 @@
   min-width: 34px;
   min-height: 34px;
   padding: 6px !important;
-  background: rgba(255, 255, 255, 0.14) !important;
+  background: var(--color-border-soft) !important;
 }
 
 .payment-delete-btn {
@@ -346,7 +337,7 @@
   border: none;
   border-radius: 6px;
   padding: 4px 8px;
-  color: white;
+  color: var(--color-text);
   background: rgba(255, 107, 107, 0.35);
 }
 
@@ -422,13 +413,13 @@
 .calendar-day {
   position: relative;
   min-height: 86px;
-  border: 1px solid rgba(255, 255, 255, 0.18);
+  border: 1px solid var(--color-border-soft);
   border-radius: 8px;
   padding: 6px;
   display: grid;
   align-content: start;
   gap: 4px;
-  background: rgba(255, 255, 255, 0.04);
+  background: var(--color-surface-elevated);
   width: 100%;
   text-align: left;
   color: inherit;
@@ -440,8 +431,8 @@
 }
 
 .calendar-day.in-period {
-  border-color: rgba(241, 132, 99, 0.6);
-  background: rgba(241, 132, 99, 0.1);
+  border-color: var(--color-primary-border);
+  background: var(--color-primary-soft);
 }
 
 .calendar-day.is-selected {
@@ -450,7 +441,7 @@
 }
 
 .calendar-day:hover {
-  background: rgba(255, 255, 255, 0.08);
+  background: var(--color-surface-elevated);
 }
 
 .calendar-day:focus-visible {
@@ -468,7 +459,7 @@
   line-height: 1.2;
   border-radius: 6px;
   padding: 2px 4px;
-  background: rgba(255, 255, 255, 0.12);
+  background: var(--color-border-soft);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -499,10 +490,10 @@
   transform: translateX(-50%) translateY(6px);
   padding: 8px 12px;
   border-radius: 10px;
-  background: rgba(18, 20, 28, 0.98);
-  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: var(--color-surface-elevated);
+  border: 1px solid var(--color-border-soft);
   box-shadow: 0 12px 28px rgba(0, 0, 0, 0.35);
-  color: white;
+  color: var(--color-text);
   font-size: 0.75rem;
   font-weight: 600;
   opacity: 0;
@@ -519,9 +510,9 @@
   bottom: -6px;
   width: 12px;
   height: 12px;
-  background: rgba(18, 20, 28, 0.98);
-  border-right: 1px solid rgba(255, 255, 255, 0.18);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.18);
+  background: var(--color-surface-elevated);
+  border-right: 1px solid var(--color-border-soft);
+  border-bottom: 1px solid var(--color-border-soft);
   transform: translateX(-50%) rotate(45deg);
 }
 
@@ -542,13 +533,13 @@
 
 .mobile-week-day {
   min-height: 120px;
-  border: 1px solid rgba(255, 255, 255, 0.18);
+  border: 1px solid var(--color-border-soft);
   border-radius: 10px;
   padding: 8px;
   display: grid;
   align-content: start;
   gap: 4px;
-  background: rgba(255, 255, 255, 0.04);
+  background: var(--color-surface-elevated);
   width: 100%;
   text-align: left;
   color: inherit;
@@ -556,8 +547,7 @@
 }
 
 .mobile-week-day.in-period {
-  border-color: rgba(241, 132, 99, 0.6);
-  background: rgba(241, 132, 99, 0.1);
+  border-color: var(--color-primary-border);
 }
 
 .mobile-week-day.is-clickable {
@@ -603,8 +593,8 @@
 
 .payment-modal {
   width: min(760px, 100%);
-  background: rgba(22, 24, 31, 0.96);
-  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: var(--color-surface-elevated);
+  border: 1px solid var(--color-border-soft);
   border-radius: 16px;
   padding: 18px;
   backdrop-filter: blur(14px);
@@ -649,7 +639,7 @@
   gap: 12px;
   padding: 10px;
   border-radius: 10px;
-  background: rgba(255, 255, 255, 0.06);
+  background: var(--color-surface-elevated);
 }
 
 .day-summary-item > div {
@@ -695,22 +685,23 @@
 
 .secondary-action-btn,
 .payment-modal-close {
-  background: rgba(255, 255, 255, 0.14);
+  background: var(--color-border-soft);
 }
 
 .danger-action-btn {
-  background: rgba(255, 107, 107, 0.9);
+  background: var(--color-danger);
+  color: var(--primary-foreground);
 }
 
 .danger-action-btn:hover {
-  background: rgba(255, 107, 107, 1);
+  filter: brightness(0.92);
 }
 
 @media (min-width: 1025px) {
   .payments-list-card {
     display: flex;
     flex-direction: column;
-    max-height: min(84vh, 920px);
+    min-height: 0;
     overflow: hidden;
   }
 
@@ -745,14 +736,6 @@
 }
 
 @media (max-width: 768px) {
-  .budget-toast {
-    top: 78px;
-    min-width: calc(100vw - 24px);
-    max-width: calc(100vw - 24px);
-    padding: 10px 12px;
-    font-size: 0.92rem;
-  }
-
   .pay-period-navigation {
     grid-template-columns: 42px 1fr 42px;
     gap: 8px;
@@ -784,13 +767,44 @@
     flex-direction: column;
   }
 
-  .mobile-week-card {
-    display: block;
-    order: 1;
+  .budget-mobile-tabs {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    padding: 4px;
+    border: 1px solid var(--color-border-soft);
+    border-radius: 12px;
+    background: var(--color-surface-elevated);
   }
 
+  .budget-mobile-tabs button {
+    min-width: 0;
+    border: 0;
+    border-radius: 8px;
+    padding: 10px 8px;
+    background: transparent;
+    color: var(--color-text);
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .budget-mobile-tabs button[aria-selected='true'] {
+    background: var(--color-primary-soft);
+    box-shadow: inset 0 0 0 1px var(--color-primary-border);
+  }
+
+  .budget-mobile-tabs button:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+  }
+
+  .mobile-week-card,
   .payments-list-card {
-    order: 2;
+    display: none;
+  }
+
+  .mobile-week-card.is-mobile-active,
+  .payments-list-card.is-mobile-active {
+    display: block;
   }
 
   .payments-calendar-card {

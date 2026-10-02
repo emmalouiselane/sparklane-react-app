@@ -1,14 +1,30 @@
 .app-header {
-  background-color: rgba(255, 255, 255, 0.1);
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background-color: var(--color-surface-elevated);
   backdrop-filter: blur(10px);
   padding: 10px;
-  color: white;
+  color: var(--color-text);
   border-radius: 12px;
   margin-bottom: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid var(--color-border-soft);
+}
+
+.header-botanical {
+  position: absolute;
+  z-index: 0;
+  top: 50%;
+  right: clamp(-1.5rem, 1vw, 0.5rem);
+  width: clamp(8rem, 18vw, 12rem);
+  opacity: 0.18;
+  pointer-events: none;
+  transform: translateY(-50%) rotate(8deg);
 }
 
 .header-content {
+  position: relative;
+  z-index: 1;
   align-items: center;
   max-width: 100%;
   text-align: center;
@@ -32,9 +48,9 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  background: rgba(255, 255, 255, 0.06);
-  color: white;
+  border: 1px solid var(--color-border-soft);
+  background: var(--color-surface-elevated);
+  color: var(--color-text);
   border-radius: 999px;
   padding: 4px;
   cursor: pointer;
@@ -45,7 +61,7 @@
 }
 
 .user-profile:focus-visible {
-  outline: 3px solid #f18463;
+  outline: 3px solid var(--color-primary);
   outline-offset: 2px;
 }
 
@@ -58,11 +74,11 @@
   top: calc(100% + 10px);
   left: 0;
   min-width: 200px;
-  background: rgba(18, 20, 28, 0.98);
-  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: var(--color-surface-elevated);
+  border: 1px solid var(--color-border-soft);
   border-radius: 12px;
   padding: 8px;
-  box-shadow: 0 16px 32px rgba(0, 0, 0, 0.28);
+  box-shadow: 0 16px 32px var(--color-background);
   z-index: 40;
 }
 
@@ -70,7 +86,7 @@
   width: 100%;
   border: none;
   background: transparent;
-  color: white;
+  color: var(--color-text);
   display: flex;
   align-items: center;
   gap: 10px;
@@ -80,19 +96,19 @@
 }
 
 .profile-menu-item:hover {
-  background: rgba(255, 255, 255, 0.08);
+  background: var(--color-surface-elevated);
 }
 
 .profile-menu-item:focus-visible {
-  outline: 2px solid #f18463;
+  outline: 2px solid var(--color-primary);
   outline-offset: 2px;
 }
 
 .mobile-menu-btn {
   display: none;
-  border: 1px solid rgba(255, 255, 255, 0.25);
-  background: rgba(255, 255, 255, 0.08);
-  color: white;
+  border: 1px solid var(--color-border-soft);
+  background: var(--color-surface-elevated);
+  color: var(--color-text);
   border-radius: 8px;
   padding: 8px;
   line-height: 1;
@@ -100,7 +116,7 @@
 }
 
 .mobile-menu-btn:focus-visible {
-  outline: 3px solid #f18463;
+  outline: 3px solid var(--color-primary);
   outline-offset: 2px;
 }
 
@@ -115,8 +131,8 @@
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background-color: #f18463;
-  color: white;
+  background-color: var(--color-primary);
+  color: var(--color-text);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -127,12 +143,12 @@
 
 .user-name {
   font-weight: 500;
-  color: white;
+  color: var(--color-text);
 }
 
 .logout-btn {
-  background-color: #dc5c35;
-  color: white;
+  background-color: var(--color-danger);
+  color: var(--color-text);
   border: none;
   padding: 8px 16px;
   border-radius: 4px;
@@ -151,8 +167,10 @@
 }
 
 .error {
+  position: relative;
+  z-index: 1;
   background-color: rgba(255, 107, 107, 0.2);
-  color: white;
+  color: var(--color-text);
   padding: 10px;
   border-radius: 8px;
   margin-top: 10px;
@@ -161,6 +179,12 @@
 }
 
 @media (max-width: 768px) {
+  .header-botanical {
+    right: -2rem;
+    width: 9rem;
+    opacity: 0.14;
+  }
+
   .mobile-menu-btn {
     display: inline-flex;
     align-items: center;

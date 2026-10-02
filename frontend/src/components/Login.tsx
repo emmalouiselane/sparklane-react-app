@@ -14,13 +14,14 @@ const Login: React.FC = () => {
     <div className="login-container">
       <main role="main">
         <section className="login-card">
-          <img src="/logo512.png" alt="Sparklane" className="login-logo" />
+          <img src="/images/pressed-sprig.svg" alt="" aria-hidden="true" className="login-botanical" />
           
-          <h1>Sparklane Personal Assistant</h1>
+          <h1>Spark Lane</h1>
+          <span className="brand-tag">Personal Assistant</span>
           <h2>Your personal productivity workspace</h2>
 
           <div className="login-purpose">
-            <p>Sparklane helps you organize your day in one place.</p>
+            <p>Spark Lane helps you organize your day in one place.</p>
             <p>Connect Google Calendar to view and create events, track your time, manage to-dos, and keep your personal budget organized.</p>
           </div>
 
@@ -43,7 +44,7 @@ const Login: React.FC = () => {
           </div>
 
           <i>Free to use for individuals aged 18 and over.</i>
-          <p>If you would like to use Sparklane Personal Assistant, <a href="mailto:emma@sparklane.dev">please let me know!</a></p>
+          <p>If you would like to use Spark Lane Personal Assistant, <a href="mailto:emma@sparklane.dev">please let me know!</a></p>
         </section>
       </main>
     </div>

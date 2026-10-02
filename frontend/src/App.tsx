@@ -1,4 +1,5 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { Toaster } from 'react-hot-toast';
 import Login from './components/Login';
 import Header from './components/Header';
 import Sidebar, { ModuleId, ModuleNavItem } from './components/Sidebar';
@@ -15,6 +16,7 @@ import TermsOfServicePage from './pages/terms-of-service';
 import './App.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './CustomBootstrap.css';
+import './brand.css';
 
 const ACTIVE_MODULE_STORAGE_KEY = 'sparklane_active_module';
 const MODULE_NAV_ITEMS: ModuleNavItem[] = [
@@ -53,6 +55,10 @@ function AppContent() {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(true);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const moduleHeadingRef = useRef<HTMLHeadingElement>(null);
+
+  useLayoutEffect(() => {
+    document.documentElement.dataset.theme = user?.theme === 'light' ? 'light' : 'dark';
+  }, [user?.theme]);
  
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -186,6 +192,20 @@ function App() {
   return (
     <AuthProvider>
       <AppContent />
+      <Toaster
+        position="top-center"
+        toastOptions={{
+          duration: 3500,
+          style: {
+            background: 'var(--color-surface-elevated)',
+            color: 'var(--color-text)',
+            border: '1px solid var(--color-border-soft)',
+            boxShadow: 'var(--shadow-soft)',
+            fontFamily: 'var(--font-body)',
+            fontWeight: 600
+          }
+        }}
+      />
     </AuthProvider>
   );
 }

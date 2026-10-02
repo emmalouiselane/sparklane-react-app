@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import toast from 'react-hot-toast';
 import { Card, ListGroup, Badge, Spinner, Alert, Modal, Form, Button } from 'react-bootstrap';
 import { CheckSquare, Square, Plus, X, Trash3, Flag, Pencil, ArrowClockwise } from 'react-bootstrap-icons';
 import { apiClient } from '../helpers/auth';
@@ -72,16 +73,18 @@ const TodoList: React.FC<TodoListProps> = () => {
       if (editingTodo) {
         // Update existing todo
         await apiClient.put(`/api/todos/${editingTodo._id}`, formData);
+        toast.success('Task updated.');
       } else {
         // Create new todo
         await apiClient.post('/api/todos', formData);
+        toast.success('Task created.');
       }
 
       resetForm();
       fetchTodos();
     } catch (err: any) {
       console.error('Error saving todo:', err);
-      setError('Failed to save todo. Please try again.');
+      toast.error('Failed to save todo. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
@@ -94,9 +97,10 @@ const TodoList: React.FC<TodoListProps> = () => {
       });
 
       fetchTodos();
+      toast.success(todo.completed ? 'Task marked as active.' : 'Task completed.');
     } catch (err: any) {
       console.error('Error toggling todo:', err);
-      setError('Failed to update todo. Please try again.');
+      toast.error('Failed to update todo. Please try again.');
     }
   };
 
@@ -105,9 +109,10 @@ const TodoList: React.FC<TodoListProps> = () => {
       await apiClient.delete(`/api/todos/${todo._id}`);
 
       fetchTodos();
+      toast.success('Task deleted.');
     } catch (err: any) {
       console.error('Error deleting todo:', err);
-      setError('Failed to delete todo. Please try again.');
+      toast.error('Failed to delete todo. Please try again.');
     }
   };
 
@@ -123,9 +128,10 @@ const TodoList: React.FC<TodoListProps> = () => {
       );
 
       fetchTodos();
+      toast.success('Completed tasks cleared.');
     } catch (err: any) {
       console.error('Error clearing completed todos:', err);
-      setError('Failed to clear completed todos. Please try again.');
+      toast.error('Failed to clear completed todos. Please try again.');
     }
   };
 

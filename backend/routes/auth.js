@@ -102,6 +102,27 @@ router.get('/google/calendar/callback', async (req, res) => {
 
 router.get('/user', requireAuth, (req, res) => res.json({ user: sanitizeUser(req.user) }));
 
+router.patch('/preferences', requireAuth, requireTrustedOrigin, async (req, res) => {
+  try {
+    const { theme } = req.body;
+
+    if (!['dark', 'light'].includes(theme)) {
+      return res.status(400).json({ error: 'Theme must be either dark or light' });
+    }
+
+    req.user.theme = theme;
+    await req.user.save();
+
+    return res.json({
+      message: 'Preferences updated successfully',
+      user: sanitizeUser(req.user)
+    });
+  } catch (error) {
+    console.error('Failed to update user preferences:', error);
+    return res.status(500).json({ error: 'Failed to update user preferences' });
+  }
+});
+
 router.post('/logout', requireTrustedOrigin, (req, res) => {
   req.session.destroy((error) => {
     if (error) return res.status(500).json({ error: 'Failed to destroy session' });

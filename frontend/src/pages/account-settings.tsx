@@ -1,8 +1,11 @@
 import React, { useEffect, useState } from 'react';
+import toast from 'react-hot-toast';
 import { useAuthContext } from '../contexts/AuthContext';
 import { apiClient } from '../helpers/auth';
 import { getOrdinalSuffix } from '../helpers/helper';
 import './account-settings.css';
+
+type ThemePreference = 'dark' | 'light';
 
 function describePayDay(payDay: number) {
   const ordinalDay = `${payDay}${getOrdinalSuffix(payDay)}`;
@@ -15,12 +18,17 @@ function describePayDay(payDay: number) {
 }
 
 function AccountSettingsPage() {
-  const { user } = useAuthContext();
+  const { user, checkAuthStatus } = useAuthContext();
   const [payDay, setPayDay] = useState<number>(28);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [notice, setNotice] = useState<string | null>(null);
+  const [theme, setTheme] = useState<ThemePreference>(user?.theme === 'light' ? 'light' : 'dark');
+  const [isThemeSaving, setIsThemeSaving] = useState(false);
+
+  useEffect(() => {
+    setTheme(user?.theme === 'light' ? 'light' : 'dark');
+  }, [user?.theme]);
 
   useEffect(() => {
     const fetchSettings = async () => {
@@ -45,17 +53,38 @@ function AccountSettingsPage() {
     try {
       setPayDay(nextPayDay);
       setIsSaving(true);
-      setNotice(null);
       setError(null);
 
       await apiClient.put('/api/budget/settings', { payDay: nextPayDay });
 
-      setNotice(`Pay day updated to ${describePayDay(nextPayDay)}.`);
+      toast.success(`Pay day updated to ${describePayDay(nextPayDay)}.`);
     } catch (requestError: any) {
       console.error('Failed to update pay day', requestError);
-      setError(requestError.response?.data?.error || 'Failed to save pay day.');
+      toast.error(requestError.response?.data?.error || 'Failed to save pay day.');
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  const handleThemeChange = async (useLightTheme: boolean) => {
+    const previousTheme = theme;
+    const nextTheme: ThemePreference = useLightTheme ? 'light' : 'dark';
+
+    try {
+      setTheme(nextTheme);
+      document.documentElement.dataset.theme = nextTheme;
+      setIsThemeSaving(true);
+
+      await apiClient.patch('/auth/preferences', { theme: nextTheme });
+      await checkAuthStatus();
+      toast.success(`${nextTheme === 'light' ? 'Warm light' : 'Dark green'} theme saved.`);
+    } catch (requestError: any) {
+      setTheme(previousTheme);
+      document.documentElement.dataset.theme = previousTheme;
+      console.error('Failed to update theme', requestError);
+      toast.error(requestError.response?.data?.error || 'Failed to save theme preference.');
+    } finally {
+      setIsThemeSaving(false);
     }
   };
 
@@ -90,12 +119,41 @@ function AccountSettingsPage() {
 
       <section className="settings-card">
         <div className="settings-card-header">
+          <h2>Appearance</h2>
+          <p>Choose the colour theme used across Spark Lane.</p>
+        </div>
+
+        <label className="settings-toggle">
+          <span className="settings-toggle-copy">
+            <strong>Warm light theme</strong>
+            <span>Use the cream and terracotta theme.</span>
+          </span>
+          <input
+            className="settings-toggle-input"
+            type="checkbox"
+            checked={theme === 'light'}
+            onChange={(event) => handleThemeChange(event.target.checked)}
+            disabled={isThemeSaving}
+          />
+          <span className="settings-toggle-track" aria-hidden="true">
+            <span className="settings-toggle-thumb" />
+          </span>
+        </label>
+
+        <p className="settings-helper" aria-live="polite">
+          {isThemeSaving
+            ? 'Saving your theme preference...'
+            : `Currently using the ${theme === 'light' ? 'warm light' : 'dark green'} theme.`}
+        </p>
+      </section>
+
+      <section className="settings-card">
+        <div className="settings-card-header">
           <h2>Budget Settings</h2>
           <p>Choose the monthly day your pay period starts from.</p>
         </div>
 
         {error && <p className="settings-error">{error}</p>}
-        {notice && <p className="settings-notice">{notice}</p>}
 
         <label className="settings-field pay-day">
           <p>

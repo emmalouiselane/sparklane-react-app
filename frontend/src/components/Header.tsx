@@ -126,9 +126,10 @@ function Header({ user, error, isMobileMenuOpen, onOpenMobileMenu, onOpenAccount
         )}
       </div>
       <header className="app-header" role="banner">
+        <img src="/images/pressed-sprig.svg" alt="" aria-hidden="true" className="header-botanical" />
         <div className="header-content">
-          <h1>Sparklane Personal Assistant</h1>
-          <i>Spark Lane Dev</i>
+          <h1>Spark Lane</h1>
+          <span className="brand-tag">Personal Assistant</span>
         </div>
         {error && <div className="error" role="alert" aria-live="polite">{error}</div>}
       </header>

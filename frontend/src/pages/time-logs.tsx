@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { ChevronLeft, ChevronRight, Trash } from 'react-bootstrap-icons';
+import toast from 'react-hot-toast';
 import { apiClient } from '../helpers/auth';
 import {
   addDays,
@@ -137,9 +138,10 @@ function TimeLogsPage() {
       ]);
       setTitle('');
       setDurationHours('');
+      toast.success('Time log saved.');
     } catch (requestError: any) {
       console.error('Failed to save time log', requestError);
-      setError(requestError.response?.data?.error || 'Failed to save time log.');
+      toast.error(requestError.response?.data?.error || 'Failed to save time log.');
     } finally {
       setIsSubmitting(false);
     }
@@ -152,9 +154,10 @@ function TimeLogsPage() {
       await apiClient.delete(`/api/time-logs/${logId}`);
 
       setTimeLogs((current) => current.filter((log) => log.id !== logId));
+      toast.success('Time log deleted.');
     } catch (requestError: any) {
       console.error('Failed to delete time log', requestError);
-      setError(requestError.response?.data?.error || 'Failed to delete time log.');
+      toast.error(requestError.response?.data?.error || 'Failed to delete time log.');
     }
   };
 

@@ -5,7 +5,7 @@
   gap: 14px;
   margin: 8px 0 0;
   padding: 12px 18px;
-  color: rgba(255, 255, 255, 0.5);
+  color: var(--color-text-light);
   font-size: 0.78rem;
 }
 
@@ -17,22 +17,22 @@
 
 .site-footer nav::before {
   content: '•';
-  color: rgba(255, 255, 255, 0.28);
+  color: var(--color-border-soft);
 }
 
 .site-footer a {
-  color: rgba(255, 208, 193, 0.78);
+  color: var(--color-highlight);
   text-decoration: none;
 }
 
 .site-footer a:hover,
 .site-footer a:focus-visible {
-  color: #fff;
+  color: var(--color-accent-highlight);
   text-decoration: underline;
 }
 
 .site-footer a:focus-visible {
-  outline: 2px solid #f18463;
+  outline: 2px solid var(--color-primary);
   outline-offset: 3px;
 }
 

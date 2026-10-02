@@ -1,160 +1,82 @@
-/* Custom Bootstrap overrides */
-:root {
-  --bs-btn-font-weight: 400;
-  --bs-btn-line-height: 1.5;
-  --bs-btn-color: var(--bs-white);
-  --bs-btn-bg: #f18463; /* Custom orange color */
-  --bs-btn-border-width: var(--bs-border-width);
-  --bs-btn-border-color: #f18463; /* Match background */
-  --bs-btn-border-radius: var(--bs-border-radius);
-  --bs-btn-hover-bg: #d67747; /* Darker orange for hover */
-  --bs-btn-hover-border-color: #d67747; /* Match hover background */
-  --bs-btn-box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15), 0 1px 1px rgba(0, 0, 0, 0.075);
-  --bs-btn-disabled-opacity: 0.65;
-  --bs-btn-focus-box-shadow: 0 0 0 0.25rem rgba(var(--bs-btn-focus-shadow-rgb), .5);
-  
-  /* Card color overrides */
-  --bs-card-bg: rgba(255, 255, 255, 0.1);
-  --bs-card-color: var(--bs-white); /* White text */
-  --bs-card-border-color: #4b5563; /* Darker grey border */
-  
-  /* List group color overrides */
-  --bs-list-group-bg: rgba(255, 255, 255, 0.1); /* Grey background */
-  --bs-list-group-color: var(--bs-white); /* White text */
-  --bs-list-group-border-color: #4b5563; /* Darker grey border */
-  --bs-list-group-hover-bg: #4b5563; /* Darker grey on hover */
-  --bs-list-group-action-hover-color: var(--bs-white); /* White text on hover */
-
-  --bs-modal-bg: rgba(255, 255, 255, 0.1);
+/* Bootstrap components use the same Spark Lane tokens as the app shell. */
+.btn-primary {
+  --bs-btn-color: var(--primary-foreground);
+  --bs-btn-bg: var(--color-primary);
+  --bs-btn-border-color: var(--color-primary);
+  --bs-btn-hover-color: var(--primary-foreground);
+  --bs-btn-hover-bg: var(--color-highlight);
+  --bs-btn-hover-border-color: var(--color-highlight);
+  --bs-btn-active-color: var(--primary-foreground);
+  --bs-btn-active-bg: var(--color-accent-highlight);
+  --bs-btn-active-border-color: var(--color-accent-highlight);
+  --bs-btn-disabled-color: var(--primary-foreground);
+  --bs-btn-disabled-bg: var(--color-primary);
+  --bs-btn-disabled-border-color: var(--color-primary);
+  --bs-btn-focus-shadow-rgb: 120, 181, 138;
 }
-
-/* Force override for all buttons */
-.btn-primary:not(.custom-btn) {
-  background-color: #f18463 !important;
-  border-color: #f18463 !important;
-}
-
-.btn-primary:not(.custom-btn):hover {
-  background-color: #d67747 !important;
-  border-color: #d67747 !important;
-}
-
-.custom-btn.icon-only {
-  background-color: unset !important;
-  border-width: 0;
-  padding: 6px;
-}
-
-.custom-btn.icon-only:hover {
-  background-color: unset !important;
-  border-width: 0;
-  padding: 6px;
-  color: #d67747;
-}
-
 .btn-secondary {
-  background-color: #74635e !important;
-  border-color: #74635e !important;
+  --bs-btn-color: var(--color-text);
+  --bs-btn-bg: var(--color-accent-light);
+  --bs-btn-border-color: var(--color-border-soft);
+  --bs-btn-hover-color: var(--color-text);
+  --bs-btn-hover-bg: var(--color-surface-elevated);
+  --bs-btn-hover-border-color: var(--color-highlight);
+  --bs-btn-active-bg: var(--color-surface);
+  --bs-btn-active-border-color: var(--color-highlight);
 }
-
-.btn-secondary:hover {
-  background-color: #705a53 !important;
-  border-color: #705a53 !important;
+.btn-outline-primary {
+  --bs-btn-color: var(--color-highlight);
+  --bs-btn-border-color: var(--color-primary);
+  --bs-btn-hover-color: var(--primary-foreground);
+  --bs-btn-hover-bg: var(--color-primary);
+  --bs-btn-hover-border-color: var(--color-primary);
+  --bs-btn-active-color: var(--primary-foreground);
+  --bs-btn-active-bg: var(--color-highlight);
+  --bs-btn-active-border-color: var(--color-highlight);
+  --bs-btn-disabled-color: var(--color-primary);
+  --bs-btn-disabled-border-color: var(--color-primary);
+  --bs-btn-focus-shadow-rgb: 120, 181, 138;
 }
-
-/* Force override for all cards */
+.custom-btn.icon-only {
+  background-color: transparent;
+  border-width: 0;
+  padding: 6px;
+  color: var(--color-highlight);
+}
+.custom-btn.icon-only:hover { color: var(--color-accent-highlight); }
 .card {
-  background-color: rgba(255, 255, 255, 0.1) !important;
-  border-color: #4b5563 !important;
-  color: var(--bs-white) !important;
+  --bs-card-bg: var(--color-surface-elevated);
+  --bs-card-color: var(--color-text);
+  --bs-card-border-color: var(--color-border-soft);
+  --bs-card-cap-bg: var(--color-surface);
+  --bs-card-cap-color: var(--color-heading);
+  --bs-card-border-radius: 1.25rem;
+  --bs-card-inner-border-radius: calc(1.25rem - 1px);
+  box-shadow: var(--shadow-soft);
 }
-
-.card-header {
-  background-color: #4b5563 !important;
-  border-color: #374151 !important;
-  color: var(--bs-white) !important;
-}
-
-/* Force override for all list groups */
 .list-group {
-  background-color: rgba(255, 255, 255, 0.1) !important;
-  border-color: #4b5563 !important;
+  --bs-list-group-bg: var(--color-surface-elevated);
+  --bs-list-group-color: var(--color-text);
+  --bs-list-group-border-color: var(--color-border-soft);
+  --bs-list-group-action-color: var(--color-text);
+  --bs-list-group-action-hover-color: var(--color-text);
+  --bs-list-group-action-hover-bg: var(--color-accent-light);
+  --bs-list-group-active-bg: var(--color-accent-light);
+  --bs-list-group-active-border-color: var(--color-highlight);
 }
-
-.list-group-item {
-  background-color: rgba(255, 255, 255, 0.1) !important;
-  border-color: #4b5563 !important;
-  color: var(--bs-white) !important;
-
-  p {
-    color: var(--bs-white) !important;
-  }
-}
-
-.list-group-item:hover {
-  background-color: rgba(255, 255, 255, 0.1) !important;
-  color: var(--bs-white) !important;
-}
-
-.list-group-item-action:hover {
-  background-color: rgba(255, 255, 255, 0.1) !important;
-  color: var(--bs-white) !important;
-}
-
-
-/* Force override for all modals */
 .modal-content {
-  background-color: #4b5563 !important;
-  border-color: #4b5563 !important;
-
-  .h4 {
-    color: var(--bs-white) !important;
-  }
-
-  .form-control {
-    background-color: rgba(255, 255, 255, 0.1) !important;
-    border-color: #4b5563 !important;
-    color: var(--bs-white) !important;
-
-    &::placeholder {
-      color: rgba(255, 255, 255, 0.5) !important;
-    }
-
-    &:focus {
-      background-color: rgba(255, 255, 255, 0.15) !important;
-      border-color: var(--bs-primary) !important;
-      color: var(--bs-white) !important;
-      box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25) !important;
-    }
-  }
-
-  .form-select {
-    background-color: rgba(255, 255, 255, 0.1) !important;
-    border-color: #4b5563 !important;
-    color: var(--bs-white) !important;
-
-    &:focus {
-      background-color: rgba(255, 255, 255, 0.15) !important;
-      border-color: var(--bs-primary) !important;
-      color: var(--bs-white) !important;
-      box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25) !important;
-    }
-
-    option {
-      background-color: #4b5563 !important;
-      color: var(--bs-white) !important;
-    }
-  }
+  --bs-modal-bg: var(--color-surface-elevated);
+  --bs-modal-color: var(--color-text);
+  --bs-modal-border-color: var(--color-border-soft);
+  --bs-modal-header-border-color: var(--color-border-soft);
+  --bs-modal-footer-border-color: var(--color-border-soft);
 }
-
-.modal-body {
-  label {
-    color: var(--bs-white) !important;
-  }
-
-  .form-control {
-    background-color: rgba(255, 255, 255, 0.1) !important;
-    border-color: #4b5563 !important;
-    color: var(--bs-white) !important;
-  }
+.table {
+  --bs-table-color: var(--color-text);
+  --bs-table-bg: transparent;
+  --bs-table-border-color: var(--color-border-soft);
+  --bs-table-striped-color: var(--color-text);
+  --bs-table-striped-bg: var(--color-surface);
+  --bs-table-hover-color: var(--color-text);
+  --bs-table-hover-bg: var(--color-accent-light);
 }

@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import toast from 'react-hot-toast';
 import { Card, ListGroup, Badge, Spinner, Alert, Modal, Form, Button } from 'react-bootstrap';
 import { Calendar3, Clock, GeoAlt, Plus, X } from 'react-bootstrap-icons';
 import { apiClient } from '../helpers/auth';
@@ -76,12 +77,13 @@ const UpcomingAgenda: React.FC<UpcomingAgendaProps> = () => {
         location: ''
       });
       setShowModal(false);
+      toast.success('Calendar event created.');
       
       // Refresh events list
       fetchEvents();
     } catch (err: any) {
       console.error('Error creating event:', err);
-      setError('Failed to create event. Please try again.');
+      toast.error('Failed to create event. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
