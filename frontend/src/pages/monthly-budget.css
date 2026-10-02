@@ -410,8 +410,12 @@
   text-align: center;
 }
 
-.calendar-day {
+.calendar-day-wrapper {
   position: relative;
+  min-width: 0;
+}
+
+.calendar-day {
   min-height: 86px;
   border: 1px solid var(--color-border-soft);
   border-radius: 8px;
@@ -424,6 +428,7 @@
   text-align: left;
   color: inherit;
   cursor: pointer;
+  height: 100%;
 }
 
 .calendar-day.muted {
@@ -516,9 +521,9 @@
   transform: translateX(-50%) rotate(45deg);
 }
 
-.calendar-day:hover .calendar-summary-btn,
-.calendar-day:focus-visible .calendar-summary-btn,
-.calendar-day:focus-within .calendar-summary-btn {
+.calendar-day-wrapper:hover .calendar-summary-btn,
+.calendar-day:focus-visible + .calendar-summary-btn,
+.calendar-day-wrapper:focus-within .calendar-summary-btn {
   opacity: 1;
   transform: translateX(-50%) translateY(0);
   pointer-events: auto;

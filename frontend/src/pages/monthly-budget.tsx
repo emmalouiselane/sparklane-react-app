@@ -910,13 +910,13 @@ function MonthlyBudgetPage() {
                     const isAnchorDate = key === anchorDate;
 
                     return (
-                      <button
-                        type="button"
-                        key={`${year}-${month}-${key}`}
-                        className={`calendar-day${inCurrentMonth ? '' : ' muted'}${inPayPeriod ? ' in-period' : ''}${isAnchorDate ? ' is-selected' : ''}`}
-                        onClick={() => setAnchorDate(key)}
-                        aria-pressed={isAnchorDate}
-                        aria-label={`View pay period containing ${formatShortDateDisplay(cellDate)}`}
+                      <div className="calendar-day-wrapper" key={`${year}-${month}-${key}`}>
+                        <button
+                          type="button"
+                          className={`calendar-day${inCurrentMonth ? '' : ' muted'}${inPayPeriod ? ' in-period' : ''}${isAnchorDate ? ' is-selected' : ''}`}
+                          onClick={() => setAnchorDate(key)}
+                          aria-pressed={isAnchorDate}
+                          aria-label={`View pay period containing ${formatShortDateDisplay(cellDate)}`}
                         >
                           <span className="calendar-date-number">{cellDate.getDate()}</span>
                           {dayPayments.slice(0, 2).map((payment) => (
@@ -925,25 +925,25 @@ function MonthlyBudgetPage() {
                             </span>
                           ))}
                           {dayPayments.length > 2 && <span className="calendar-more">+{dayPayments.length - 2} more</span>}
-                          {dayPayments.length > 0 && (
-                            <button
-                              type="button"
-                              className="calendar-summary-btn"
-                              onClick={(event) => {
-                                event.stopPropagation();
-                                setDaySummaryTarget({
-                                  date: key,
-                                  payments: dayPayments
-                                });
-                                setShowAllDaySummaryPayments(false);
-                              }}
-                              aria-label={`View all payments for ${formatShortDateDisplay(cellDate)}`}
-                            >
-                              View day
-                            </button>
-                          )}
                         </button>
-                      );
+                        {dayPayments.length > 0 && (
+                          <button
+                            type="button"
+                            className="calendar-summary-btn"
+                            onClick={() => {
+                              setDaySummaryTarget({
+                                date: key,
+                                payments: dayPayments
+                              });
+                              setShowAllDaySummaryPayments(false);
+                            }}
+                            aria-label={`View all payments for ${formatShortDateDisplay(cellDate)}`}
+                          >
+                            View day
+                          </button>
+                        )}
+                      </div>
+                    );
                     })}
                 </div>
               </div>

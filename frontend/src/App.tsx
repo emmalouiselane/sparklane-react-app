@@ -1,4 +1,4 @@
-import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { Toaster } from 'react-hot-toast';
 import Login from './components/Login';
 import Header from './components/Header';
@@ -12,6 +12,7 @@ import AccountSettingsPage from './pages/account-settings';
 import Footer from './components/Footer';
 import PrivacyPolicyPage from './pages/privacy-policy';
 import TermsOfServicePage from './pages/terms-of-service';
+import { isOptionalModuleId, OPTIONAL_MODULES, OptionalModuleId } from './config/modules';
 
 import './App.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -21,9 +22,7 @@ import './brand.css';
 const ACTIVE_MODULE_STORAGE_KEY = 'sparklane_active_module';
 const MODULE_NAV_ITEMS: ModuleNavItem[] = [
   { id: 'home', label: 'Home' },
-  { id: 'time-logs', label: 'Time Logs' },
-  { id: 'monthly-budget', label: 'Monthly Budget' },
-  { id: 'meal-planner', label: 'Meal Planner' },
+  ...OPTIONAL_MODULES,
   { id: 'account-settings', label: 'Account Settings' },
 ];
 
@@ -55,6 +54,16 @@ function AppContent() {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(true);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const moduleHeadingRef = useRef<HTMLHeadingElement>(null);
+  const enabledModules: OptionalModuleId[] = useMemo(() =>
+    Array.isArray(user?.enabledModules)
+      ? user.enabledModules.filter((moduleId: string) => isOptionalModuleId(moduleId))
+      : [],
+    [user?.enabledModules]
+  );
+  const enabledModuleSet = useMemo(() => new Set<OptionalModuleId>(enabledModules), [enabledModules]);
+  const visibleNavItems = MODULE_NAV_ITEMS.filter((item) =>
+    !isOptionalModuleId(item.id) || enabledModuleSet.has(item.id)
+  );
 
   useLayoutEffect(() => {
     document.documentElement.dataset.theme = user?.theme === 'light' ? 'light' : 'dark';
@@ -85,6 +94,12 @@ function AppContent() {
   }, [activeModule]);
 
   useEffect(() => {
+    if (isOptionalModuleId(activeModule) && !enabledModuleSet.has(activeModule)) {
+      setActiveModule('home');
+    }
+  }, [activeModule, enabledModuleSet]);
+
+  useEffect(() => {
     const handleEscape = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
         setIsMobileSidebarOpen(false);
@@ -113,7 +128,10 @@ function AppContent() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  const ActiveModulePage = MODULE_COMPONENTS[activeModule];
+  const safeActiveModule = isOptionalModuleId(activeModule) && !enabledModuleSet.has(activeModule)
+    ? 'home'
+    : activeModule;
+  const ActiveModulePage = MODULE_COMPONENTS[safeActiveModule];
 
   if (loading) {
     return (
@@ -150,8 +168,8 @@ function AppContent() {
         )}
 
         <Sidebar
-          items={MODULE_NAV_ITEMS}
-          activeModule={activeModule}
+          items={visibleNavItems}
+          activeModule={safeActiveModule}
           onSelectModule={handleModuleSelect}
           isCollapsed={isSidebarCollapsed}
           onToggleCollapsed={() => setIsSidebarCollapsed((current) => !current)}
@@ -169,7 +187,14 @@ function AppContent() {
           />
 
           <main className="app-main" id="main-content" role="main" aria-labelledby="module-heading">
-            <ActiveModulePage />
+            {safeActiveModule === 'home' ? (
+              <Homepage
+                enabledModuleCount={enabledModules.length}
+                onOpenModuleSettings={() => setActiveModule('account-settings')}
+              />
+            ) : (
+              <ActiveModulePage />
+            )}
           </main>
           <Footer />
         </div>

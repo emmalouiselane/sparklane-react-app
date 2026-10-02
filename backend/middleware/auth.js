@@ -32,7 +32,11 @@ function sanitizeUser(user) {
     photos: user.photos,
     picture: user.photos?.[0]?.value,
     email: user.emails?.[0]?.value,
-    theme: user.theme === 'light' ? 'light' : 'dark'
+    theme: user.theme === 'light' ? 'light' : 'dark',
+    // Accounts created before module preferences existed keep their current navigation.
+    enabledModules: Array.isArray(user.enabledModules)
+      ? user.enabledModules
+      : ['monthly-budget', 'time-logs', 'meal-planner']
   };
 }
 

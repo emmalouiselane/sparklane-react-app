@@ -46,7 +46,11 @@ router.get('/google/callback', async (req, res) => {
           emails: [{ value: claims.email || '', verified: Boolean(claims.email_verified) }],
           photos: claims.picture ? [{ value: claims.picture }] : []
         },
-        $setOnInsert: { sessionVersion: 0, googleSignInDisabled: false }
+        $setOnInsert: {
+          sessionVersion: 0,
+          googleSignInDisabled: false,
+          enabledModules: []
+        }
       },
       { upsert: true, new: true, setDefaultsOnInsert: true }
     );
@@ -104,13 +108,32 @@ router.get('/user', requireAuth, (req, res) => res.json({ user: sanitizeUser(req
 
 router.patch('/preferences', requireAuth, requireTrustedOrigin, async (req, res) => {
   try {
-    const { theme } = req.body;
+    const { theme, enabledModules } = req.body;
+    const allowedModules = new Set(['monthly-budget', 'time-logs', 'meal-planner']);
 
-    if (!['dark', 'light'].includes(theme)) {
+    if (theme === undefined && enabledModules === undefined) {
+      return res.status(400).json({ error: 'At least one preference is required' });
+    }
+
+    if (theme !== undefined && !['dark', 'light'].includes(theme)) {
       return res.status(400).json({ error: 'Theme must be either dark or light' });
     }
 
-    req.user.theme = theme;
+    if (enabledModules !== undefined && (
+      !Array.isArray(enabledModules) ||
+      enabledModules.some((moduleId) => typeof moduleId !== 'string' || !allowedModules.has(moduleId))
+    )) {
+      return res.status(400).json({ error: 'Enabled modules contains an invalid module' });
+    }
+
+    if (theme !== undefined) {
+      req.user.theme = theme;
+    }
+
+    if (enabledModules !== undefined) {
+      req.user.enabledModules = [...new Set(enabledModules)];
+    }
+
     await req.user.save();
 
     return res.json({

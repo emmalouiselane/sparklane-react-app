@@ -96,6 +96,43 @@
   align-items: stretch;
 }
 
+.module-guidance {
+  margin-bottom: 12px;
+  padding: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  background: var(--color-surface-elevated);
+  border: 1px solid var(--color-primary-border);
+  border-radius: 1.75rem;
+}
+
+.module-guidance h2,
+.module-guidance p {
+  margin: 0;
+}
+
+.module-guidance p {
+  margin-top: 6px;
+  color: var(--color-text-light);
+}
+
+.module-guidance button {
+  flex: 0 0 auto;
+  border: 1px solid var(--color-primary-border);
+  border-radius: 8px;
+  padding: 10px 14px;
+  background: var(--color-primary);
+  color: var(--primary-foreground);
+  font-weight: 700;
+}
+
+.module-guidance button:focus-visible {
+  outline: 3px solid var(--color-primary);
+  outline-offset: 3px;
+}
+
 .homepage-grid > * {
   min-height: 0;
 }
@@ -144,6 +181,15 @@
 
   .homepage-grid {
     flex: 0 0 auto;
+  }
+
+  .module-guidance {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .module-guidance button {
+    width: 100%;
   }
 
   .homepage-grid .agenda-card,

@@ -3,6 +3,7 @@ import toast from 'react-hot-toast';
 import { useAuthContext } from '../contexts/AuthContext';
 import { apiClient } from '../helpers/auth';
 import { getOrdinalSuffix } from '../helpers/helper';
+import { OPTIONAL_MODULES, OptionalModuleId } from '../config/modules';
 import './account-settings.css';
 
 type ThemePreference = 'dark' | 'light';
@@ -25,10 +26,18 @@ function AccountSettingsPage() {
   const [error, setError] = useState<string | null>(null);
   const [theme, setTheme] = useState<ThemePreference>(user?.theme === 'light' ? 'light' : 'dark');
   const [isThemeSaving, setIsThemeSaving] = useState(false);
+  const [enabledModules, setEnabledModules] = useState<OptionalModuleId[]>(
+    Array.isArray(user?.enabledModules) ? user.enabledModules : []
+  );
+  const [savingModule, setSavingModule] = useState<OptionalModuleId | null>(null);
 
   useEffect(() => {
     setTheme(user?.theme === 'light' ? 'light' : 'dark');
   }, [user?.theme]);
+
+  useEffect(() => {
+    setEnabledModules(Array.isArray(user?.enabledModules) ? user.enabledModules : []);
+  }, [user?.enabledModules]);
 
   useEffect(() => {
     const fetchSettings = async () => {
@@ -88,6 +97,28 @@ function AccountSettingsPage() {
     }
   };
 
+  const handleModuleChange = async (moduleId: OptionalModuleId, enabled: boolean) => {
+    const previousModules = enabledModules;
+    const nextModules = enabled
+      ? enabledModules.includes(moduleId) ? enabledModules : [...enabledModules, moduleId]
+      : enabledModules.filter((enabledModule) => enabledModule !== moduleId);
+
+    try {
+      setEnabledModules(nextModules);
+      setSavingModule(moduleId);
+      await apiClient.patch('/auth/preferences', { enabledModules: nextModules });
+      await checkAuthStatus();
+      const moduleLabel = OPTIONAL_MODULES.find((module) => module.id === moduleId)?.label || 'Module';
+      toast.success(`${moduleLabel} turned ${enabled ? 'on' : 'off'}.`);
+    } catch (requestError: any) {
+      setEnabledModules(previousModules);
+      console.error('Failed to update modules', requestError);
+      toast.error(requestError.response?.data?.error || 'Failed to save module preferences.');
+    } finally {
+      setSavingModule(null);
+    }
+  };
+
   const displayName = user?.name?.givenName || user?.name || user?.displayName || 'Google User';
   const email = user?.email || user?.emails?.[0]?.value || 'No email available';
   const avatarUrl = user?.picture || user?.photos?.[0]?.value;
@@ -115,6 +146,38 @@ function AccountSettingsPage() {
             <span className="settings-chip">Google connected</span>
           </div>
         </div>
+      </section>
+
+      <section className="settings-card">
+        <div className="settings-card-header">
+          <h2>Modules</h2>
+          <p>Choose which optional modules appear in your navigation.</p>
+        </div>
+
+        <div className="module-settings-list">
+          {OPTIONAL_MODULES.map((module) => (
+            <label className="settings-toggle" key={module.id}>
+              <span className="settings-toggle-copy">
+                <strong>{module.label}</strong>
+                <span>{enabledModules.includes(module.id) ? 'Shown in your sidebar.' : 'Hidden from your sidebar.'}</span>
+              </span>
+              <input
+                className="settings-toggle-input"
+                type="checkbox"
+                checked={enabledModules.includes(module.id)}
+                onChange={(event) => handleModuleChange(module.id, event.target.checked)}
+                disabled={savingModule !== null}
+              />
+              <span className="settings-toggle-track" aria-hidden="true">
+                <span className="settings-toggle-thumb" />
+              </span>
+            </label>
+          ))}
+        </div>
+
+        <p className="settings-helper" aria-live="polite">
+          {savingModule ? 'Saving your module preferences...' : `${enabledModules.length} of ${OPTIONAL_MODULES.length} modules enabled.`}
+        </p>
       </section>
 
       <section className="settings-card">

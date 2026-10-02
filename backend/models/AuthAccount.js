@@ -19,7 +19,14 @@ const AuthAccountSchema = new mongoose.Schema({
   refreshTokenDoubleHash: { type: String, default: null, index: true },
   sessionVersion: { type: Number, default: 0 },
   googleSignInDisabled: { type: Boolean, default: false },
-  theme: { type: String, enum: ['dark', 'light'], default: 'dark' }
+  theme: { type: String, enum: ['dark', 'light'], default: 'dark' },
+  enabledModules: {
+    type: [{
+      type: String,
+      enum: ['monthly-budget', 'time-logs', 'meal-planner']
+    }],
+    default: undefined
+  }
 }, { timestamps: true });
 
 AuthAccountSchema.path('accessToken').validate(isValidStoredToken, 'Invalid encrypted access token format');
