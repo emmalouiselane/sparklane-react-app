@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import './meal-planner.css';
 import { ModuleNavItem } from '../components/Sidebar';
 import MealPlanner from '../components/MealPlanner';
-import PCOSReferenceGuide from '../components/PCOSReferenceGuide';
+import PMOSReferenceGuide from '../components/PMOSReferenceGuide';
 
 const QUICK_LINKS = [
   {
@@ -21,8 +21,8 @@ function MealPlannerPage() {
         {activePage == "meal-planner" && (
           <MealPlanner />
         )}
-        {activePage == "pcos-reference-guide" && (
-          <PCOSReferenceGuide />
+        {activePage == "pmos-reference-guide" && (
+          <PMOSReferenceGuide />
         )}  
       </div>
 
@@ -37,18 +37,18 @@ function MealPlannerPage() {
             </button>
             <button
               type="button"
-              onClick={() => setActivePage("pcos-reference-guide")}
+              onClick={() => setActivePage("pmos-reference-guide")}
             >
-              <span>PCOS Reference Guide</span>
+              <span>PMOS Reference Guide</span>
             </button>
           </ul>
 
-          <p>Useful external links to keep nearby while planning meals.</p>
+          <p>Need inspiration? Check out my recipes.</p>
 
           <ul className="meal-planner-links">
             {QUICK_LINKS.map((link) => (
               <li key={link.href}>
-                <a href={link.href} rel="noreferrer">
+                <a href={link.href} target="_blank" rel="noopener noreferrer">
                   {link.title}
                 </a>
               </li>

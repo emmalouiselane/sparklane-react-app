@@ -1,0 +1,109 @@
+.pmos-guide {
+  display: grid;
+  gap: 24px;
+  min-width: 0;
+  line-height: 1.65;
+}
+
+.pmos-guide h3,
+.pmos-guide h4 {
+  margin-bottom: 12px;
+}
+
+.pmos-guide p:last-child,
+.pmos-guide ul:last-child {
+  margin-bottom: 0;
+}
+
+.pmos-guide .tab-pane li + li {
+  margin-top: 10px;
+}
+
+.pmos-guide-note {
+  padding: 12px 16px;
+  border-left: 3px solid var(--color-primary);
+  border-radius: 0 8px 8px 0;
+  background: var(--color-primary-soft);
+}
+
+.pmos-guide-tabs {
+  gap: 4px;
+  align-items: stretch;
+  border-bottom-color: var(--color-border-soft);
+}
+
+.pmos-guide-tabs > .nav-item {
+  display: flex;
+  margin: 0;
+}
+
+.pmos-guide-tabs .nav-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+  line-height: 1.5;
+  color: var(--color-text-light);
+}
+
+.pmos-guide-tabs .nav-link:hover {
+  color: var(--color-text);
+  border-color: var(--color-border-soft);
+}
+
+.pmos-guide-tabs .nav-link.active {
+  color: var(--color-text);
+  background: var(--color-surface-elevated);
+  border-color: var(--color-border-soft);
+  border-bottom-color: var(--color-surface-elevated);
+}
+
+.pmos-guide-tabs .nav-link:focus-visible {
+  outline: 2px solid var(--focus-ring-color, var(--color-primary));
+  outline-offset: 3px;
+}
+
+.pmos-guide .tab-pane > * + * {
+  margin-top: 24px;
+}
+
+.pmos-guide a {
+  color: var(--color-highlight);
+  text-underline-offset: 3px;
+}
+
+.pmos-guide a:hover {
+  color: var(--color-accent-highlight);
+}
+
+.pmos-guide a:focus-visible {
+  outline: 2px solid var(--focus-ring-color, var(--color-primary));
+  outline-offset: 3px;
+}
+
+.pmos-guide-meals {
+  display: grid;
+  gap: 16px;
+}
+
+.pmos-guide-card {
+  padding: 16px;
+  background: var(--color-surface-elevated);
+  border: 1px solid var(--color-border-soft);
+  border-radius: 12px;
+}
+
+.pmos-guide section,
+.pmos-guide footer {
+  scroll-margin-top: 24px;
+}
+
+.pmos-guide footer {
+  padding-top: 16px;
+  border-top: 1px solid var(--color-border-soft);
+}
+
+.pmos-guide-reviewed {
+  color: var(--color-text-light);
+  font-size: 0.875rem;
+}
