@@ -6,6 +6,8 @@
   }
 
   .no-events {
+    margin-top: 15px;
+
     h2 {
       font-size: var(--font-size-xl);
       margin: 5px 0 2rem 0;
