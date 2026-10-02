@@ -194,6 +194,62 @@
   display: none;
 }
 
+.week-navigation {
+  margin-top: 12px;
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr) 42px;
+  align-items: stretch;
+  gap: 8px;
+}
+
+.week-navigation-button {
+  min-height: 42px;
+  border: 1px solid var(--color-primary-border);
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-primary-soft);
+  color: var(--color-text);
+  cursor: pointer;
+}
+
+.week-navigation-button:hover:not(:disabled) {
+  background: var(--color-accent-light);
+}
+
+.week-navigation-button:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.week-navigation-button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.week-navigation-label {
+  min-width: 0;
+  padding: 6px 8px;
+  border: 1px solid var(--color-border-soft);
+  border-radius: 10px;
+  display: grid;
+  place-content: center;
+  gap: 2px;
+  text-align: center;
+  background: var(--color-surface);
+  font-size: 0.8rem;
+}
+
+.week-navigation-label span {
+  color: var(--color-text-light);
+}
+
+.week-navigation-label strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .payments-list-card h3,
 .payments-calendar-card h3 {
   margin: 0 0 10px;

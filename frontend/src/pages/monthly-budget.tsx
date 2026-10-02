@@ -260,6 +260,7 @@ function MonthlyBudgetPage() {
   const [daySummaryTarget, setDaySummaryTarget] = useState<DaySummaryTarget | null>(null);
   const [showAllDaySummaryPayments, setShowAllDaySummaryPayments] = useState(false);
   const [mobileBudgetView, setMobileBudgetView] = useState<MobileBudgetView>('weekly');
+  const [mobileWeekAnchor, setMobileWeekAnchor] = useState<string>(toInputDate(new Date()));
 
   useEffect(() => {
     const fetchBudgetData = async () => {
@@ -361,13 +362,18 @@ function MonthlyBudgetPage() {
 
   const months = useMemo(() => getMonthsInRange(period.start, period.end), [period]);
   const mobileWeekDays = useMemo(() => {
-    const selectedDate = parseInputDate(anchorDate);
+    const selectedDate = parseInputDate(mobileWeekAnchor);
     const clampedDate =
       selectedDate < period.start ? period.start : selectedDate > period.end ? period.end : selectedDate;
     const weekStart = getWeekStart(clampedDate);
 
     return Array.from({ length: 7 }, (_, index) => addDays(weekStart, index));
-  }, [anchorDate, period]);
+  }, [mobileWeekAnchor, period]);
+  const mobileWeekStart = mobileWeekDays[0];
+  const mobileWeekEnd = mobileWeekDays[mobileWeekDays.length - 1];
+  const firstPeriodWeekStart = getWeekStart(period.start);
+  const canGoToPreviousWeek = mobileWeekStart > firstPeriodWeekStart;
+  const canGoToNextWeek = addDays(mobileWeekStart, 7) <= period.end;
 
   const resetPaymentForm = () => {
     setTitle('');
@@ -654,11 +660,36 @@ function MonthlyBudgetPage() {
   );
 
   const goToPreviousPayPeriod = () => {
-    setAnchorDate(toInputDate(addDays(period.start, -1)));
+    const previousPeriod = getPayPeriod(addDays(period.start, -1), payDay);
+    const previousPeriodStart = toInputDate(previousPeriod.start);
+    setAnchorDate(previousPeriodStart);
+    setMobileWeekAnchor(previousPeriodStart);
+    setExpandedMobileDay(null);
   };
 
   const goToNextPayPeriod = () => {
-    setAnchorDate(toInputDate(addDays(period.end, 1)));
+    const nextPeriodStart = toInputDate(addDays(period.end, 1));
+    setAnchorDate(nextPeriodStart);
+    setMobileWeekAnchor(nextPeriodStart);
+    setExpandedMobileDay(null);
+  };
+
+  const goToPreviousWeek = () => {
+    if (!canGoToPreviousWeek) {
+      return;
+    }
+
+    setMobileWeekAnchor(toInputDate(addDays(mobileWeekStart, -7)));
+    setExpandedMobileDay(null);
+  };
+
+  const goToNextWeek = () => {
+    if (!canGoToNextWeek) {
+      return;
+    }
+
+    setMobileWeekAnchor(toInputDate(addDays(mobileWeekStart, 7)));
+    setExpandedMobileDay(null);
   };
 
   return (
@@ -732,6 +763,30 @@ function MonthlyBudgetPage() {
             <h3>Weekly View</h3>
             <button type="button" className="open-payment-modal-btn" onClick={handleOpenAddPaymentModal}>
               Add Payment
+            </button>
+          </div>
+          <div className="week-navigation" aria-label="Weekly view navigation">
+            <button
+              type="button"
+              className="week-navigation-button"
+              onClick={goToPreviousWeek}
+              disabled={!canGoToPreviousWeek}
+              aria-label="Show previous week"
+            >
+              <ChevronLeft size={18} />
+            </button>
+            <div className="week-navigation-label" aria-live="polite">
+              <span>Week</span>
+              <strong>{formatShortDateDisplay(mobileWeekStart)} to {formatShortDateDisplay(mobileWeekEnd)}</strong>
+            </div>
+            <button
+              type="button"
+              className="week-navigation-button"
+              onClick={goToNextWeek}
+              disabled={!canGoToNextWeek}
+              aria-label="Show next week"
+            >
+              <ChevronRight size={18} />
             </button>
           </div>
           <div className="mobile-week-grid">
