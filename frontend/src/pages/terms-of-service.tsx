@@ -6,7 +6,7 @@ const TermsOfServicePage: React.FC = () => (
     <article className="legal-page-card">
       <h1>Terms of Service</h1>
       <p className="legal-page-meta"><strong>Last updated:</strong> 30 July 2026</p>
-      <p>These Terms govern your use of Sparklane Personal Assistant (the “Service”), operated by Spark Lane Dev. By using the Service, you agree to these Terms and our <a href="/privacy">Privacy Policy</a>.</p>
+      <p>These Terms govern your use of Spark Lane Personal Assistant (the “Service”), operated by Spark Lane Dev. By using the Service, you agree to these Terms and our <a href="/privacy">Privacy Policy</a>.</p>
       <h2>Eligibility and account</h2>
       <p>You must be aged 18 or over and able to form a legally binding agreement to use the Service. You sign in using Google and are responsible for your account, your Google account security, and accurate information.</p>
       <h2>The Service</h2>

@@ -6,7 +6,7 @@ const PrivacyPolicyPage: React.FC = () => (
     <article className="legal-page-card">
       <h1>Privacy Policy</h1>
       <p className="legal-page-meta"><strong>Last updated:</strong> 30 July 2026</p>
-      <p>Spark Lane Dev operates Sparklane Personal Assistant (the “Service”). This policy explains what personal information we collect, why we use it, how it is shared, and the choices available to you.</p>
+      <p>Spark Lane Dev operates Spark Lane Personal Assistant (the “Service”). This policy explains what personal information we collect, why we use it, how it is shared, and the choices available to you.</p>
       <h2>Who is responsible for your information?</h2>
       <p>Spark Lane Dev is responsible for personal information processed through the Service. Contact <a href="mailto:emma@sparklane.dev">emma@sparklane.dev</a> with privacy questions or requests.</p>
       <h2>Information we collect</h2>
