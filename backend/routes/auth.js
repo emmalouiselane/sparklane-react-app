@@ -108,15 +108,19 @@ router.get('/user', requireAuth, (req, res) => res.json({ user: sanitizeUser(req
 
 router.patch('/preferences', requireAuth, requireTrustedOrigin, async (req, res) => {
   try {
-    const { theme, enabledModules } = req.body;
-    const allowedModules = new Set(['monthly-budget', 'time-logs', 'meal-planner']);
+    const { theme, enabledModules, homepageTab } = req.body;
+    const allowedModules = new Set(['monthly-budget', 'time-logs', 'meal-planner', 'recurring-routines']);
 
-    if (theme === undefined && enabledModules === undefined) {
+    if (theme === undefined && enabledModules === undefined && homepageTab === undefined) {
       return res.status(400).json({ error: 'At least one preference is required' });
     }
 
     if (theme !== undefined && !['dark', 'light'].includes(theme)) {
       return res.status(400).json({ error: 'Theme must be either dark or light' });
+    }
+
+    if (homepageTab !== undefined && !['events', 'routines'].includes(homepageTab)) {
+      return res.status(400).json({ error: 'Homepage tab must be events or routines' });
     }
 
     if (enabledModules !== undefined && (
@@ -133,6 +137,8 @@ router.patch('/preferences', requireAuth, requireTrustedOrigin, async (req, res)
     if (enabledModules !== undefined) {
       req.user.enabledModules = [...new Set(enabledModules)];
     }
+
+    if (homepageTab !== undefined) req.user.homepageTab = homepageTab;
 
     await req.user.save();
 

@@ -1,0 +1,27 @@
+.routines-header, .routine-heading, .routine-actions, .routine-days {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .75rem;
+  flex-wrap: wrap;
+}
+.routines-header .card-title { margin: 0; font-size: var(--font-size-lg, 1.2rem); }
+.routines-intro, .routine-heading p, .routine-progress { color: var(--color-text-light); }
+.routine-item { padding: 1rem 0; border-top: 1px solid var(--color-border-soft); }
+.routine-heading h3 { font-size: 1rem; margin-bottom: .4rem; }
+.routine-heading p { font-size: .85rem; margin: 0; }
+.routine-progress { font-size: .85rem; margin: .75rem 0; }
+.routine-step { margin: .6rem 0; overflow-wrap: anywhere; }
+.routine-step.is-done label { text-decoration: line-through; }
+.routine-days { justify-content: flex-start; }
+.routine-days-label { font-size: 1rem; }
+.homepage-agenda-panel { min-width: 0; display: flex; flex-direction: column; }
+.homepage-agenda-panel > .tab-content { flex: 1; min-height: 0; }
+.homepage-agenda-panel > .tab-content > .tab-pane { height: 100%; }
+.homepage-agenda-panel .routines-card { height: 100%; }
+.homepage-agenda-panel .routines-card .card-body { overflow: auto; }
+.homepage-agenda-panel > .nav-tabs { border-bottom: 0; gap: .25rem; }
+.homepage-agenda-panel > .nav-tabs .nav-link { color: var(--color-text-light); }
+.homepage-agenda-panel > .nav-tabs .nav-link.active { color: var(--color-heading); background: var(--color-surface); border-color: var(--color-border-soft); }
+.homepage-agenda-panel > .tab-content .card { border-top-left-radius: 0; }
+.homepage-agenda-panel > .tab-content .card > .card-header { border-top-left-radius: 0; }

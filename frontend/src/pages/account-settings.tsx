@@ -30,6 +30,26 @@ function AccountSettingsPage() {
     Array.isArray(user?.enabledModules) ? user.enabledModules : []
   );
   const [savingModule, setSavingModule] = useState<OptionalModuleId | null>(null);
+  const [homepageTab, setHomepageTab] = useState<'events' | 'routines'>(user?.homepageTab === 'routines' ? 'routines' : 'events');
+  const [isHomepageTabSaving, setIsHomepageTabSaving] = useState(false);
+
+  useEffect(() => {
+    setHomepageTab(user?.homepageTab === 'routines' ? 'routines' : 'events');
+  }, [user?.homepageTab]);
+
+  const handleHomepageTabChange = async (nextTab: 'events' | 'routines') => {
+    const previousTab = homepageTab;
+    setHomepageTab(nextTab);
+    setIsHomepageTabSaving(true);
+    try {
+      await apiClient.patch('/auth/preferences', { homepageTab: nextTab });
+      await checkAuthStatus();
+      toast.success('Default homepage tab saved.');
+    } catch {
+      setHomepageTab(previousTab);
+      toast.error('Unable to save default homepage tab. Please try again.');
+    } finally { setIsHomepageTabSaving(false); }
+  };
 
   useEffect(() => {
     setTheme(user?.theme === 'light' ? 'light' : 'dark');
@@ -178,6 +198,27 @@ function AccountSettingsPage() {
         <p className="settings-helper" aria-live="polite">
           {savingModule ? 'Saving your module preferences...' : `${enabledModules.length} of ${OPTIONAL_MODULES.length} modules enabled.`}
         </p>
+      </section>
+
+      <section className="settings-card">
+        <div className="settings-card-header">
+          <h2>Homepage</h2>
+          <p>Choose which tab opens when you visit the homepage.</p>
+        </div>
+        <label className="settings-field">
+          <span>Default homepage tab</span>
+          <select value={homepageTab} disabled={isHomepageTabSaving}
+            onChange={event => handleHomepageTabChange(event.target.value as 'events' | 'routines')}>
+            <option value="events">Upcoming Events</option>
+            <option value="routines">Recurring Routines</option>
+          </select>
+        </label>
+        <p className="settings-helper" aria-live="polite">
+          {isHomepageTabSaving ? 'Saving your homepage preference…' : 'You can switch tabs any time on the homepage.'}
+        </p>
+        {!enabledModules.includes('recurring-routines') && homepageTab === 'routines' && (
+          <p className="settings-helper">Enable Recurring Routines above to show your checklists in that tab.</p>
+        )}
       </section>
 
       <section className="settings-card">

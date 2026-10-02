@@ -5,6 +5,7 @@ import Header from './components/Header';
 import Sidebar, { ModuleId, ModuleNavItem } from './components/Sidebar';
 import { AuthProvider, useAuthContext } from './contexts/AuthContext';
 import Homepage from './pages/homepage';
+import RecurringRoutines from './components/RecurringRoutines';
 import TimeLogsPage from './pages/time-logs';
 import MealPlannerPage from './pages/meal-planner';
 import MonthlyBudgetPage from './pages/monthly-budget';
@@ -42,6 +43,7 @@ const MODULE_NAV_ITEMS: ModuleNavItem[] = [
 
 const MODULE_COMPONENTS: Record<ModuleId, React.ComponentType> = {
   home: Homepage,
+  'recurring-routines': RecurringRoutines,
   'time-logs': TimeLogsPage,
   'monthly-budget': MonthlyBudgetPage,
   'meal-planner': MealPlannerPage,
@@ -220,6 +222,8 @@ function AppContent() {
             {safeActiveModule === 'home' ? (
               <Homepage
                 enabledModuleCount={enabledModules.length}
+                routinesEnabled={enabledModuleSet.has('recurring-routines')}
+                defaultHomepageTab={user?.homepageTab === 'routines' ? 'routines' : 'events'}
                 onOpenModuleSettings={() => setActiveModule('account-settings')}
               />
             ) : (

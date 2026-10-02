@@ -20,10 +20,11 @@ const AuthAccountSchema = new mongoose.Schema({
   sessionVersion: { type: Number, default: 0 },
   googleSignInDisabled: { type: Boolean, default: false },
   theme: { type: String, enum: ['dark', 'light'], default: 'dark' },
+  homepageTab: { type: String, enum: ['events', 'routines'], default: 'events' },
   enabledModules: {
     type: [{
       type: String,
-      enum: ['monthly-budget', 'time-logs', 'meal-planner']
+      enum: ['monthly-budget', 'time-logs', 'meal-planner', 'recurring-routines']
     }],
     default: undefined
   }

@@ -33,6 +33,7 @@ function sanitizeUser(user) {
     picture: user.photos?.[0]?.value,
     email: user.emails?.[0]?.value,
     theme: user.theme === 'light' ? 'light' : 'dark',
+    homepageTab: user.homepageTab === 'routines' ? 'routines' : 'events',
     // Accounts created before module preferences existed keep their current navigation.
     enabledModules: Array.isArray(user.enabledModules)
       ? user.enabledModules

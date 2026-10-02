@@ -1,4 +1,5 @@
 export const OPTIONAL_MODULES = [
+  { id: 'recurring-routines', label: 'Recurring Routines' },
   { id: 'monthly-budget', label: 'Monthly Budget' },
   { id: 'time-logs', label: 'Time Logs' },
   { id: 'meal-planner', label: 'Meal Planner' },

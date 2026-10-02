@@ -1,8 +1,8 @@
 import React, { useRef, useState } from 'react';
-import { PiggyBank, ForkKnife, HouseDoor, PersonGear, ClockHistory } from 'react-bootstrap-icons';
+import { PiggyBank, ForkKnife, HouseDoor, PersonGear, ClockHistory, ArrowRepeat } from 'react-bootstrap-icons';
 import './Sidebar.css';
 
-export type ModuleId = 'home' | 'time-logs' | 'monthly-budget' | 'meal-planner' | 'account-settings';
+export type ModuleId = 'home' | 'time-logs' | 'monthly-budget' | 'meal-planner' | 'recurring-routines' | 'account-settings';
 
 export interface ModuleNavItem {
   id: ModuleId;
@@ -35,6 +35,8 @@ function getNavIcon(moduleId: ModuleId) {
       return <ForkKnife size={16} />;
     case 'account-settings':
       return <PersonGear size={16} />;
+    case 'recurring-routines':
+      return <ArrowRepeat size={16} />;
     default:
       return null;
   }
