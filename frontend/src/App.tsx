@@ -20,6 +20,20 @@ import './CustomBootstrap.css';
 import './brand.css';
 
 const ACTIVE_MODULE_STORAGE_KEY = 'sparklane_active_module';
+const SIDEBAR_WIDTH_STORAGE_KEY = 'sparklane_sidebar_width';
+const DEFAULT_SIDEBAR_WIDTH = 260;
+const MIN_SIDEBAR_WIDTH = 200;
+const MAX_SIDEBAR_WIDTH = 420;
+
+function getStoredSidebarWidth() {
+  try {
+    const storedWidth = Number(window.localStorage.getItem(SIDEBAR_WIDTH_STORAGE_KEY));
+    return Number.isFinite(storedWidth) && storedWidth >= MIN_SIDEBAR_WIDTH
+      && storedWidth <= MAX_SIDEBAR_WIDTH ? storedWidth : DEFAULT_SIDEBAR_WIDTH;
+  } catch {
+    return DEFAULT_SIDEBAR_WIDTH;
+  }
+}
 const MODULE_NAV_ITEMS: ModuleNavItem[] = [
   { id: 'home', label: 'Home' },
   ...OPTIONAL_MODULES,
@@ -52,6 +66,7 @@ function AppContent() {
   const { user, isAuthenticated, loading, error, checkAuthStatus, setError } = useAuthContext();
   const [activeModule, setActiveModule] = useState<ModuleId>(() => getStoredActiveModule());
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(true);
+  const [sidebarWidth, setSidebarWidth] = useState(getStoredSidebarWidth);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const moduleHeadingRef = useRef<HTMLHeadingElement>(null);
   const enabledModules: OptionalModuleId[] = useMemo(() =>
@@ -92,6 +107,14 @@ function AppContent() {
   useEffect(() => {
     window.localStorage.setItem(ACTIVE_MODULE_STORAGE_KEY, activeModule);
   }, [activeModule]);
+
+  useEffect(() => {
+    try {
+      window.localStorage.setItem(SIDEBAR_WIDTH_STORAGE_KEY, String(sidebarWidth));
+    } catch {
+      // Resizing still works when browser storage is unavailable.
+    }
+  }, [sidebarWidth]);
 
   useEffect(() => {
     if (isOptionalModuleId(activeModule) && !enabledModuleSet.has(activeModule)) {
@@ -157,7 +180,10 @@ function AppContent() {
     <div className="app">
       <a href="#main-content" className="skip-link">Skip to main content</a>
 
-      <div className={`app-shell${isSidebarCollapsed ? ' sidebar-collapsed' : ''}`}>
+      <div
+        className={`app-shell${isSidebarCollapsed ? ' sidebar-collapsed' : ''}`}
+        style={{ '--expanded-sidebar-width': `${sidebarWidth}px` } as React.CSSProperties}
+      >
         {isMobileSidebarOpen && (
           <button
             type="button"
@@ -175,6 +201,10 @@ function AppContent() {
           onToggleCollapsed={() => setIsSidebarCollapsed((current) => !current)}
           isMobileOpen={isMobileSidebarOpen}
           onCloseMobile={() => setIsMobileSidebarOpen(false)}
+          width={sidebarWidth}
+          minWidth={MIN_SIDEBAR_WIDTH}
+          maxWidth={MAX_SIDEBAR_WIDTH}
+          onResize={setSidebarWidth}
         />
 
         <div className="app-content">

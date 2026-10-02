@@ -29,15 +29,15 @@
 }
 
 .app-shell {
-  --app-sidebar-width: 260px;
+  --app-sidebar-width: var(--expanded-sidebar-width, 260px);
   display: grid;
-  grid-template-columns: 260px 1fr;
+  grid-template-columns: var(--app-sidebar-width) minmax(0, 1fr);
   min-height: 100vh;
 }
 
 .app-shell.sidebar-collapsed {
-  --app-sidebar-width: 40px;
-  grid-template-columns: 40px 1fr;
+  --app-sidebar-width: 54px;
+  grid-template-columns: var(--app-sidebar-width) minmax(0, 1fr);
 }
 
 .app-content {

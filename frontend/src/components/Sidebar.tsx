@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef, useState } from 'react';
 import { PiggyBank, ForkKnife, HouseDoor, PersonGear, ClockHistory } from 'react-bootstrap-icons';
 import './Sidebar.css';
 
@@ -17,6 +17,10 @@ interface SidebarProps {
   onToggleCollapsed: () => void;
   isMobileOpen: boolean;
   onCloseMobile: () => void;
+  width: number;
+  minWidth: number;
+  maxWidth: number;
+  onResize: (width: number) => void;
 }
 
 function getNavIcon(moduleId: ModuleId) {
@@ -44,9 +48,21 @@ function Sidebar({
   onToggleCollapsed,
   isMobileOpen,
   onCloseMobile,
+  width,
+  minWidth,
+  maxWidth,
+  onResize,
 }: SidebarProps) {
+  const dragStart = useRef<{ pointerId: number; x: number; width: number } | null>(null);
+  const [isResizing, setIsResizing] = useState(false);
+  const resizeTo = (nextWidth: number) => onResize(Math.min(maxWidth, Math.max(minWidth, nextWidth)));
+  const stopResizing = () => {
+    dragStart.current = null;
+    setIsResizing(false);
+  };
+
   return (
-    <aside className={`app-sidebar${isCollapsed ? ' is-collapsed' : ''}${isMobileOpen ? ' is-mobile-open' : ''}`}>
+    <aside className={`app-sidebar${isCollapsed ? ' is-collapsed' : ''}${isMobileOpen ? ' is-mobile-open' : ''}${isResizing ? ' is-resizing' : ''}`}>
       <div className="sidebar-header">
         <h2 className="sidebar-title">Modules</h2>
         <button
@@ -56,7 +72,7 @@ function Sidebar({
           aria-expanded={!isCollapsed}
           onClick={onToggleCollapsed}
         >
-          {isCollapsed ? '>' : '<'}
+          {isCollapsed ? '\u21AA' : '\u21A9'}
         </button>
         <button
           type="button"
@@ -87,6 +103,53 @@ function Sidebar({
           ))}
         </ul>
       </nav>
+      {!isCollapsed && (
+        <div
+          className="sidebar-resize-handle"
+          role="separator"
+          tabIndex={0}
+          aria-label="Resize sidebar"
+          aria-controls="module-navigation"
+          aria-orientation="vertical"
+          aria-valuemin={minWidth}
+          aria-valuemax={maxWidth}
+          aria-valuenow={width}
+          aria-valuetext={`${width} pixels`}
+          title="Drag to resize, or use the left and right arrow keys"
+          onPointerDown={(event) => {
+            if (event.button !== 0) return;
+            event.preventDefault();
+            event.currentTarget.focus();
+            event.currentTarget.setPointerCapture(event.pointerId);
+            dragStart.current = { pointerId: event.pointerId, x: event.clientX, width };
+            setIsResizing(true);
+          }}
+          onPointerMove={(event) => {
+            const start = dragStart.current;
+            if (start && start.pointerId === event.pointerId) {
+              resizeTo(start.width + event.clientX - start.x);
+            }
+          }}
+          onPointerUp={(event) => {
+            if (dragStart.current?.pointerId !== event.pointerId) return;
+            event.currentTarget.releasePointerCapture(event.pointerId);
+            stopResizing();
+          }}
+          onPointerCancel={stopResizing}
+          onLostPointerCapture={stopResizing}
+          onKeyDown={(event) => {
+            const step = event.shiftKey ? 50 : 10;
+            switch (event.key) {
+              case 'ArrowLeft': resizeTo(width - step); break;
+              case 'ArrowRight': resizeTo(width + step); break;
+              case 'Home': resizeTo(minWidth); break;
+              case 'End': resizeTo(maxWidth); break;
+              default: return;
+            }
+            event.preventDefault();
+          }}
+        />
+      )}
     </aside>
   );
 }
