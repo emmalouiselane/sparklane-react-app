@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import './meal-planner.css';
-import { ModuleNavItem } from '../components/Sidebar';
+import { useAuthContext } from '../contexts/AuthContext';
 import MealPlanner from '../components/MealPlanner';
 import PMOSReferenceGuide from '../components/PMOSReferenceGuide';
 
@@ -12,16 +12,17 @@ const QUICK_LINKS = [
 ];
 
 function MealPlannerPage() {
+  const { user } = useAuthContext();
   const [activePage, setActivePage] = useState("meal-planner");
 
   return (
     <section className="meal-planner-page" aria-label="Meal Planner module">
-      <div className="meal-planner-main module-placeholder">
+      <div className="meal-planner-main">
 
-        {activePage == "meal-planner" && (
-          <MealPlanner />
-        )}
-        {activePage == "pmos-reference-guide" && (
+        <div hidden={activePage !== 'meal-planner'}>
+          <MealPlanner key={user.id} />
+        </div>
+        {activePage === "pmos-reference-guide" && (
           <PMOSReferenceGuide />
         )}  
       </div>
@@ -29,18 +30,24 @@ function MealPlannerPage() {
       <aside className="meal-planner-sidebar" aria-label="Reference guides">
         <div className="meal-planner-sidebar-card">
           <ul className="meal-planner-links">
+            <li>
             <button
               type="button"
+              aria-pressed={activePage === 'meal-planner'}
               onClick={() => setActivePage("meal-planner")}
             >
               <span>Meal Planner</span>
             </button>
+            </li>
+            <li>
             <button
               type="button"
+              aria-pressed={activePage === 'pmos-reference-guide'}
               onClick={() => setActivePage("pmos-reference-guide")}
             >
               <span>PMOS Reference Guide</span>
             </button>
+            </li>
           </ul>
 
           <p>Need inspiration? Check out my recipes.</p>

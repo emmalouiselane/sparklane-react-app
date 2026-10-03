@@ -18,6 +18,7 @@ const budgetRoutes = require('./routes/budget');
 const timeLogsRoutes = require('./routes/timeLogs');
 const todosRoutes = require('./routes/todos');
 const routinesRoutes = require('./routes/routines');
+const mealPlannerRoutes = require('./routes/mealPlanner');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -95,6 +96,7 @@ app.use('/api/time-logs', timeLogsRoutes);
 app.use('/api/budget', budgetRoutes);
 app.use('/api/todos', todosRoutes);
 app.use('/api/routines', routinesRoutes);
+app.use('/api/meal-planner', mealPlannerRoutes);
 
 app.use((err, req, res, next) => {
   console.error(err.stack || err);

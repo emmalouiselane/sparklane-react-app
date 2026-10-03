@@ -42,6 +42,7 @@
 .meal-planner-links a,
 .meal-planner-links button {
   display: block;
+  width: 100%;
   padding: 10px 12px;
   border-radius: 10px;
   background: var(--color-surface-elevated);
@@ -53,7 +54,58 @@
 
 .meal-planner-links a:hover,
 .meal-planner-links button:hover {
-  background: var(--color-surface-elevated);
+  background: var(--color-primary-soft);
+}
+
+.meal-planner-links button[aria-pressed='true'] {
+  border-color: var(--color-primary);
+  background: var(--color-primary-soft);
+}
+
+.simple-meal-planner { display: grid; gap: 16px; }
+.simple-meal-planner header { display: grid; gap: 8px; }
+.simple-meal-planner h2 { font-size: 1.75rem; }
+.simple-meal-planner h3 { font-size: 1.15rem; margin: 0; }
+.meal-card { padding: 20px; border: 1px solid var(--color-border-soft); border-radius: 12px; background: var(--color-surface-elevated); display: grid; gap: 12px; min-width: 0; }
+.meal-section-heading, .meal-day-entry, .meal-actions { display: flex; align-items: center; gap: 10px; }
+.meal-section-heading { justify-content: space-between; flex-wrap: wrap; }
+.meal-hint, .meal-save-status { color: var(--color-text-light); }
+.simple-meal-planner .meal-save-status { font-size: 0.8rem; }
+.simple-meal-planner label { font-weight: 600; }
+.simple-meal-planner input:not([type='checkbox']) { width: 100%; min-width: 0; min-height: 44px; padding: 10px 12px; border-radius: 8px; border: 1px solid var(--color-border-soft); background: var(--color-surface); color: var(--color-text); font: inherit; }
+.simple-meal-planner input::placeholder { color: var(--color-text-light); opacity: 1; }
+.simple-meal-planner select { width: 100%; min-height: 44px; padding: 10px 12px; border-radius: 8px; border: 1px solid var(--color-border-soft); background: var(--color-surface); color: var(--color-text); font: inherit; }
+.simple-meal-planner button { min-height: 44px; padding: 8px 12px; border: 1px solid var(--color-primary-border); border-radius: 8px; background: var(--color-primary-soft); color: var(--color-text); font: inherit; cursor: pointer; }
+.simple-meal-planner button:hover:not(:disabled) { border-color: var(--color-primary); }
+.simple-meal-planner button:disabled { opacity: 0.5; cursor: default; }
+.simple-meal-planner :is(button, input, select, summary):focus-visible { outline: 2px solid var(--color-primary); outline-offset: 3px; }
+.meal-days { display: grid; gap: 14px; }
+.meal-day { display: grid; gap: 8px; }
+.meal-dinner-entry { display: grid; grid-template-columns: 145px minmax(0, 1fr) auto; gap: 10px; align-items: center; }
+.meal-dinner-entry select { min-width: 0; }
+.meal-line-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+.meal-day-entry button { flex-shrink: 0; }
+.meal-quick-picks { display: grid; gap: 8px; }
+.meal-actions { flex-wrap: wrap; }
+.meal-backup button { justify-self: start; }
+.meal-shopping-accordion { display: block; }
+.meal-shopping-accordion summary { font-weight: 600; cursor: pointer; min-height: 44px; align-content: center; }
+.meal-shopping-count { float: right; margin-left: 10px; font-weight: 400; }
+.meal-shopping-content { display: grid; gap: 12px; margin-top: 12px; }
+.meal-shopping-form { display: grid; gap: 8px; }
+.meal-shopping-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.meal-shopping-list li { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.meal-shopping-list label { display: flex; align-items: center; gap: 12px; min-height: 44px; min-width: 0; cursor: pointer; }
+.meal-shopping-list label span { overflow-wrap: anywhere; }
+.meal-shopping-list input { width: 20px; height: 20px; flex-shrink: 0; accent-color: var(--color-primary); }
+.meal-item-done span { text-decoration: line-through; color: var(--color-text-light); }
+
+@media (max-width: 600px) {
+  .meal-card { padding: 16px; }
+  .meal-dinner-entry { grid-template-columns: 120px minmax(0, 1fr); }
+  .meal-dinner-entry .meal-line-actions { grid-column: 1 / -1; }
+  .meal-day-entry { flex-wrap: wrap; }
+  .meal-day-entry input { flex-basis: 100%; }
 }
 
 .meal-planner-links a:focus-visible,
