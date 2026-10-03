@@ -26,9 +26,9 @@ const DEFAULT_SIDEBAR_WIDTH = 260;
 const MIN_SIDEBAR_WIDTH = 200;
 const MAX_SIDEBAR_WIDTH = 420;
 
-function getStoredSidebarWidth() {
+function getStoredSidebarWidth(userId?: string) {
   try {
-    const storedWidth = Number(window.localStorage.getItem(SIDEBAR_WIDTH_STORAGE_KEY));
+    const storedWidth = Number(userId ? window.localStorage.getItem(`${SIDEBAR_WIDTH_STORAGE_KEY}:${userId}`) : null);
     return Number.isFinite(storedWidth) && storedWidth >= MIN_SIDEBAR_WIDTH
       && storedWidth <= MAX_SIDEBAR_WIDTH ? storedWidth : DEFAULT_SIDEBAR_WIDTH;
   } catch {
@@ -50,25 +50,26 @@ const MODULE_COMPONENTS: Record<ModuleId, React.ComponentType> = {
   'account-settings': AccountSettingsPage,
 };
 
-function getStoredActiveModule(): ModuleId {
+function getStoredActiveModule(userId?: string): ModuleId {
   if (typeof window === 'undefined') {
     return 'home';
   }
 
-  const storedModule = window.localStorage.getItem(ACTIVE_MODULE_STORAGE_KEY);
-
-  if (storedModule && storedModule in MODULE_COMPONENTS) {
-    return storedModule as ModuleId;
-  }
+  try {
+    const storedModule = userId ? window.localStorage.getItem(`${ACTIVE_MODULE_STORAGE_KEY}:${userId}`) : null;
+    if (storedModule && Object.prototype.hasOwnProperty.call(MODULE_COMPONENTS, storedModule)) {
+      return storedModule as ModuleId;
+    }
+  } catch { /* Navigation still works when browser storage is unavailable. */ }
 
   return 'home';
 }
 
 function AppContent() {
   const { user, isAuthenticated, loading, error, checkAuthStatus, setError } = useAuthContext();
-  const [activeModule, setActiveModule] = useState<ModuleId>(() => getStoredActiveModule());
+  const [activeModule, setActiveModule] = useState<ModuleId>(() => getStoredActiveModule(user?.id));
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(true);
-  const [sidebarWidth, setSidebarWidth] = useState(getStoredSidebarWidth);
+  const [sidebarWidth, setSidebarWidth] = useState(() => getStoredSidebarWidth(user?.id));
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const moduleHeadingRef = useRef<HTMLHeadingElement>(null);
   const enabledModules: OptionalModuleId[] = useMemo(() =>
@@ -107,16 +108,18 @@ function AppContent() {
   }, [activeModule]);
 
   useEffect(() => {
-    window.localStorage.setItem(ACTIVE_MODULE_STORAGE_KEY, activeModule);
-  }, [activeModule]);
+    if (!user?.id) return;
+    try { window.localStorage.setItem(`${ACTIVE_MODULE_STORAGE_KEY}:${user.id}`, activeModule); }
+    catch { /* Navigation still works when browser storage is unavailable. */ }
+  }, [activeModule, user?.id]);
 
   useEffect(() => {
     try {
-      window.localStorage.setItem(SIDEBAR_WIDTH_STORAGE_KEY, String(sidebarWidth));
+      if (user?.id) window.localStorage.setItem(`${SIDEBAR_WIDTH_STORAGE_KEY}:${user.id}`, String(sidebarWidth));
     } catch {
       // Resizing still works when browser storage is unavailable.
     }
-  }, [sidebarWidth]);
+  }, [sidebarWidth, user?.id]);
 
   useEffect(() => {
     if (isOptionalModuleId(activeModule) && !enabledModuleSet.has(activeModule)) {
@@ -237,6 +240,12 @@ function AppContent() {
   );
 }
 
+function AccountAppContent() {
+  const { user } = useAuthContext();
+  // Remount feature state when the signed-in account changes.
+  return <AppContent key={user?.id || 'signed-out'} />;
+}
+
 function App() {
   const pathname = window.location.pathname.replace(/\/+$/, '') || '/';
 
@@ -250,7 +259,7 @@ function App() {
 
   return (
     <AuthProvider>
-      <AppContent />
+      <AccountAppContent />
       <Toaster
         position="top-center"
         toastOptions={{

@@ -1,4 +1,5 @@
 const express = require('express');
+const mongoose = require('mongoose');
 const BudgetPayment = require('../models/BudgetPayment');
 const BudgetSettings = require('../models/BudgetSettings');
 const { getAppUserId, requireAuth, requireTrustedOrigin } = require('../middleware/auth');
@@ -189,7 +190,7 @@ router.patch('/payments/:id/recurring-end', async (req, res) => {
     const previousOccurrenceDate = getPreviousRecurringOccurrenceDate(payment.startDate, fromDate);
 
     if (!previousOccurrenceDate) {
-      await BudgetPayment.findByIdAndDelete(req.params.id);
+      await BudgetPayment.findOneAndDelete({ _id: req.params.id, userId });
       return res.json({
         message: 'Recurring payment removed completely',
         deleted: true
@@ -374,10 +375,13 @@ router.patch('/payments/:id', async (req, res) => {
       amountOverrides: carriedOverrides
     });
 
-    const [updatedPayment, createdPayment] = await Promise.all([
-      payment.save(),
-      newPayment.save()
-    ]);
+    // Either both halves of the split persist, or neither does. A failed write
+    // must not truncate the original and lose its future occurrences.
+    let updatedPayment, createdPayment;
+    await mongoose.connection.transaction(async (session) => {
+      updatedPayment = await payment.save({ session });
+      createdPayment = await newPayment.save({ session });
+    });
 
     res.json({
       message: 'Recurring payment updated successfully',
@@ -399,7 +403,7 @@ router.delete('/payments/:id', async (req, res) => {
       return res.status(404).json({ error: 'Payment not found' });
     }
 
-    await BudgetPayment.findByIdAndDelete(req.params.id);
+    await BudgetPayment.findOneAndDelete({ _id: req.params.id, userId });
 
     res.json({ message: 'Payment deleted successfully' });
   } catch (error) {

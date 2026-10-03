@@ -62,7 +62,7 @@ router.delete('/:id', async (req, res) => {
       return res.status(404).json({ error: 'Time log not found' });
     }
 
-    await TimeLog.findByIdAndDelete(req.params.id);
+    await TimeLog.findOneAndDelete({ _id: req.params.id, userId });
 
     res.json({ message: 'Time log deleted successfully' });
   } catch (error) {

@@ -1,11 +1,9 @@
 const express = require('express');
-const { google } = require('googleapis');
-const OAuth2Client = google.auth.OAuth2;
+const { verifySecurityEventToken } = require('../lib/securityEventToken');
 const AuthAccount = require('../models/AuthAccount');
 const RiscEvent = require('../models/RiscEvent');
 
 const router = express.Router();
-const verifier = new OAuth2Client();
 let riscConfig;
 let riscConfigExpires = 0;
 
@@ -25,11 +23,9 @@ router.post('/', async (req, res) => {
 
     const config = await getRiscConfig();
     const certResponse = await fetch(config.jwks_uri);
+    if (!certResponse.ok) throw new Error('Unable to load Google RISC signing keys');
     const certs = await certResponse.json();
-    const ticket = await verifier.verifySignedJwtWithCertsAsync(
-      token, certs, process.env.GOOGLE_CLIENT_ID, [config.issuer]
-    );
-    const payload = ticket.getPayload();
+    const payload = verifySecurityEventToken(token, certs, config.issuer, process.env.GOOGLE_CLIENT_ID);
     if (!payload.jti || !payload.events) return res.status(400).send('Invalid event payload');
 
     try {

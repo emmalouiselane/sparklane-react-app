@@ -33,6 +33,10 @@ if (missing.length) throw new Error(`Missing required environment variables: ${m
 
 app.set('trust proxy', 1);
 app.use(helmet());
+app.use(['/auth', '/api'], (req, res, next) => {
+  res.set('Cache-Control', 'no-store');
+  next();
+});
 app.use(cors({
   origin: allowedOrigins,
   credentials: true,

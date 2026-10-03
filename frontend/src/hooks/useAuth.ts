@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { apiClient } from '../helpers/auth';
 
 export interface UseAuthReturn {
@@ -17,7 +17,7 @@ export function useAuth(): UseAuthReturn {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const checkAuthStatus = async () => {
+  const checkAuthStatus = useCallback(async () => {
     try {
       const response = await apiClient.get('/auth/user');
       
@@ -37,23 +37,23 @@ export function useAuth(): UseAuthReturn {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   const handleLogout = async () => {
     try {
       await apiClient.post('/auth/logout', {});
-    } catch (err) {
-      console.error('Logout failed:', err);
-    } finally {
       setUser(null);
       setIsAuthenticated(false);
       setError(null);
+    } catch (err) {
+      console.error('Logout failed:', err);
+      setError('Logout failed. Please try again to end your session.');
     }
   };
 
   useEffect(() => {
     checkAuthStatus();
-  }, []);
+  }, [checkAuthStatus]);
 
   return {
     user,

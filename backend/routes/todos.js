@@ -66,8 +66,8 @@ router.put('/:id', async (req, res) => {
     if (priority !== undefined) updateData.priority = priority;
     if (completed !== undefined) updateData.completed = completed;
 
-    const updatedTodo = await Todo.findByIdAndUpdate(
-      id,
+    const updatedTodo = await Todo.findOneAndUpdate(
+      { _id: id, userId },
       updateData,
       { new: true, runValidators: true }
     );
@@ -94,7 +94,7 @@ router.delete('/:id', async (req, res) => {
       return res.status(404).json({ error: 'Todo not found' });
     }
 
-    await Todo.findByIdAndDelete(id);
+    await Todo.findOneAndDelete({ _id: id, userId });
 
     res.json({ message: 'Todo deleted successfully' });
   } catch (error) {

@@ -20,7 +20,9 @@ class MongoSessionStore extends session.Store {
     try {
       const record = await Session.findOne({ sid }).lean();
 
-      if (!record) {
+      // MongoDB TTL cleanup is asynchronous. Reject expiry before the session
+      // middleware has a chance to renew a rolling cookie.
+      if (!record || !(new Date(record.expiresAt).getTime() > Date.now())) {
         callback(null, null);
         return;
       }

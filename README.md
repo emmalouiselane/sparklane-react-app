@@ -120,7 +120,9 @@ npm start
 2. Open http://localhost:3000 in your browser
 3. The app will display users and posts from the backend API
 4. Use the forms to add new users and posts
-5. All data is stored in memory and will reset when the server restarts
+5. Budgets, to-dos, time logs, routines, meal plans, and account preferences are stored in MongoDB under the authenticated user's Google ID (account preferences live on their account record). Calendar events are stored in their Google Calendar. Data survives application restarts; protect the database and configure backups in your hosting environment.
+
+Recurring budget splits use MongoDB transactions and require a replica set or sharded deployment (including MongoDB Atlas). For local development, configure a replica set; an unsupported transaction returns an error without saving either half.
 
 ## Contributing
 

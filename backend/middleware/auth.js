@@ -13,7 +13,7 @@ function collectAllowedOrigins() {
 
   return new Set([
     ...configuredOrigins,
-    'http://localhost:3000'
+    ...(process.env.NODE_ENV === 'production' ? [] : ['http://localhost:3000'])
   ]);
 }
 
