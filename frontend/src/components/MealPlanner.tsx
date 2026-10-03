@@ -29,7 +29,6 @@ function MealPlanner() {
             <header>
                 <h2 id="meal-planner-title">Meal planner</h2>
                 <p>Plan seven days, starting whenever you like, then shop for what you need. Repeats, leftovers and easy meals all count.</p>
-                {(saveError || saving || unsaved) && <p className="meal-save-status" role="status">{saveError === 'conflict' ? 'Your plan changed on another device. Copy any changes you want to keep, then reload the saved plan.' : saveError ? 'Couldn’t save. Your changes are still here. Retry before leaving this page.' : 'Saving your changes…'}</p>}
                 {saveError && <button type="button" onClick={saveError === 'conflict' ? reloadPlan : retrySave}>{saveError === 'conflict' ? 'Reload saved plan (replaces these edits)' : 'Retry saving'}</button>}
             </header>
 
