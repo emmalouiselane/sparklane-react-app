@@ -68,6 +68,7 @@ function getStoredActiveModule(userId?: string): ModuleId {
 function AppContent() {
   const { user, isAuthenticated, loading, error, checkAuthStatus, setError } = useAuthContext();
   const [activeModule, setActiveModule] = useState<ModuleId>(() => getStoredActiveModule(user?.id));
+  const [mealPlannerVisited, setMealPlannerVisited] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(true);
   const [sidebarWidth, setSidebarWidth] = useState(() => getStoredSidebarWidth(user?.id));
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
@@ -161,6 +162,10 @@ function AppContent() {
     : activeModule;
   const ActiveModulePage = MODULE_COMPONENTS[safeActiveModule];
 
+  useEffect(() => {
+    if (safeActiveModule === 'meal-planner') setMealPlannerVisited(true);
+  }, [safeActiveModule]);
+
   if (loading) {
     return (
       <div className="app">Loading...</div>
@@ -222,6 +227,11 @@ function AppContent() {
           />
 
           <main className="app-main" id="main-content" role="main" aria-labelledby="module-heading">
+            {enabledModuleSet.has('meal-planner') && (mealPlannerVisited || safeActiveModule === 'meal-planner') && (
+              <div hidden={safeActiveModule !== 'meal-planner'}>
+                <MealPlannerPage />
+              </div>
+            )}
             {safeActiveModule === 'home' ? (
               <Homepage
                 enabledModuleCount={enabledModules.length}
@@ -229,9 +239,9 @@ function AppContent() {
                 defaultHomepageTab={user?.homepageTab === 'routines' ? 'routines' : 'events'}
                 onOpenModuleSettings={() => setActiveModule('account-settings')}
               />
-            ) : (
+            ) : safeActiveModule !== 'meal-planner' ? (
               <ActiveModulePage />
-            )}
+            ) : null}
           </main>
           <Footer />
         </div>
