@@ -47,6 +47,33 @@ test('changes each row weekday independently and saves without losing meals', as
     await waitFor(() => expect(api.put).toHaveBeenCalledWith('/api/meal-planner', expect.objectContaining({ plan: expect.objectContaining({ dayWeekdays: { 'day-1': 5, 'day-2': 6, 'day-3': 6 }, meals: { 'day-1': 'Pasta', 'day-2': 'Beans on toast' } }) })));
 });
 
+test('clears only the selected dinner and saves it while keeping its weekday', async () => {
+    api.get.mockResolvedValue({ data: { plan: { ...blank(), dayWeekdays: { 'day-1': 5 }, meals: { 'day-1': 'Pasta', 'day-2': 'Soup' } }, revision: 2 } });
+    render(<MealPlanner />);
+    const clear = await screen.findByRole('button', { name: 'Clear dinner for Day 1 (Saturday)' });
+    expect(screen.getAllByRole('button', { name: /Clear dinner for Day/ })).toHaveLength(7);
+    fireEvent.click(clear);
+    expect((screen.getByLabelText('Day 1') as HTMLInputElement).value).toBe('');
+    expect((screen.getByLabelText('Day 1 weekday') as HTMLSelectElement).value).toBe('5');
+    expect((screen.getByLabelText('Day 2') as HTMLInputElement).value).toBe('Soup');
+    expect((clear as HTMLButtonElement).disabled).toBe(true);
+    expect(screen.getByText('1 of 7 planned')).toBeTruthy();
+    await waitFor(() => expect(api.put).toHaveBeenCalledWith('/api/meal-planner', expect.objectContaining({ plan: expect.objectContaining({ meals: { 'day-1': '', 'day-2': 'Soup' }, dayWeekdays: { 'day-1': 5 } }) })));
+});
+
+test('shopping is collapsible while breakfast and lunch stay visible', async () => {
+    render(<MealPlanner />);
+    const shopping = (await screen.findByText('Shopping list')).closest('details')!;
+    expect(shopping).toBeTruthy();
+    expect(shopping.open).toBe(false);
+    fireEvent.click(screen.getByText('Shopping list'));
+    expect(shopping.open).toBe(true);
+    fireEvent.click(screen.getByText('Shopping list'));
+    expect(shopping.open).toBe(false);
+    expect(screen.getByLabelText('Usual breakfast').closest('details')).toBeNull();
+    expect(screen.getByLabelText('Usual lunch').closest('details')).toBeNull();
+});
+
 test('loads stable day slots and adds ideas without replacing existing meals', async () => {
     api.get.mockResolvedValue({ data: { plan: { ...blank(), meals: { 'day-1': 'Pasta' } }, revision: 2 } });
     render(<MealPlanner />);

@@ -46,8 +46,8 @@ function MealPlanner() {
                 <div className="meal-days">
                     {days.map((day, index) => (
                         <div key={day.key} className="meal-day">
-                            <label htmlFor={`dinner-${day.key}`}>Day {index + 1}</label>
                             <div className="meal-dinner-entry">
+                                <label htmlFor={`dinner-${day.key}`}>Day {index + 1}</label>
                                 <select aria-label={`Day ${index + 1} weekday`} value={day.weekday} onChange={event => {
                                     const weekday = Number(event.target.value);
                                     setPlan(current => ({ ...current, dayWeekdays: { ...current.dayWeekdays, [day.key]: weekday } }));
