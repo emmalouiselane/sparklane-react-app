@@ -81,12 +81,13 @@
 .simple-meal-planner :is(button, input, select, summary):focus-visible { outline: 2px solid var(--color-primary); outline-offset: 3px; }
 .meal-days { display: grid; gap: 14px; }
 .meal-day { display: grid; gap: 8px; }
-.meal-dinner-entry { display: grid; grid-template-columns: auto 145px minmax(0, 1fr); gap: 10px; align-items: center; }
+.meal-dinner-entry { display: grid; grid-template-columns: auto 145px minmax(0, 1fr) auto; gap: 10px; align-items: center; }
 .meal-dinner-entry > label { white-space: nowrap; }
-.meal-dinner-entry .meal-line-actions { grid-column: 3; }
+.meal-dinner-entry .meal-line-actions { grid-column: 4; flex-wrap: nowrap; white-space: nowrap; }
 .meal-dinner-entry select { min-width: 0; }
 .meal-line-actions { display: flex; flex-wrap: wrap; gap: 10px; }
 .meal-clear-control { position: relative; display: inline-flex; }
+.meal-clear-label { display: none; }
 .meal-clear-tooltip { position: absolute; bottom: calc(100% + 8px); right: 0; z-index: 1; padding: 6px 10px; border: 1px solid var(--color-border-soft); border-radius: 6px; background: var(--color-surface-elevated); color: var(--color-text); font-size: 0.85rem; white-space: nowrap; visibility: hidden; pointer-events: none; }
 .meal-clear-control:hover .meal-clear-tooltip,
 .meal-clear-control:focus-within .meal-clear-tooltip { visibility: visible; }
@@ -108,8 +109,11 @@
 
 @media (max-width: 600px) {
   .meal-card { padding: 16px; }
-  .meal-dinner-entry { grid-template-columns: auto minmax(95px, 120px) minmax(0, 1fr); gap: 8px; }
-  .meal-dinner-entry .meal-line-actions { grid-column: 2 / -1; }
+  .meal-dinner-entry { grid-template-columns: auto minmax(0, 1fr); gap: 8px; }
+  .meal-dinner-entry > input { grid-column: 1 / -1; }
+  .meal-dinner-entry .meal-line-actions { grid-column: 1 / -1; flex-wrap: wrap; }
+  .meal-clear-control button { display: inline-flex; align-items: center; gap: 4px; }
+  .meal-clear-label { display: inline; }
   .meal-day-entry { flex-wrap: wrap; }
   .meal-day-entry input { flex-basis: 100%; }
 }

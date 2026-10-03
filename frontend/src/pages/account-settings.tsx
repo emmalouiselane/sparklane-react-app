@@ -182,6 +182,8 @@ function AccountSettingsPage() {
                 <span>{enabledModules.includes(module.id) ? 'Shown in your sidebar.' : 'Hidden from your sidebar.'}</span>
               </span>
               <input
+                id={`settings-module-${module.id}`}
+                name={`module-${module.id}`}
                 className="settings-toggle-input"
                 type="checkbox"
                 checked={enabledModules.includes(module.id)}
@@ -207,7 +209,7 @@ function AccountSettingsPage() {
         </div>
         <label className="settings-field">
           <span>Default homepage tab</span>
-          <select value={homepageTab} disabled={isHomepageTabSaving}
+          <select id="settings-homepage-tab" name="homepageTab" value={homepageTab} disabled={isHomepageTabSaving}
             onChange={event => handleHomepageTabChange(event.target.value as 'events' | 'routines')}>
             <option value="events">Upcoming Events</option>
             <option value="routines">Recurring Routines</option>
@@ -233,6 +235,8 @@ function AccountSettingsPage() {
             <span>Use the cream and terracotta theme.</span>
           </span>
           <input
+            id="settings-light-theme"
+            name="lightTheme"
             className="settings-toggle-input"
             type="checkbox"
             checked={theme === 'light'}
@@ -265,6 +269,8 @@ function AccountSettingsPage() {
           </p>
           
           <select
+            id="settings-pay-day"
+            name="payDay"
             value={payDay}
             onChange={(event) => handlePayDayChange(Number(event.target.value))}
             disabled={isLoading || isSaving}

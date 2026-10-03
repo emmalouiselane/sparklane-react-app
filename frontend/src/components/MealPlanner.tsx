@@ -58,7 +58,7 @@ function MealPlanner() {
                                 <div className="meal-line-actions">
                                     {index > 0 && <button type="button" disabled={!plan.meals[days[index - 1].key]} aria-label={`Repeat previous dinner for Day ${index + 1} (${day.label})`} onClick={() => setMeal(day.key, plan.meals[days[index - 1].key])}>Repeat previous</button>}
                                     <span className="meal-clear-control">
-                                        <button type="button" disabled={!plan.meals[day.key]} aria-label={`Clear dinner for Day ${index + 1} (${day.label})`} aria-describedby={`clear-tooltip-${day.key}`} onClick={() => setMeal(day.key, '')}><X size={20} aria-hidden="true" /></button>
+                                        <button type="button" disabled={!plan.meals[day.key]} aria-label={`Clear dinner for Day ${index + 1} (${day.label})`} aria-describedby={`clear-tooltip-${day.key}`} onClick={() => setMeal(day.key, '')}><X size={20} aria-hidden="true" /><span className="meal-clear-label">Clear</span></button>
                                         <span className="meal-clear-tooltip" id={`clear-tooltip-${day.key}`} role="tooltip">Clear dinner</span>
                                     </span>
                                 </div>
