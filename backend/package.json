@@ -20,7 +20,7 @@
     "morgan": "^1.12.1",
     "passport": "^0.7.0",
     "passport-google-oauth20": "^2.0.0",
-    "uuid": "^14.0.2"
+    "uuid": "^14.0.3"
   },
   "devDependencies": {
     "nodemon": "^3.0.2"
