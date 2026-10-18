@@ -151,6 +151,54 @@ Enable the RISC API in the same Google Cloud project as the OAuth client, create
 
 The receiver validates Google-signed security event tokens, deduplicates `jti`, revokes local sessions, and removes affected Google tokens. Follow Google's current registration steps at https://developers.google.com/identity/protocols/risc. RISC signals are intended for security, anti-fraud, and session-management purposes only.
 
+## API rate limits
+
+The backend applies these shared fixed-window limits. Each window starts with
+the first request and resets after the listed duration. Failed requests count.
+
+| Requests | Limit | Shared identity |
+| --- | --- | --- |
+| All backend routes, including unknown paths and API probes | 600/minute | Client IP |
+| Google sign-in, Calendar consent, and OAuth callbacks | 30/15 minutes | Client IP |
+| `/api/*` and `/auth/*`, including `/auth/user` and preferences | 240/minute | Authenticated account, otherwise client IP |
+| POST, PUT, PATCH, DELETE and other unsafe methods under `/api` or `/auth` | 60/minute | Authenticated account, otherwise client IP |
+| Calendar API reads and writes | 30/minute | Authenticated account, otherwise client IP |
+| Google security-event receiver | 120/minute | Client IP |
+
+Limits stack: a Calendar write counts against the overall, API, write, and
+Calendar quotas. OAuth callbacks count toward the OAuth quota. OPTIONS requests
+are exempt so CORS preflights do not consume quotas. The quotas are defined in
+`backend/lib/rateLimit.js`.
+
+IP limits run before body parsing, MongoDB session loading, Passport, and route
+handlers. Account limits run after Passport and before API probes and handlers.
+IPv6 clients share a /56 subnet bucket to limit address rotation. Account buckets
+are shared across sessions, IPs, and resource IDs.
+
+Counters use atomic MongoDB updates with the database clock and hashed identity
+keys, so replicas and restarts share quotas. The `ratelimitbuckets` collection
+has a TTL index for automatic cleanup; expired counters reset on the next
+request without waiting for TTL cleanup. Startup waits for MongoDB and the TTL
+index. If the counter store fails, requests receive a retryable HTTP 503 instead
+of bypassing limits.
+
+Exhausted quotas return HTTP 429 with `{ "error": "..." }`, `Retry-After`,
+`RateLimit`, and `RateLimit-Policy` headers. CORS exposes these headers to the
+frontend. Responses use `Cache-Control: no-store`.
+
+Set `TRUST_PROXY=0` for direct access/local development. Production defaults to
+`1`, preserving the single ingress proxy deployment; explicitly set the verified
+proxy hop count or a comma-separated list of trusted proxy IPs/CIDRs for your
+deployment. When trusting a hop count, every route to the app must pass through
+that many trusted proxies, and the ingress must overwrite or append forwarding
+headers. Do not expose a shorter direct path to clients. See
+[Express proxy guidance](https://expressjs.com/en/guide/behind-proxies/) and
+[express-rate-limit configuration](https://express-rate-limit.mintlify.app/reference/configuration).
+
+Run backend checks with `cd backend && npm test`. To also run the MongoDB
+concurrency/reset integration test, set `RATE_LIMIT_TEST_MONGODB_URI` to a test
+MongoDB server. The test creates and removes its own uniquely named database.
+
 ## License
 
 MIT License
