@@ -4,6 +4,7 @@ const helmet = require('helmet');
 const morgan = require('morgan');
 const session = require('express-session');
 const passport = require('passport');
+const csurf = require('csurf');
 require('dotenv').config();
 
 const { allowedOrigins } = require('./middleware/auth');
@@ -28,6 +29,7 @@ const PORT = process.env.PORT || 5000;
 const SESSION_SECRET = process.env.SESSION_SECRET;
 const isProduction = process.env.NODE_ENV === 'production';
 const sessionCookieName = isProduction ? '__Host-sessionId' : 'sessionId';
+const csrfProtection = csurf({ cookie: false });
 
 const required = ['SESSION_SECRET', 'TOKEN_ENCRYPTION_KEY', 'GOOGLE_CLIENT_ID', 'GOOGLE_CLIENT_SECRET', 'MONGODB_URI'];
 if (isProduction) required.push('FRONTEND_URL', 'BACKEND_PUBLIC_URL');
@@ -88,11 +90,26 @@ passport.deserializeUser(async (userId, done) => {
 app.use(passport.initialize());
 app.use(passport.session());
 
+app.use(['/auth', '/api'], csrfProtection);
+app.use(['/auth', '/api'], (req, res, next) => {
+  if (req.method === 'GET' || req.method === 'HEAD' || req.method === 'OPTIONS') {
+    res.set('X-CSRF-Token', req.csrfToken());
+  }
+  next();
+});
+
 app.use((req, res, next) => {
   if (req.session?.cookie?.expires && new Date() > req.session.cookie.expires) {
     return req.session.destroy(() => res.status(401).json({ error: 'Session expired' }));
   }
   next();
+});
+
+app.use((err, req, res, next) => {
+  if (err && err.code === 'EBADCSRFTOKEN') {
+    return res.status(403).json({ error: 'Invalid CSRF token' });
+  }
+  next(err);
 });
 
 app.use((req, res, next) => {
