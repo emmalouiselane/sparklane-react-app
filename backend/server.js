@@ -7,7 +7,7 @@ const passport = require('passport');
 const csurf = require('csurf');
 require('dotenv').config();
 
-const { allowedOrigins } = require('./middleware/auth');
+const corsOptions = require('./lib/corsOptions');
 const AuthAccount = require('./models/AuthAccount');
 const MongoSessionStore = require('./lib/MongoSessionStore');
 const RateLimitBucket = require('./models/RateLimitBucket');
@@ -48,13 +48,7 @@ app.use((req, res, next) => {
   res.set('Cache-Control', 'no-store');
   next();
 });
-app.use(cors({
-  origin: allowedOrigins,
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type'],
-  exposedHeaders: ['Retry-After', 'RateLimit', 'RateLimit-Policy']
-}));
+app.use(cors(corsOptions));
 
 const limiters = createRequestLimiters();
 installEarlyRateLimits(app, limiters);

@@ -104,6 +104,11 @@ router.get('/google/calendar/callback', async (req, res) => {
   }
 });
 
+router.get('/csrf', (req, res) => {
+  res.set('Cache-Control', 'no-store');
+  res.json({ csrfToken: req.csrfToken() });
+});
+
 router.get('/user', requireAuth, (req, res) => res.json({ user: sanitizeUser(req.user) }));
 
 router.patch('/preferences', requireAuth, requireTrustedOrigin, async (req, res) => {

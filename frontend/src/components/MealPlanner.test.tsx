@@ -133,20 +133,19 @@ test('retains unsaved changes and retries a failed save', async () => {
     expect((screen.getAllByPlaceholderText(/e.g. pasta/)[0] as HTMLInputElement).value).toBe('Soup and bread');
 });
 
-test('shows save feedback only after an edit has been saved', async () => {
+test('shows a success toast only after an edit has been saved', async () => {
     let finish: (value: any) => void = () => {};
     api.put.mockImplementationOnce(() => new Promise(resolve => { finish = resolve; }));
     render(<MealPlanner />);
     await screen.findByLabelText('Day 1');
-    expect(screen.queryByText('Saved to your account. Available on your other devices.')).toBeNull();
     expect(toast.success).not.toHaveBeenCalled();
     fireEvent.change(screen.getByLabelText('Day 1'), { target: { value: 'Pasta' } });
     await waitFor(() => expect(api.put).toHaveBeenCalledTimes(1));
-    expect(screen.getByRole('status').textContent).toBe('Saving your changes…');
     expect(toast.success).not.toHaveBeenCalled();
     finish({ data: { revision: 1 } });
     await waitFor(() => expect(toast.success).toHaveBeenCalledWith('Meal plan saved.', { id: 'meal-plan-save' }));
-    expect(screen.queryByRole('status')).toBeNull();
+    expect(toast.success).toHaveBeenCalledTimes(1);
+    expect(toast.error).not.toHaveBeenCalled();
 });
 
 test('serializes saves and keeps edits made during an in-flight request', async () => {
@@ -161,12 +160,23 @@ test('serializes saves and keeps edits made during an in-flight request', async 
     expect(api.put.mock.calls[1][1]).toEqual(expect.objectContaining({ revision: 1, plan: expect.objectContaining({ backup: 'Toast' }) }));
 });
 
-test('offers reload rather than overwriting another device on conflict', async () => {
+test('shows a conflict toast and reloads the saved plan without overwriting it', async () => {
     api.put.mockRejectedValueOnce({ response: { status: 409 } });
     render(<MealPlanner />);
     fireEvent.click(await screen.findByRole('button', { name: 'Beans on toast' }));
-    await screen.findByRole('button', { name: /Reload saved plan/ });
-    expect(screen.getByRole('status').textContent).toContain('another device');
+    const reloadButton = await screen.findByRole('button', { name: 'Reload saved plan (replaces these edits)' });
+    expect(toast.error).toHaveBeenCalledWith(
+        'Your meal plan changed on another device. Reload the saved plan before trying again.',
+        { id: 'meal-plan-save' }
+    );
+    expect(toast.success).not.toHaveBeenCalled();
     expect(api.put).toHaveBeenCalledTimes(1);
+
+    api.get.mockResolvedValueOnce({ data: { plan: { ...blank(), meals: { 'day-1': 'Updated on another device' } }, revision: 1 } });
+    fireEvent.click(reloadButton);
+    await waitFor(() => expect((screen.getByLabelText('Day 1') as HTMLInputElement).value).toBe('Updated on another device'));
+    expect(api.get).toHaveBeenCalledTimes(2);
+    expect(api.put).toHaveBeenCalledTimes(1);
+    expect(screen.queryByRole('button', { name: /Reload saved plan/ })).toBeNull();
 });
 
