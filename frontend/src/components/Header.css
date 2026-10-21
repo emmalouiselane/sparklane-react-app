@@ -30,6 +30,18 @@
   text-align: center;
 }
 
+.header-quote {
+  max-width: 42rem;
+  margin: 0.85rem auto 0;
+  color: var(--color-text-light);
+  font-size: 0.88rem;
+  line-height: 1.55;
+}
+
+.header-quote p {
+  margin: 0;
+}
+
 .toolbar {
   width: 100%;
   display: flex;

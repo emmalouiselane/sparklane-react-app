@@ -15,7 +15,36 @@ interface HeaderProps {
 function Header({ user, error, isMobileMenuOpen, onOpenMobileMenu, onOpenAccountSettings }: HeaderProps) {
   const { handleLogout } = useAuthContext();
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+  const [quote, setQuote] = useState<string | null>(null);
   const profileMenuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const controller = new AbortController();
+
+    fetch('https://sparklane.dev/api/quotes.json', { signal: controller.signal })
+      .then((response) => {
+        if (!response.ok) throw new Error('Unable to load quotes');
+        return response.json();
+      })
+      .then((payload: unknown) => {
+        if (!payload || typeof payload !== 'object') return;
+
+        const quotes = (payload as { quotes?: unknown }).quotes;
+        if (Array.isArray(quotes)) {
+          const availableQuotes = quotes.filter(
+            (item): item is string => typeof item === 'string' && item.trim().length > 0,
+          );
+          if (availableQuotes.length) {
+            setQuote(availableQuotes[Math.floor(Math.random() * availableQuotes.length)]);
+          }
+        }
+      })
+      .catch(() => {
+        // The quote is optional; keep the header usable when the feed is unavailable.
+      });
+
+    return () => controller.abort();
+  }, []);
 
   // Get user initials for fallback
   const getUserInitials = (user: any) => {
@@ -130,6 +159,11 @@ function Header({ user, error, isMobileMenuOpen, onOpenMobileMenu, onOpenAccount
         <div className="header-content">
           <h1>Spark Lane</h1>
           <span className="brand-tag">Personal Assistant</span>
+          {quote && (
+            <blockquote className="header-quote">
+              <p>{quote}</p>
+            </blockquote>
+          )}
         </div>
         {error && <div className="error" role="alert" aria-live="polite">{error}</div>}
       </header>
