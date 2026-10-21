@@ -12,10 +12,69 @@ interface HeaderProps {
   onOpenAccountSettings: () => void;
 }
 
+interface Quote {
+  text: string;
+  author?: string;
+}
+
+const getQuotes = (payload: unknown): Quote[] => {
+  let entries: unknown[] = [];
+
+  if (Array.isArray(payload)) {
+    entries = payload;
+  } else if (payload && typeof payload === 'object') {
+    const data = payload as Record<string, unknown>;
+    const nestedEntries = data.quotes || data.items || data.data;
+    entries = Array.isArray(nestedEntries) ? nestedEntries : [payload];
+  }
+
+  return entries.reduce<Quote[]>((quotes, entry) => {
+    if (typeof entry === 'string' && entry.trim()) {
+      quotes.push({ text: entry.trim() });
+      return quotes;
+    }
+
+    if (!entry || typeof entry !== 'object') return quotes;
+
+    const item = entry as Record<string, unknown>;
+    const text = item.quote || item.text || item.content;
+    if (typeof text !== 'string' || !text.trim()) return quotes;
+
+    const author = item.author || item.by || item.source;
+    quotes.push({
+      text: text.trim(),
+      ...(typeof author === 'string' && author.trim() ? { author: author.trim() } : {}),
+    });
+    return quotes;
+  }, []);
+};
+
 function Header({ user, error, isMobileMenuOpen, onOpenMobileMenu, onOpenAccountSettings }: HeaderProps) {
   const { handleLogout } = useAuthContext();
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+  const [quote, setQuote] = useState<Quote | null>(null);
   const profileMenuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const controller = new AbortController();
+
+    fetch('https://sparklane.dev/api/quotes.json', { signal: controller.signal })
+      .then((response) => {
+        if (!response.ok) throw new Error('Unable to load quotes');
+        return response.json();
+      })
+      .then((payload: unknown) => {
+        const quotes = getQuotes(payload);
+        if (quotes.length) {
+          setQuote(quotes[Math.floor(Math.random() * quotes.length)]);
+        }
+      })
+      .catch(() => {
+        // The quote is optional; keep the header usable when the feed is unavailable.
+      });
+
+    return () => controller.abort();
+  }, []);
 
   // Get user initials for fallback
   const getUserInitials = (user: any) => {
@@ -130,6 +189,12 @@ function Header({ user, error, isMobileMenuOpen, onOpenMobileMenu, onOpenAccount
         <div className="header-content">
           <h1>Spark Lane</h1>
           <span className="brand-tag">Personal Assistant</span>
+          {quote && (
+            <blockquote className="header-quote">
+              <p>“{quote.text}”</p>
+              {quote.author && <cite>— {quote.author}</cite>}
+            </blockquote>
+          )}
         </div>
         {error && <div className="error" role="alert" aria-live="polite">{error}</div>}
       </header>
