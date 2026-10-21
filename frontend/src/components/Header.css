@@ -42,13 +42,6 @@
   margin: 0;
 }
 
-.header-quote cite {
-  display: block;
-  margin-top: 0.2rem;
-  font-size: 0.78rem;
-  font-style: normal;
-}
-
 .toolbar {
   width: 100%;
   display: flex;

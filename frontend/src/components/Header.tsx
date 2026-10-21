@@ -12,47 +12,10 @@ interface HeaderProps {
   onOpenAccountSettings: () => void;
 }
 
-interface Quote {
-  text: string;
-  author?: string;
-}
-
-const getQuotes = (payload: unknown): Quote[] => {
-  let entries: unknown[] = [];
-
-  if (Array.isArray(payload)) {
-    entries = payload;
-  } else if (payload && typeof payload === 'object') {
-    const data = payload as Record<string, unknown>;
-    const nestedEntries = data.quotes || data.items || data.data;
-    entries = Array.isArray(nestedEntries) ? nestedEntries : [payload];
-  }
-
-  return entries.reduce<Quote[]>((quotes, entry) => {
-    if (typeof entry === 'string' && entry.trim()) {
-      quotes.push({ text: entry.trim() });
-      return quotes;
-    }
-
-    if (!entry || typeof entry !== 'object') return quotes;
-
-    const item = entry as Record<string, unknown>;
-    const text = item.quote || item.text || item.content;
-    if (typeof text !== 'string' || !text.trim()) return quotes;
-
-    const author = item.author || item.by || item.source;
-    quotes.push({
-      text: text.trim(),
-      ...(typeof author === 'string' && author.trim() ? { author: author.trim() } : {}),
-    });
-    return quotes;
-  }, []);
-};
-
 function Header({ user, error, isMobileMenuOpen, onOpenMobileMenu, onOpenAccountSettings }: HeaderProps) {
   const { handleLogout } = useAuthContext();
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
-  const [quote, setQuote] = useState<Quote | null>(null);
+  const [quote, setQuote] = useState<string | null>(null);
   const profileMenuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -64,9 +27,16 @@ function Header({ user, error, isMobileMenuOpen, onOpenMobileMenu, onOpenAccount
         return response.json();
       })
       .then((payload: unknown) => {
-        const quotes = getQuotes(payload);
-        if (quotes.length) {
-          setQuote(quotes[Math.floor(Math.random() * quotes.length)]);
+        if (!payload || typeof payload !== 'object') return;
+
+        const quotes = (payload as { quotes?: unknown }).quotes;
+        if (Array.isArray(quotes)) {
+          const availableQuotes = quotes.filter(
+            (item): item is string => typeof item === 'string' && item.trim().length > 0,
+          );
+          if (availableQuotes.length) {
+            setQuote(availableQuotes[Math.floor(Math.random() * availableQuotes.length)]);
+          }
         }
       })
       .catch(() => {
@@ -191,8 +161,7 @@ function Header({ user, error, isMobileMenuOpen, onOpenMobileMenu, onOpenAccount
           <span className="brand-tag">Personal Assistant</span>
           {quote && (
             <blockquote className="header-quote">
-              <p>“{quote.text}”</p>
-              {quote.author && <cite>— {quote.author}</cite>}
+              <p>{quote}</p>
             </blockquote>
           )}
         </div>
