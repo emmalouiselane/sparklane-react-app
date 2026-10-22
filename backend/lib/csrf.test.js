@@ -19,9 +19,19 @@ test('cross-origin payment deletion succeeds with a session CSRF token and rejec
   });
 
   const app = express();
+  app.set('trust proxy', 1);
   app.use(cors(corsOptions));
   app.use(express.json());
-  app.use(session({ secret: 'csrf-test-session-secret', resave: false, saveUninitialized: false }));
+  app.use(session({
+    secret: 'csrf-test-session-secret',
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      secure: 'auto',
+      httpOnly: true,
+      sameSite: 'lax'
+    }
+  }));
   app.use((req, res, next) => {
     // Stand in for Passport, keeping real session/CSRF and ownership checks.
     req.user = { id: 'account', googleId: 'owner' };
