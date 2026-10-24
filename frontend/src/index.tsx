@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import App from './app';
+import App from './App';
 import reportWebVitals from './report-web-vitals';
 import { applyThemePreference, getStoredThemePreference } from './helpers/theme';
 
