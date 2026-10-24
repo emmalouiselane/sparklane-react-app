@@ -78,7 +78,7 @@ const TodoList: React.FC<TodoListProps> = ({ heading, eyebrow, subtitle, inlineE
       hasLoadedTodos.current = true;
       setLoading(false);
     }
-  }, [inlineEditing]);
+  }, []);
 
   useEffect(() => {
     fetchTodos();

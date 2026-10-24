@@ -4,25 +4,22 @@
 .today-date-controls button svg { width: 16px; height: 16px; }
 .today-date-controls > span { min-width: 106px; color: var(--color-text); font-size: .75rem; text-align: center; white-space: nowrap; }
 .today-heading h1 span { color: var(--color-highlight); }
-.today-hero p, .today-feature-card p { margin: 0; color: var(--color-text-light); }
+.today-hero p, .today-feature-card p { margin: 0; color: var(--color-text-light); font-size: .83rem; }
 .today-date { flex: none; width: 100px; height: 86px; display: grid; place-content: center; text-align: center; border: 1px solid var(--color-border-soft); background: var(--color-surface); border-radius: 18px; }
 .today-date span { font-size: .75rem; text-transform: uppercase; letter-spacing: .1em; color: var(--color-text-light); }
 .today-date strong { font-size: 1.85rem; line-height: 1.2; }
 .today-hero { position: relative; isolation: isolate; overflow: hidden; margin-bottom: 0.5rem; min-height: 145px; }
 .today-hero > :not(.header-botanical) { position: relative; z-index: 1; }
 .today-hero .header-botanical { position: absolute; z-index: 0; top: 50%; right: 10%; width: clamp(8rem, 18vw, 12rem); opacity: .16; pointer-events: none; transform: translateY(-50%) rotate(8deg); }
-.today-hero h2 { color: var(--color-heading); }
-.today-hero p { color: var(--color-text-light); }
-.today-hero h2 { margin: .45rem 0 .4rem; font-size: clamp(1.2rem, 2.3vw, 1.65rem); }
-.today-hero p { font-size: .83rem; }
+.today-hero h2 { margin: .45rem 0 .4rem; color: var(--color-heading); font-size: clamp(1.2rem, 2.3vw, 1.65rem); }
 .today-hero-actions { display: flex; gap: .65rem; flex-wrap: wrap; margin-left: auto; }
 .today-hero-actions button { display: inline-flex; align-items: center; gap: .55rem; padding: .7rem .85rem; color: var(--color-text); background: var(--color-primary-soft); border: 1px solid var(--color-primary-border); border-radius: 12px; font-weight: 700; font-size: .78rem; }
 .today-hero-actions button:hover { background: var(--color-accent-light); }
-.today-grid { display: grid; grid-template-columns: 1.08fr .92fr; align-items: start; gap: .5rem; }
+.today-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; gap: .75rem; }
 .weekly-intention { grid-column: 1 / -1; display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; min-width: 0; margin: auto; text-align: center; }
 .weekly-intention > div { min-width: 0; }
 .weekly-intention p { margin: 0; color: var(--color-text); font-size: .88rem; line-height: 1.55; }
-.today-column { display: grid; align-content: start; gap: .5rem; min-width: 0; }
+.today-column { display: grid; align-content: start; gap: .75rem; min-width: 0; }
 .today-column > .card, .today-feature-card { margin: 0; border-color: var(--color-border-soft); border-radius: 20px; background: var(--color-surface); box-shadow: var(--shadow-soft); }
 .today-column > .todo-card { text-align: left; }
 .today-column > .todo-card { overflow: hidden; }
@@ -63,7 +60,7 @@
 .today-column .routines-card { overflow: hidden; }
 .today-column .routines-card > .card-header { padding: 1rem 1.2rem .8rem; background: transparent; border-bottom: 0; }
 .today-column .routines-card > .card-body { padding: 0 1.2rem 1rem; }
-.today-column .routines-header .card-title { display: flex; align-items: center; gap: .5rem; font-size: 1rem; }
+.today-column .routines-header .card-title { display: flex; align-items: center; gap: .75rem; font-size: 1rem; }
 .today-column .routines-header .card-title svg { color: var(--color-highlight); }
 .today-column .routines-header .btn { border-radius: 999px; font-size: .75rem; }
 .today-column .routines-intro { font-size: .75rem; margin: 0 0 .6rem; }
@@ -71,7 +68,6 @@
 .today-column .routine-heading h3 { font-size: .85rem; }
 .today-column .routine-heading p, .today-column .routine-progress { font-size: .75rem; }
 .today-column .routine-step { margin: .45rem 0; font-size: .78rem; }
-.habits-card-footer { display: flex; justify-content: space-between; gap: .5rem; margin-top: .8rem; padding-top: .7rem; border-top: 1px solid var(--color-border-soft); color: var(--color-text-light); font-size: .75rem; }
 .today-column .habits-today .routines-card { overflow: hidden; }
 .today-column .habits-today .routines-header { align-items: center; padding: 1rem 1.2rem .65rem; background: transparent; border-bottom: 0; }
 .today-column .habits-today .routines-header > div { min-width: 0; }
@@ -90,7 +86,7 @@
 .today-column .habits-today .habits-card-footer { margin-top: .5rem; padding-top: .65rem; font-size: .75rem; }
 .today-feature-card .card-body { padding: 1.2rem; }
 .today-feature-card .card-title { margin-bottom: .45rem; font-size: 1.05rem; }
-.today-feature-card p { margin-bottom: 1rem; font-size: .83rem; line-height: 1.6; }
+.today-feature-card p { margin-bottom: 1rem; line-height: 1.6; }
 .meals-home-card .card-body { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: start; gap: .85rem; }
 .meals-home-card .btn { grid-column: 2; justify-self: start; }
 .today-menu-card > .card-header { display: flex; align-items: center; justify-content: space-between; gap: .75rem; padding: 1rem 1.2rem .55rem; background: transparent; border-bottom: 0; }
@@ -111,7 +107,7 @@
 .today-meals-content { min-width: 0; }
 .today-meals-content .card-title { margin: .25rem 0 .5rem; font-size: 1rem; }
 .today-menu-summary { display: grid; gap: .38rem; }
-.today-menu-summary > div { display: grid; grid-template-columns: 4rem minmax(0, 1fr); gap: .5rem; align-items: baseline; }
+.today-menu-summary > div { display: grid; grid-template-columns: 4rem minmax(0, 1fr); gap: .75rem; align-items: baseline; }
 .today-menu-summary > div span, .today-shopping-count { color: var(--color-text-light); font-size: .75rem; }
 .today-menu-summary > div strong { min-width: 0; overflow-wrap: anywhere; font-size: .75rem; font-weight: 600; }
 .today-shopping-count { margin: .3rem 0 0 !important; padding-top: .5rem; border-top: 1px solid var(--color-border-soft); }

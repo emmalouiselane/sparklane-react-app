@@ -1,12 +1,6 @@
 .todo-card {
-  text-align: center;
-
   .calendar-priority-item .todo-title {
     margin: 0;
-  }
-
-  .loading-container {
-    padding: 1.5rem;
   }
 
   .no-todos {
@@ -21,60 +15,14 @@
   }
 
   .card-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-
     .todo-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      width: 100%;
-
-      .todo-header-left {
-        display: flex;
-        align-items: center;
-
-        svg {
-          margin: auto 10px auto 0;
-        }
-
-        .card-title {
-          margin: auto 0;
-        }
-      }
-
       .todo-header-actions {
         display: flex;
-        gap: 8px;
-        align-items: center;
-
-        .clear-completed-btn {
-          display: flex;
-          align-items: center;
-          gap: 5px;
-          font-weight: 500;
-        }
-
-        .quick-add-btn {
-          display: flex;
-          align-items: center;
-          gap: 5px;
-          font-weight: 500;
-        }
       }
     }
   }
 
   .card-body {
-    svg {
-      margin: auto 5px auto 0;
-    }
-
-    .list-group {
-      backdrop-filter: blur(10px);
-    }
-
     .todo-item {
       padding: 0.5rem 1rem;
       border: none;
@@ -179,7 +127,7 @@
 .todo-inline-edit .todo-inline-fields .todo-inline-date { width: 9rem; }
 .todo-inline-edit .todo-inline-fields .todo-inline-time { width: 6rem; }
 .todo-inline-edit .todo-item-actions { display: none; }
-.todo-inline-edit .todo-inline-add { display: flex; gap: .5rem; margin-top: .85rem; }
+.todo-inline-edit .todo-inline-add { display: flex; gap: .75rem; margin-top: .85rem; }
 .todo-inline-edit .todo-inline-add .form-control { min-width: 0; color: var(--color-text); background: var(--color-background); border-color: var(--color-border-soft); font-size: .8rem; }
 .todo-inline-edit .todo-inline-add .todo-inline-add-time { max-width: 7rem; }
 .todo-inline-edit .todo-inline-add .todo-inline-add-date { max-width: 10rem; }

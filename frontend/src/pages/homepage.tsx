@@ -72,11 +72,11 @@ function Homepage({ userId, weeklyIntention, enabledModuleCount, onOpenModuleSet
   const [mood, setMood] = useState<Mood | null>(null);
   const [moodSaving, setMoodSaving] = useState(false);
   const loadTodayCheckIn = useCallback(() => {
-    const dayBounds = getLocalDayBounds(now);
+    const dayBounds = getLocalDayBounds(new Date(`${todayKey}T12:00:00`));
     apiClient.get('/api/wellness/check-ins/today', { params: { dateKey: todayKey, ...dayBounds } })
       .then(response => setMood(response.data.entry?.mood || null))
       .catch(() => toast.error('Today’s wellness check-in could not be loaded.'));
-  }, [now, todayKey]);
+  }, [todayKey]);
 
   useEffect(() => {
     const timer = window.setInterval(() => setNow(new Date()), 60_000);
@@ -85,7 +85,7 @@ function Homepage({ userId, weeklyIntention, enabledModuleCount, onOpenModuleSet
 
   useEffect(() => {
     let active = true;
-    const dayBounds = getLocalDayBounds(now);
+    const dayBounds = getLocalDayBounds(new Date(`${todayKey}T12:00:00`));
     apiClient.get('/api/wellness/check-ins/today', { params: { dateKey: todayKey, ...dayBounds } })
       .then(response => { if (active) setMood(response.data.entry?.mood || null); })
       .catch(() => { if (active) toast.error('Today’s wellness check-in could not be loaded.'); });

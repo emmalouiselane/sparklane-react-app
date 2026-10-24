@@ -63,9 +63,9 @@
 .meal-shopping-list input { width: 20px; height: 20px; flex-shrink: 0; accent-color: var(--color-primary); }
 .meal-item-done span { text-decoration: line-through; color: var(--color-text-light); }
 
-.meal-home-content { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; gap: .5rem; min-width: 0; }
+.meal-home-content { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; gap: .75rem; min-width: 0; }
 .meal-home-page-header { grid-column: 1 / -1; }
-.meal-home-side-column { display: grid; align-content: start; gap: .5rem; min-width: 0; }
+.meal-home-side-column { display: grid; align-content: start; gap: .75rem; min-width: 0; }
 .meal-home-card { display: grid; gap: 0; min-width: 0; padding: 19px 20px; border: 1px solid var(--color-border-soft); border-radius: 20px; background: var(--color-surface); }
 .meal-home-card-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 15px; }
 .meal-home-card-header h2 { margin: 0; font-size: 14px; font-weight: 700; letter-spacing: -.02em; }

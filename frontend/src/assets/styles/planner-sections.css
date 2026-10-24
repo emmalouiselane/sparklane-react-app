@@ -4,7 +4,7 @@
 .planner-week-day strong { font-size: 1.05rem; color: var(--color-heading); }
 .planner-week-day.is-today { color: var(--color-highlight); border-color: var(--color-primary-border); background: var(--color-primary-soft); }
 .planner-week-day.is-today strong { color: var(--color-highlight); }
-.planner-week-layout { display: grid; grid-template-columns: 1.1fr .9fr; gap: .5rem; align-items: start; }
+.planner-week-layout { display: grid; grid-template-columns: 1.1fr .9fr; gap: .75rem; align-items: start; }
 .planner-week-layout > * { min-width: 0; }
 .planner-shortcuts { display: grid; gap: .8rem; }
 .planner-shortcuts .card, .wellness-layout .card { margin: 0; border-color: var(--color-border-soft); border-radius: 20px; background: var(--color-surface); box-shadow: var(--shadow-soft); }
@@ -13,8 +13,8 @@
 .planner-shortcuts .card-title { margin: 0 0 .3rem; font-size: 1rem; }
 .planner-shortcuts p { margin: 0; color: var(--color-text-light); font-size: .8rem; line-height: 1.5; }
 .planner-shortcuts .btn { grid-column: 2; justify-self: start; }
-.wellness-layout { display: grid; grid-template-columns: 1.1fr .9fr; gap: .5rem; align-items: start; }
-.wellness-side-column { display: grid; align-content: start; gap: .5rem; min-width: 0; }
+.wellness-layout { display: grid; grid-template-columns: 1.1fr .9fr; gap: .75rem; align-items: start; }
+.wellness-side-column { display: grid; align-content: start; gap: .75rem; min-width: 0; }
 .wellness-checkin-card .card-body, .wellness-reminder-card .card-body { padding: clamp(1.2rem, 3vw, 2rem); }
 .wellness-icon { margin-bottom: .5rem; }
 .wellness-checkin-heading { display: flex; align-items: center; gap: .9rem; margin-bottom: .85rem; }
@@ -23,7 +23,7 @@
 .wellness-checkin-heading .page-eyebrow { margin-bottom: .3rem; }
 .wellness-checkin-card h2, .wellness-reminder-card h2 { margin: .35rem 0 .85rem; font-size: 1.35rem; }
 .wellness-checkin-card .wellness-checkin-heading h2 { margin: 0; }
-.wellness-mood-options { display: flex; gap: .5rem; margin: 1rem 0 1.4rem; }
+.wellness-mood-options { display: flex; gap: .75rem; margin: 1rem 0 1.4rem; }
 .wellness-mood-options button { flex: 1; min-width: 0; display: grid; justify-items: center; gap: .35rem; padding: .65rem .3rem; color: var(--color-text-light); background: var(--color-background); border: 1px solid var(--color-border-soft); border-radius: 13px; font-size: .75rem; }
 .wellness-mood-options button > span:first-child { font-size: 1.35rem; }
 .wellness-mood-options button:hover, .wellness-mood-options button.is-selected { color: var(--color-text); background: var(--color-primary-soft); border-color: var(--color-primary-border); }
@@ -38,7 +38,7 @@
 .wellness-history-empty { margin: 0; color: var(--color-text-light); font-size: .78rem; }
 .wellness-history-list { display: grid; gap: 0; margin: 0; padding: 0; list-style: none; }
 .wellness-history-list li { padding: .75rem 0; border-top: 1px solid var(--color-border-soft); }
-.wellness-history-heading { display: flex; align-items: baseline; justify-content: space-between; gap: .5rem; }
+.wellness-history-heading { display: flex; align-items: baseline; justify-content: space-between; gap: .75rem; }
 .wellness-history-heading .wellness-delete-entry { flex: none; padding: 0; color: var(--color-text-light); font-size: .75rem; text-decoration: none; }
 .wellness-history-heading .wellness-delete-entry svg { display: block; width: 14px; height: 14px; }
 .wellness-history-heading .wellness-delete-entry:hover { color: var(--color-danger, #d88b69); text-decoration: underline; }
@@ -51,8 +51,8 @@
 .planner-week-day:hover { border-color: var(--color-primary-border); transform: translateY(-1px); }
 .planner-week-day.is-selected { color: var(--color-highlight); border-color: var(--color-primary-border); background: var(--color-primary-soft); box-shadow: inset 0 0 0 1px var(--color-primary-border); }
 .planner-week-day.is-selected strong { color: var(--color-highlight); }
-.my-week-focus-grid { display: grid; grid-template-columns: minmax(0, .95fr) minmax(0, 1.05fr); gap: .5rem; align-items: start; }
-.my-week-agenda-column { display: grid; align-content: start; gap: .5rem; min-width: 0; }
+.my-week-focus-grid { display: grid; grid-template-columns: minmax(0, .95fr) minmax(0, 1.05fr); gap: .75rem; align-items: start; }
+.my-week-agenda-column { display: grid; align-content: start; gap: .75rem; min-width: 0; }
 .my-week-focus-grid > .card, .my-week-agenda-column > .card { min-width: 0; margin: 0; overflow: hidden; border-color: var(--color-border-soft); border-radius: 20px; background: var(--color-surface); box-shadow: var(--shadow-soft); }
 .my-week-priorities > .card-header { display: flex; align-items: center; padding: 1.25rem 1.25rem 0 1.25rem; background: transparent; border-bottom: 0; }
 .my-week-priorities .page-eyebrow { margin-bottom: .35rem; }

@@ -1,7 +1,5 @@
 /* Shared page headings, eyebrows, and hero surfaces. */
 .page-container {
-  width: min(1180px, 100%);
-  margin: 0 auto;
   padding: .6rem .3rem;
 }
 
@@ -9,7 +7,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: .5rem;
+  gap: .75rem;
   margin: .3rem 0 .6rem;
 }
 
@@ -54,11 +52,77 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: .5rem;
+  gap: .75rem;
   padding: 1.5rem 1.65rem;
   border: 1px solid var(--color-primary-border);
   border-radius: 24px;
   background: linear-gradient(110deg, var(--color-accent-light), var(--color-surface) 72%, var(--color-surface-elevated));
   box-shadow: var(--shadow-soft);
+}
+
+/* Shared agenda and task card structure. */
+.todo-card,
+.agenda-card {
+  text-align: center;
+}
+
+.todo-card .loading-container,
+.agenda-card .loading-container {
+  padding: 1.5rem;
+}
+
+.todo-card .card-header,
+.agenda-card .card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.todo-card .card-header .todo-header,
+.agenda-card .card-header .agenda-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.todo-card .todo-header-left,
+.agenda-card .agenda-header-left {
+  display: flex;
+  align-items: center;
+}
+
+.todo-card .todo-header-left svg,
+.agenda-card .agenda-header-left svg {
+  margin: auto 10px auto 0;
+}
+
+.todo-card .todo-header-left .card-title,
+.agenda-card .agenda-header-left .card-title {
+  margin: auto 0;
+}
+
+.todo-card .todo-header-actions {
+  gap: 8px;
+  align-items: center;
+}
+
+.todo-card .todo-header-actions .clear-completed-btn,
+.todo-card .todo-header-actions .quick-add-btn,
+.agenda-card .agenda-header .quick-add-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-weight: 500;
+}
+
+.todo-card .card-body svg,
+.agenda-card .card-body svg {
+  margin: auto 5px auto 0;
+}
+
+.todo-card .card-body .list-group,
+.agenda-card .card-body .list-group {
+  backdrop-filter: blur(10px);
 }
 

@@ -194,8 +194,6 @@ a { text-underline-offset: 0.14em; }
   color: var(--color-text-light);
 }
 
-.sidebar-link { border-radius: 999px; font-size: 0.85rem; font-weight: 700; }
-.sidebar-link.is-active { color: var(--color-accent-highlight); }
 .user-avatar-fallback, .settings-avatar-fallback { color: var(--primary-foreground); }
 
 .form-control, .form-select {

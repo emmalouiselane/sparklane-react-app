@@ -68,7 +68,7 @@ function AppContent() {
     const theme = user ? getThemePreference(user.theme) : getStoredThemePreference();
     applyThemePreference(theme);
     if (user) storeThemePreference(theme);
-  }, [user?.theme]);
+  }, [user]);
  
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);

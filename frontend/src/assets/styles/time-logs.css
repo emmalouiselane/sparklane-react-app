@@ -1,6 +1,6 @@
 .time-logs-page {
   display: grid;
-  gap: .5rem;
+  gap: .75rem;
 }
 
 .time-log-entry-card,

@@ -38,7 +38,7 @@
 .sidebar-brand:focus-visible { outline: 2px solid var(--color-highlight); outline-offset: 4px; border-radius: 6px; }
 .sidebar-brand-icon { display: block; flex: none; width: 38px; height: 38px; border-radius: 12px; object-fit: cover; }
 .sidebar-brand-wordmark { display: block; font-size: 1.1rem; font-weight: 900; letter-spacing: -.055em; line-height: 1; }
-.sidebar-brand-wordmark small { display: block; margin-top: 5px; color: var(--color-text-light); font-size: .75rem; font-weight: 700; letter-spacing: .15em; text-transform: uppercase; }
+.sidebar-brand-wordmark small { display: block; margin-top: 5px; color: var(--color-text-light); font-size: 10px; font-weight: 700; letter-spacing: .15em; text-transform: uppercase; }
 .sidebar-workspace-label { margin: 0 9px 10px; color: var(--color-text-light); font-size: .75rem; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; }
 
 .sidebar-resize-handle {
@@ -88,6 +88,8 @@
   display: flex;
   align-items: center;
   gap: 11px;
+  font-size: 0.85rem;
+  font-weight: 700;
 }
 
 .sidebar-link-icon {
@@ -118,13 +120,13 @@
 .sidebar-link.is-active {
   background: var(--color-primary-soft);
   border-color: transparent;
-  color: var(--color-highlight);
+  color: var(--color-accent-highlight);
 }
 
 .sidebar-link.is-active .sidebar-link-icon { color: var(--color-highlight); }
 
 .sidebar-bottom { margin-top: auto; padding-top: 1.25rem; }
-.sidebar-collapsed-actions { display: grid; gap: .5rem; justify-items: center; margin-top: auto; padding-top: .75rem; }
+.sidebar-collapsed-actions { display: grid; gap: .75rem; justify-items: center; margin-top: auto; padding-top: .75rem; }
 .sidebar-collapsed-actions button { display: grid; place-items: center; width: 32px; height: 32px; padding: 0; border: 1px solid transparent; border-radius: 10px; background: transparent; color: var(--color-text-light); cursor: pointer; }
 .sidebar-collapsed-actions button:hover { background: var(--color-surface-elevated); color: var(--color-text); }
 .sidebar-collapsed-actions button:focus-visible { outline: 2px solid var(--color-highlight); outline-offset: 2px; }

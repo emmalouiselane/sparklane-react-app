@@ -1,6 +1,6 @@
 .monthly-budget-page {
   display: grid;
-  gap: .5rem;
+  gap: .75rem;
 }
 .budget-controls,
 .budget-summary,
@@ -909,7 +909,7 @@
 .budget-stat-card h2 { margin: 0; color: var(--color-text-light); font-size: .75rem; font-weight: 700; }
 .budget-stat-card p { margin-top: .35rem; color: var(--color-heading); font-size: 1.25rem; font-weight: 700; }
 
-.budget-views { gap: .5rem; }
+.budget-views { gap: .75rem; }
 .payments-list-card,
 .payments-calendar-card,
 .mobile-week-card { padding: 1.15rem 1.25rem; border: 1px solid var(--color-border-soft); border-radius: 20px; background: var(--color-surface); box-shadow: var(--shadow-soft); }
@@ -923,7 +923,7 @@
 .payments-list-card-summary { margin: .85rem 0 .25rem; padding: .75rem 0; border-top: 1px solid var(--color-border-soft); border-bottom: 1px solid var(--color-border-soft); }
 .payments-list-card-summary h3 { margin: 0 0 .25rem; color: var(--color-text-light); font-size: .75rem; font-weight: 600; }
 .payments-list-card-summary p { margin: 0; color: var(--color-heading); font-size: .85rem; font-weight: 700; }
-.payments-list-card ul { gap: .5rem; margin-top: .75rem; }
+.payments-list-card ul { gap: .75rem; margin-top: .75rem; }
 .payments-list-card li { align-items: center; padding: .75rem; border: 1px solid var(--color-border-soft); border-radius: 14px; background: var(--color-surface-elevated); }
 .payment-details strong { color: var(--color-heading); font-size: .82rem; }
 .payment-details > span:not(.payment-type) { color: var(--color-text-light); font-size: .75rem; }
@@ -936,7 +936,7 @@
 .week-navigation-button:hover:not(:disabled) { background: var(--color-primary-soft); border-color: var(--color-primary-border); }
 .week-navigation-label { border-color: var(--color-border-soft); border-radius: 12px; background: var(--color-surface-elevated); }
 .payments-calendar-header h2 { margin: 0; }
-.calendar-months { gap: .5rem; margin-top: 1rem; }
+.calendar-months { gap: .75rem; margin-top: 1rem; }
 .calendar-month h3 { margin: 0 0 .6rem; color: var(--color-heading); font-size: .85rem; }
 .calendar-grid { gap: .35rem; }
 .calendar-day-name { color: var(--color-text-light); font-size: .75rem; font-weight: 700; }
@@ -975,7 +975,7 @@
 @media (max-width: 480px) {
   .budget-summary { grid-template-columns: 1fr; }
   .budget-stat-card { padding: .85rem 1rem; }
-  .payments-list-card li { gap: .5rem; padding: .65rem; }
+  .payments-list-card li { gap: .75rem; padding: .65rem; }
   .payment-action-row { gap: .35rem; }
 }
 
