@@ -81,7 +81,6 @@
 .todo-card .card-header .todo-header,
 .agenda-card .card-header .agenda-header {
   display: flex;
-  align-items: center;
   justify-content: space-between;
   width: 100%;
 }

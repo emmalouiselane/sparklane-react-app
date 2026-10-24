@@ -123,8 +123,8 @@
 @media (max-width: 575px) { .weekly-intention { align-items: flex-start; flex-direction: column; gap: .6rem; } }
 @media (max-width: 600px) {
   .page-heading.today-heading { align-items: flex-start; flex-direction: column; }
-  .today-date-controls { align-self: flex-end; gap: .35rem; margin-top: -.5rem; padding: 0; }
-  .today-date-controls > span { min-width: 0; font-size: .75rem; }
+  .today-date-controls { margin: auto; gap: .35rem; margin-top: -.5rem; padding: 0; }
+  .today-date-controls > span { min-width: 0; font-size: .75rem; margin: 0 5px; }
   .today-date { flex: none; width: 70px; height: 82px; margin: 0 0 0 auto; }
   .today-date strong { font-size: 2rem; }
   .page-hero.today-hero { align-items: center; flex-wrap: nowrap; gap: .75rem; padding: 1.2rem; }
