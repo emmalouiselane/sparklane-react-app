@@ -1,9 +1,9 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const express = require('express');
-const Session = require('../models/session');
+const Session = require('../models/Session');
 const MongoSessionStore = require('./mongo-session-store');
-const Todo = require('../models/todo');
+const Todo = require('../models/Todo');
 const { requireAuth, requireTrustedOrigin } = require('../middleware/auth');
 
 test('expired sessions cannot be renewed while awaiting MongoDB TTL cleanup', async () => {

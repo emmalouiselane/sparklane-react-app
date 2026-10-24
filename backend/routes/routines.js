@@ -1,6 +1,6 @@
 const express = require('express');
 const mongoose = require('mongoose');
-const Routine = require('../models/routine');
+const Routine = require('../models/Routine');
 const { getAppUserId, requireAuth, requireTrustedOrigin } = require('../middleware/auth');
 const { validateRoutine, isValidDate } = require('../lib/routine-validation');
 const router = express.Router();
