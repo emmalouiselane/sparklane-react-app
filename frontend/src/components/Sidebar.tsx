@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { PiggyBank, ForkKnife, HouseDoor, PersonGear, ClockHistory, ArrowRepeat, CalendarWeek, HeartPulse, BoxArrowRight } from 'react-bootstrap-icons';
+import { PiggyBank, ForkKnife, HouseDoor, PersonGear, ClockHistory, ArrowRepeat, CalendarWeek, HeartPulse, BoxArrowRight, Stars } from 'react-bootstrap-icons';
 
 import { SidebarModuleId } from '../config/modules';
 import { SidebarProps } from '../interfaces/SidebarProps';
@@ -140,7 +140,7 @@ function Sidebar({
           <blockquote className="sidebar-quote">“{quote}”</blockquote>
         )}
         <div className="sidebar-note">
-          <span className="sidebar-note-spark" aria-hidden="true">✳</span>
+          <Stars className="sidebar-note-spark" aria-hidden="true" />
           <strong>A little progress<br />is still progress.</strong>
           <span>Take today one step at a time.</span>
         </div>

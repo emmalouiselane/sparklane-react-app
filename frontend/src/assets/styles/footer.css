@@ -15,9 +15,10 @@
   font-size: .75rem;
 }
 
-.site-footer-tagline span {
-  padding-left: 4px;
+.site-footer-tagline .site-footer-spark {
+  margin-left: 4px;
   color: var(--color-highlight);
+  vertical-align: -0.12em;
 }
 
 .site-footer nav {

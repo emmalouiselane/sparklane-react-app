@@ -113,6 +113,7 @@
 .today-shopping-count { margin: .3rem 0 0 !important; padding-top: .5rem; border-top: 1px solid var(--color-border-soft); }
 .today-card-icon, .wellness-icon { display: grid; place-items: center; width: 38px; height: 38px; color: var(--color-highlight); background: var(--color-primary-soft); border-radius: 12px; }
 .today-card-icon svg { width: 18px; height: 18px; }
+.today-heading-spark { width: .82em; height: .82em; color: var(--color-highlight); vertical-align: -.04em; }
 .today-mood-options { display: flex; justify-content: space-between; gap: .4rem; }
 .today-mood-options button { min-width: 0; flex: 1; display: grid; justify-items: center; gap: .2rem; padding: .45rem .2rem; color: var(--color-text-light); background: transparent; border: 1px solid transparent; border-radius: 12px; font-size: 1.2rem; }
 .today-mood-options button span { font-size: .75rem; }

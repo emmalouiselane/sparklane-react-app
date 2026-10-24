@@ -37,7 +37,8 @@
 .habits-loading { display: flex; align-items: center; gap: .75rem; }
 .habits-card-footer { display: flex; justify-content: space-between; gap: .75rem; margin-top: .75rem; padding-top: .75rem; border-top: 1px solid var(--color-border-soft); color: var(--color-text-light); font-size: .75rem; }
 .habits-note-card { padding: 1.4rem; }
-.habits-note-spark { display: grid; place-items: center; width: 34px; height: 34px; margin-bottom: 1rem; border-radius: 11px; background: var(--color-primary-soft); color: var(--color-highlight); font-size: 1.1rem; }
+.habits-note-spark { display: grid; place-items: center; width: 34px; height: 34px; margin-bottom: 1rem; border-radius: 11px; background: var(--color-primary-soft); color: var(--color-highlight); }
+.habits-note-spark svg { width: 18px; height: 18px; }
 .habits-note-card h2 { margin: 0 0 .6rem; font-size: 1rem; }
 .habits-note-card p { margin: 0; color: var(--color-text-light); font-size: .82rem; line-height: 1.8; }
 .habits-note-foot { margin-top: 1rem; padding-top: .85rem; border-top: 1px solid var(--color-border-soft); color: var(--color-highlight); font-size: .75rem; }

@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { Button, Card } from 'react-bootstrap';
-import { ArrowRight, House, CupHot, Sun, MoonStars, ChevronLeft, ChevronRight } from 'react-bootstrap-icons';
+import { ArrowRight, House, CupHot, Sun, MoonStars, ChevronLeft, ChevronRight, Stars } from 'react-bootstrap-icons';
 import toast from 'react-hot-toast';
 
 import TodoList from '../components/todo-list';
@@ -115,7 +115,7 @@ function Homepage({ userId, weeklyIntention, enabledModuleCount, onOpenModuleSet
   return <section className="page-container today-page" aria-label="Today page">
     <header className="page-heading today-heading">
       <div><span className="page-eyebrow">A little space for you</span>
-        <h1 id="today-page-heading">{greetingForHour(now.getHours())} <span aria-hidden="true">✳</span></h1>
+        <h1 id="today-page-heading">{greetingForHour(now.getHours())} <Stars aria-hidden="true" className="today-heading-spark" /></h1>
         <p>You don’t have to do it all. Just start where you are.</p>
       </div>
       <div className="today-date-controls" role="group" aria-label="Choose planner day">

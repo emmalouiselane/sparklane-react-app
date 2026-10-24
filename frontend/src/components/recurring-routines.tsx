@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Alert, Button, Card, Form, Spinner } from 'react-bootstrap';
-import { ArrowRepeat, ArrowRight, Plus, Trash3 } from 'react-bootstrap-icons';
+import { ArrowRepeat, ArrowRight, Plus, Trash3, Stars } from 'react-bootstrap-icons';
 import toast from 'react-hot-toast';
 
 import { apiClient } from '../helpers/auth';
@@ -248,7 +248,7 @@ export default function RecurringRoutines({ todayOnly = false, onViewHabits }: P
         </Card>
         {!todayOnly && (
           <aside className="habits-note-card">
-            <div className="habits-note-spark" aria-hidden="true">✳</div>
+            <div className="habits-note-spark" aria-hidden="true"><Stars /></div>
             <h2>A note to yourself</h2>
             <p>Consistency can be quiet. You’re building a rhythm that fits your life, one ordinary day at a time.</p>
             <div className="habits-note-foot">A gentle intention.</div>
