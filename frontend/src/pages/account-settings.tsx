@@ -1,7 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
 import toast from 'react-hot-toast';
+import { ArrowClockwise } from 'react-bootstrap-icons';
 
 import { useAuthContext } from '../contexts/auth-context';
+import { API_BASE_URL } from '../config/api';
 import { apiClient } from '../helpers/auth';
 import { useRefreshOnPageActivation } from '../helpers/page-refresh';
 import { getOrdinalSuffix } from '../helpers/helper';
@@ -19,6 +21,26 @@ function describePayDay(payDay: number) {
 
   return `the ${ordinalDay} of each month, or the last available day in shorter months`;
 }
+
+const THEME_GROUPS: { label: string; themes: { id: ThemePreference; label: string; description: string }[] }[] = [
+  {
+    label: 'Dark themes',
+    themes: [
+      { id: 'dark', label: 'Evergreen', description: 'A calm, deep green palette.' },
+      { id: 'deep-lake', label: 'Deep Lake', description: 'Calm, deep blues inspired by still water.' },
+      { id: 'desert-dusk', label: 'Desert Dusk', description: 'Muted mauve, sand, and dusky rose tones.' }
+    ]
+  },
+  {
+    label: 'Light themes',
+    themes: [
+      { id: 'light', label: 'Sunlit Clay', description: 'A cream and terracotta palette.' },
+      { id: 'cherry-blossom', label: 'Cherry blossom', description: 'A soft pink palette with plum accents.' },
+      { id: 'misty-lavender', label: 'Misty Lavender', description: 'Soft lavender and cool grey for an airy feel.' }
+    ]
+  }
+  
+];
 
 function AccountSettingsPage() {
   const { user, checkAuthStatus } = useAuthContext();
@@ -133,6 +155,9 @@ function AccountSettingsPage() {
   const email = user?.email || user?.emails?.[0]?.value || 'No email available';
   const avatarUrl = user?.picture || user?.photos?.[0]?.value;
   const currentThemeName = getThemeName(theme);
+  const handleCalendarReauthentication = () => {
+    window.location.href = `${API_BASE_URL}/auth/google/calendar`;
+  };
 
   return (
     <section className="page-container account-settings-page" aria-labelledby="account-settings-heading">
@@ -151,7 +176,7 @@ function AccountSettingsPage() {
 
         <div className="profile-summary">
           {avatarUrl ? (
-            <img src={avatarUrl} alt={displayName} className="settings-avatar" />
+            <img src={avatarUrl} alt="" className="settings-avatar" />
           ) : (
             <div className="settings-avatar-fallback" aria-hidden="true">
               {displayName.charAt(0).toUpperCase()}
@@ -161,12 +186,19 @@ function AccountSettingsPage() {
           <div className="profile-copy">
             <h3>{displayName}</h3>
             <p>{email}</p>
-            <span className="settings-chip">Google connected</span>
+            <div className="calendar-connection-actions">
+              <span className="settings-chip">Google connected</span>
+              <button type="button" className="settings-chip settings-calendar-button" onClick={handleCalendarReauthentication}>
+                <ArrowClockwise size={16} aria-hidden="true" />
+                <span>Reauthenticate Calendar</span>
+              </button>
+            </div>
           </div>
         </div>
       </section>
 
-      <section className="settings-card">
+      <div className="settings-primary-column">
+      <section className="settings-card module-settings-card">
         <div className="settings-card-header">
           <h2>Modules</h2>
           <p>Choose which optional modules you have.</p>
@@ -200,44 +232,45 @@ function AccountSettingsPage() {
         </p>
       </section>
 
-      <div className="settings-secondary-column">
-        <section className="settings-card">
-          <div className="settings-card-header">
-            <h2>Budget Settings</h2>
-            <p>Choose the monthly day your pay period starts from.</p>
-          </div>
+      <section className="settings-card budget-settings-card">
+        <div className="settings-card-header">
+          <h2>Budget Settings</h2>
+          <p>Choose the monthly day your pay period starts from.</p>
+        </div>
 
-          {error && <p className="settings-error">{error}</p>}
+        {error && <p className="settings-error">{error}</p>}
 
-          <label className="settings-field pay-day">
-            <p>
-              Pay day:
-            </p>
-
-            <select
-              id="settings-pay-day"
-              name="payDay"
-              value={payDay}
-              onChange={(event) => handlePayDayChange(Number(event.target.value))}
-              disabled={isLoading || isSaving}
-            >
-              {Array.from({ length: 31 }, (_, index) => index + 1).map((day) => (
-                <option key={day} value={day}>
-                  {day}
-                </option>
-              ))}
-            </select>
-          </label>
-
-          <p className="settings-helper">
-            {isLoading
-              ? 'Loading your budget settings...'
-              : isSaving
-                ? 'Saving your new pay day...'
-                : `Current pay periods start on ${describePayDay(payDay)}.`}
+        <label className="settings-field pay-day" htmlFor="settings-pay-day">
+          <p>
+            Pay day:
           </p>
-        </section>
 
+          <select
+            id="settings-pay-day"
+            name="payDay"
+            value={payDay}
+            onChange={(event) => handlePayDayChange(Number(event.target.value))}
+            disabled={isLoading || isSaving}
+          >
+            {Array.from({ length: 31 }, (_, index) => index + 1).map((day) => (
+              <option key={day} value={day}>
+                {day}
+              </option>
+            ))}
+          </select>
+        </label>
+
+        <p className="settings-helper">
+          {isLoading
+            ? 'Loading your budget settings...'
+            : isSaving
+              ? 'Saving your new pay day...'
+              : `Current pay periods start on ${describePayDay(payDay)}.`}
+        </p>
+      </section>
+      </div>
+
+      <div className="settings-secondary-column">
         <section className="settings-card">
           <div className="settings-card-header">
             <h2>Appearance</h2>
@@ -246,48 +279,27 @@ function AccountSettingsPage() {
 
           <fieldset className="appearance-theme">
             <legend>Choose a theme</legend>
-            <label className={`appearance-theme-option${theme === 'dark' ? ' is-selected' : ''}`}>
-              <input
-                type="radio"
-                name="theme"
-                value="dark"
-                checked={theme === 'dark'}
-                onChange={() => handleThemeChange('dark')}
-                disabled={isThemeSaving}
-              />
-              <span className="appearance-theme-copy">
-                <strong>Dark green</strong>
-                <span>A calm, deep green palette.</span>
-              </span>
-            </label>
-            <label className={`appearance-theme-option${theme === 'light' ? ' is-selected' : ''}`}>
-              <input
-                type="radio"
-                name="theme"
-                value="light"
-                checked={theme === 'light'}
-                onChange={() => handleThemeChange('light')}
-                disabled={isThemeSaving}
-              />
-              <span className="appearance-theme-copy">
-                <strong>Warm light</strong>
-                <span>A cream and terracotta palette.</span>
-              </span>
-            </label>
-            <label className={`appearance-theme-option${theme === 'cherry-blossom' ? ' is-selected' : ''}`}>
-              <input
-                type="radio"
-                name="theme"
-                value="cherry-blossom"
-                checked={theme === 'cherry-blossom'}
-                onChange={() => handleThemeChange('cherry-blossom')}
-                disabled={isThemeSaving}
-              />
-              <span className="appearance-theme-copy">
-                <strong>Cherry blossom</strong>
-                <span>A soft pink palette with plum accents.</span>
-              </span>
-            </label>
+            {THEME_GROUPS.map((group) => (
+              <div className="appearance-theme-group" key={group.label}>
+                <h3>{group.label}</h3>
+                {group.themes.map((option) => (
+                  <label className={`appearance-theme-option${theme === option.id ? ' is-selected' : ''}`} key={option.id}>
+                    <input
+                      type="radio"
+                      name="theme"
+                      value={option.id}
+                      checked={theme === option.id}
+                      onChange={() => handleThemeChange(option.id)}
+                      disabled={isThemeSaving}
+                    />
+                    <span className="appearance-theme-copy">
+                      <strong>{option.label}</strong>
+                      <span>{option.description}</span>
+                    </span>
+                  </label>
+                ))}
+              </div>
+            ))}
           </fieldset>
 
           <p className="settings-helper" aria-live="polite">

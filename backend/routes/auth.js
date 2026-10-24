@@ -123,8 +123,8 @@ router.patch('/preferences', requireAuth, requireTrustedOrigin, async (req, res)
       return res.status(400).json({ error: 'At least one preference is required' });
     }
 
-    if (theme !== undefined && !['dark', 'light', 'cherry-blossom'].includes(theme)) {
-      return res.status(400).json({ error: 'Theme must be dark, light, or cherry blossom' });
+    if (theme !== undefined && !['dark', 'light', 'cherry-blossom', 'deep-lake', 'misty-lavender', 'desert-dusk'].includes(theme)) {
+      return res.status(400).json({ error: 'Theme preference is not supported' });
     }
 
     if (weeklyIntention !== undefined && (typeof weeklyIntention !== 'string' || weeklyIntention.length > 160)) {

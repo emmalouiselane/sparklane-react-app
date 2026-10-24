@@ -23,6 +23,13 @@
   min-width: 0;
 }
 
+.settings-primary-column {
+  display: grid;
+  align-content: start;
+  gap: 8px;
+  min-width: 0;
+}
+
 .settings-card-header h2,
 .settings-card-header p,
 .profile-copy h3,
@@ -108,6 +115,30 @@
   font-weight: 700;
 }
 
+.calendar-connection-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.settings-calendar-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  line-height: 1.2;
+  cursor: pointer;
+}
+
+.settings-calendar-button:hover {
+  filter: brightness(1.08);
+}
+
+.settings-calendar-button:focus-visible {
+  outline: 2px solid var(--color-highlight);
+  outline-offset: 3px;
+}
+
 .settings-field {
   display: grid;
   gap: 8px;
@@ -175,6 +206,18 @@
   margin: 0;
   padding: 0;
   font-size: .9rem;
+  font-weight: 700;
+}
+
+.appearance-theme-group {
+  display: grid;
+  gap: 10px;
+}
+
+.appearance-theme-group h3 {
+  margin: 4px 0 0;
+  color: var(--color-text-light);
+  font-size: .78rem;
   font-weight: 700;
 }
 
@@ -329,11 +372,23 @@
 
   .account-settings-page > .profile-card {
     grid-column: 1 / -1;
+    grid-row: 2;
     margin-top: 8px;
+  }
+
+  .account-settings-page > .page-heading {
+    grid-column: 1 / -1;
+    grid-row: 1;
+  }
+
+  .account-settings-page > .settings-primary-column {
+    grid-column: 1;
+    grid-row: 3;
   }
 
   .account-settings-page > .settings-secondary-column {
     grid-column: 2;
+    grid-row: 3;
   }
 }
 

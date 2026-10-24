@@ -64,7 +64,7 @@ const AuthAccountSchema = new mongoose.Schema({
   },
   theme: { 
     type: String, 
-    enum: ['dark', 'light', 'cherry-blossom'], 
+    enum: ['dark', 'light', 'cherry-blossom', 'deep-lake', 'misty-lavender', 'desert-dusk'],
     default: 'dark' 
   },
   weeklyIntention: { 

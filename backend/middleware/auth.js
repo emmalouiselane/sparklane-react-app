@@ -47,7 +47,7 @@ function sanitizeUser(user) {
     photos: user.photos,
     picture: user.photos?.[0]?.value,
     email: user.emails?.[0]?.value,
-    theme: ['dark', 'light', 'cherry-blossom'].includes(user.theme) ? user.theme : 'dark',
+    theme: ['dark', 'light', 'cherry-blossom', 'deep-lake', 'misty-lavender', 'desert-dusk'].includes(user.theme) ? user.theme : 'dark',
     weeklyIntention: typeof user.weeklyIntention === 'string' ? user.weeklyIntention : '',
     enabledModules
   };
