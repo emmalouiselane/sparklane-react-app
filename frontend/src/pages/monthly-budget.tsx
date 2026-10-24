@@ -1,7 +1,9 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import { CheckLg, ChevronLeft, ChevronRight, Eye, EyeSlash, PencilSquare, QuestionLg, Trash } from 'react-bootstrap-icons';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { CheckLg, ChevronLeft, ChevronRight, Eye, EyeSlash, PiggyBank, PencilSquare, QuestionLg, Trash } from 'react-bootstrap-icons';
 import toast from 'react-hot-toast';
+
 import { apiClient } from '../helpers/auth';
+import { useRefreshOnPageActivation } from '../helpers/page-refresh';
 import {
   addDays,
   formatCurrency,
@@ -12,7 +14,8 @@ import {
   parseInputDate,
   toInputDate
 } from '../helpers/helper';
-import './monthly-budget.css';
+
+import '../assets/styles/monthly-budget.css';
 
 type PaymentType = 'income' | 'expense';
 type PaymentKind = 'single' | 'recurring';
@@ -235,6 +238,8 @@ function normalizePayment(payment: any): PaymentItem | null {
 }
 
 function MonthlyBudgetPage() {
+  const paymentsListCardRef = useRef<HTMLElement | null>(null);
+  const paymentsCalendarCardRef = useRef<HTMLElement | null>(null);
   const [payDay, setPayDay] = useState<number>(28);
   const [anchorDate, setAnchorDate] = useState<string>(toInputDate(new Date()));
   const [payments, setPayments] = useState<PaymentItem[]>([]);
@@ -261,11 +266,15 @@ function MonthlyBudgetPage() {
   const [showAllDaySummaryPayments, setShowAllDaySummaryPayments] = useState(false);
   const [mobileBudgetView, setMobileBudgetView] = useState<MobileBudgetView>('weekly');
   const [mobileWeekAnchor, setMobileWeekAnchor] = useState<string>(toInputDate(new Date()));
+  const [refreshTick, setRefreshTick] = useState(0);
+  const hasLoadedBudget = useRef(false);
+
+  useRefreshOnPageActivation('monthly-budget', () => setRefreshTick(current => current + 1));
 
   useEffect(() => {
     const fetchBudgetData = async () => {
       try {
-        setIsLoading(true);
+        if (!hasLoadedBudget.current) setIsLoading(true);
         const response = await apiClient.get('/api/budget');
 
         setPayDay(response.data.payDay ?? 28);
@@ -286,11 +295,37 @@ function MonthlyBudgetPage() {
         console.error('Failed to fetch budget data', requestError);
         toast.error(requestError.response?.data?.error || 'Failed to load budget data.');
       } finally {
+        hasLoadedBudget.current = true;
         setIsLoading(false);
       }
     };
 
     fetchBudgetData();
+  }, [refreshTick]);
+
+  useEffect(() => {
+    const paymentsListCard = paymentsListCardRef.current;
+    const paymentsCalendarCard = paymentsCalendarCardRef.current;
+    if (!paymentsListCard || !paymentsCalendarCard) return undefined;
+
+    const syncPaymentsCardHeight = () => {
+      const calendarHeight = paymentsCalendarCard.getBoundingClientRect().height;
+      if (window.innerWidth > 768 && calendarHeight > 0) {
+        paymentsListCard.style.setProperty('--payments-calendar-max-height', `${calendarHeight}px`);
+      } else {
+        paymentsListCard.style.removeProperty('--payments-calendar-max-height');
+      }
+    };
+
+    const resizeObserver = new ResizeObserver(syncPaymentsCardHeight);
+    resizeObserver.observe(paymentsCalendarCard);
+    window.addEventListener('resize', syncPaymentsCardHeight);
+    syncPaymentsCardHeight();
+
+    return () => {
+      resizeObserver.disconnect();
+      window.removeEventListener('resize', syncPaymentsCardHeight);
+    };
   }, []);
 
   const period = useMemo(() => getPayPeriod(parseInputDate(anchorDate), payDay), [anchorDate, payDay]);
@@ -693,7 +728,15 @@ function MonthlyBudgetPage() {
   };
 
   return (
-    <section className="monthly-budget-page" aria-label="Monthly Budget module">
+    <section className="page-container monthly-budget-page" aria-labelledby="monthly-budget-heading">
+      <header className="page-heading">
+        <div>
+          <span className="page-eyebrow">A little space for you</span>
+          <h1 id="monthly-budget-heading">Monthly budget</h1>
+        <p>Plan what’s coming in and going out, one pay period at a time.</p>
+        </div>
+        <PiggyBank size={34} aria-hidden="true" />
+      </header>
       <div className="pay-period-navigation">
         <button
           type="button"
@@ -717,12 +760,12 @@ function MonthlyBudgetPage() {
       </div>
       
       <div className="budget-summary">
-        <div>
-          <h5>Balance</h5>
+        <div className="budget-stat-card">
+          <h2>Balance</h2>
           <p>{formatCurrency(totals.balance)}</p>
         </div>
-        <div>
-          <h5>Outstanding Expenses</h5>
+        <div className="budget-stat-card">
+          <h2>Outstanding Expenses</h2>
           <p>{formatCurrency(totals.outstandingExpenses)}</p>
         </div>
       </div>
@@ -760,7 +803,7 @@ function MonthlyBudgetPage() {
           aria-labelledby="weekly-view-tab"
         >
           <div className="payments-calendar-header">
-            <h3>Weekly View</h3>
+            <h2>Weekly View</h2>
             <button type="button" className="open-payment-modal-btn" onClick={handleOpenAddPaymentModal}>
               Add Payment
             </button>
@@ -838,11 +881,12 @@ function MonthlyBudgetPage() {
         <section
           id="payments-in-period-panel"
           className={`payments-list-card${mobileBudgetView === 'payments' ? ' is-mobile-active' : ''}`}
+          ref={paymentsListCardRef}
           role="tabpanel"
           aria-labelledby="payments-in-period-tab"
         >
           <div className="payments-list-card-header">
-            <h3>Payments In Period</h3>
+            <h2>Payments In Period</h2>
             <button
               type="button"
               className="payments-visibility-btn"
@@ -862,11 +906,11 @@ function MonthlyBudgetPage() {
 
           <div className="payments-list-card-summary">
             <div>
-              <h6>Income</h6>
+              <h3>Income</h3>
               <p>{formatCurrency(totals.income)}</p>
             </div>
             <div>
-              <h6>Expenses</h6>
+              <h3>Expenses</h3>
               <p>{formatCurrency(totals.expenses)}</p>
             </div>
           </div>
@@ -940,9 +984,9 @@ function MonthlyBudgetPage() {
           )}
         </section>
 
-        <section className="payments-calendar-card">
+        <section className="payments-calendar-card" ref={paymentsCalendarCardRef}>
           <div className="payments-calendar-header">
-            <h3>Payments Calendar</h3>
+            <h2>Payments Calendar</h2>
             <button type="button" className="open-payment-modal-btn" onClick={handleOpenAddPaymentModal}>
               Add Payment
             </button>
@@ -950,7 +994,7 @@ function MonthlyBudgetPage() {
           <div className="calendar-months">
             {months.map(({ year, month }) => (
               <div className="calendar-month" key={`${year}-${month}`}>
-                <h5>{monthLabel(year, month)}</h5>
+                <h3>{monthLabel(year, month)}</h3>
                 <div className="calendar-grid">
                   {DAY_NAMES.map((name) => (
                     <div className="calendar-day-name" key={name}>
@@ -1021,7 +1065,7 @@ function MonthlyBudgetPage() {
             onClick={(event) => event.stopPropagation()}
           >
             <div className="payment-modal-header">
-              <h3 id="add-payment-heading">Add Payment</h3>
+              <h2 id="add-payment-heading">Add Payment</h2>
             </div>
 
             <form className="payment-form" onSubmit={handleAddPayment}>
@@ -1094,7 +1138,7 @@ function MonthlyBudgetPage() {
             onClick={(event) => event.stopPropagation()}
           >
             <div className="payment-modal-header">
-              <h3 id="edit-payment-heading">Edit Payment Amount</h3>
+              <h2 id="edit-payment-heading">Edit Payment Amount</h2>
             </div>
             <div className="recurring-delete-copy">
               <p>
@@ -1155,7 +1199,7 @@ function MonthlyBudgetPage() {
             onClick={(event) => event.stopPropagation()}
           >
             <div className="payment-modal-header">
-              <h3 id="recurring-delete-heading">Remove Recurring Payment</h3>
+              <h2 id="recurring-delete-heading">Remove Recurring Payment</h2>
             </div>
             <div className="recurring-delete-copy">
               <p>
@@ -1207,7 +1251,7 @@ function MonthlyBudgetPage() {
             onClick={(event) => event.stopPropagation()}
           >
             <div className="payment-modal-header">
-              <h3 id="single-delete-heading">Remove Payment</h3>
+              <h2 id="single-delete-heading">Remove Payment</h2>
             </div>
             <div className="recurring-delete-copy">
               <p>
@@ -1251,9 +1295,9 @@ function MonthlyBudgetPage() {
             onClick={(event) => event.stopPropagation()}
             >
               <div className="payment-modal-header">
-                <h3 id="day-summary-heading">
+                <h2 id="day-summary-heading">
                   Payments for {formatShortDateDisplay(parseInputDate(daySummaryTarget.date))}
-                </h3>
+                </h2>
                 <button
                   type="button"
                   className="payments-visibility-btn"

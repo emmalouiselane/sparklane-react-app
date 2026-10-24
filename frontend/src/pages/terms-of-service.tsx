@@ -1,5 +1,5 @@
 import React from 'react';
-import './legal.css';
+import '../assets/styles/legal.css';
 
 const TermsOfServicePage: React.FC = () => (
   <main className="legal-page" role="main">

@@ -1,0 +1,132 @@
+.meal-planner-page {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 16px;
+  align-items: start;
+}
+
+.meal-planner-main {
+  min-height: 180px;
+}
+
+.meal-planner-ctas { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; min-width: 0; }
+.meal-planner-cta { display: flex; align-items: center; justify-content: space-between; gap: 14px; min-width: 0; min-height: 90px; padding: 16px; border: 1px solid var(--color-border-soft); border-radius: 12px; background: var(--color-surface-elevated); color: inherit; text-align: left; text-decoration: none; cursor: pointer; transition: border-color .15s ease, background-color .15s ease, transform .15s ease; }
+.meal-planner-cta:hover { border-color: var(--color-primary); background: var(--color-primary-soft); transform: translateY(-1px); }
+.meal-planner-cta[aria-pressed='true'] { border-color: var(--color-primary); background: var(--color-primary-soft); }
+.meal-planner-cta-copy { display: grid; gap: 5px; min-width: 0; }
+.meal-planner-cta-copy strong { font-size: 1rem; }
+.meal-planner-cta-copy span { color: var(--color-text-light); font-size: .9rem; }
+.meal-planner-cta > span:last-child { flex: 0 0 auto; color: var(--color-primary); font-size: 1.2rem; }
+
+.simple-meal-planner { display: grid; gap: 16px; }
+.simple-meal-planner header { display: grid; gap: 8px; }
+.simple-meal-planner h2 { font-size: 1.75rem; }
+.simple-meal-planner h3 { font-size: 1.15rem; margin: 0; }
+.meal-card { padding: 20px; border: 1px solid var(--color-border-soft); border-radius: 12px; background: var(--color-surface-elevated); display: grid; gap: 12px; min-width: 0; }
+.meal-section-heading, .meal-day-entry, .meal-actions { display: flex; align-items: center; gap: 10px; }
+.meal-section-heading { justify-content: space-between; flex-wrap: wrap; }
+.meal-hint, .meal-save-status { color: var(--color-text-light); }
+.simple-meal-planner .meal-save-status { font-size: 0.8rem; }
+.simple-meal-planner label { font-weight: 600; }
+.simple-meal-planner input:not([type='checkbox']) { width: 100%; min-width: 0; min-height: 44px; padding: 10px 12px; border-radius: 8px; border: 1px solid var(--color-border-soft); background: var(--color-surface); color: var(--color-text); font: inherit; }
+.simple-meal-planner input::placeholder { color: var(--color-text-light); opacity: 1; }
+.simple-meal-planner select { width: 100%; min-height: 44px; padding: 10px 12px; border-radius: 8px; border: 1px solid var(--color-border-soft); background: var(--color-surface); color: var(--color-text); font: inherit; }
+.simple-meal-planner button { min-height: 44px; padding: 8px 12px; border: 1px solid var(--color-primary-border); border-radius: 8px; background: var(--color-primary-soft); color: var(--color-text); font: inherit; cursor: pointer; }
+.simple-meal-planner button:hover:not(:disabled) { border-color: var(--color-primary); }
+.simple-meal-planner button:disabled { opacity: 0.5; cursor: default; }
+.simple-meal-planner :is(button, input, select, summary):focus-visible { outline: 2px solid var(--color-primary); outline-offset: 3px; }
+.meal-days { display: grid; gap: 14px; }
+.meal-day { display: grid; gap: 8px; }
+.meal-dinner-entry { display: grid; grid-template-columns: auto 145px minmax(0, 1fr) auto; gap: 10px; align-items: center; }
+.meal-dinner-entry > label { white-space: nowrap; }
+.meal-dinner-entry .meal-line-actions { grid-column: 4; flex-wrap: nowrap; white-space: nowrap; }
+.meal-dinner-entry select { min-width: 0; }
+.meal-line-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+.meal-clear-control { position: relative; display: inline-flex; }
+.meal-clear-label { display: none; }
+.meal-clear-tooltip { position: absolute; bottom: calc(100% + 8px); right: 0; z-index: 1; padding: 6px 10px; border: 1px solid var(--color-border-soft); border-radius: 6px; background: var(--color-surface-elevated); color: var(--color-text); font-size: 0.85rem; white-space: nowrap; visibility: hidden; pointer-events: none; }
+.meal-clear-control:hover .meal-clear-tooltip,
+.meal-clear-control:focus-within .meal-clear-tooltip { visibility: visible; }
+.meal-day-entry button { flex-shrink: 0; }
+.meal-quick-picks { display: grid; gap: 8px; }
+.meal-actions { flex-wrap: wrap; }
+.meal-backup button { justify-self: start; }
+.meal-shopping-accordion { display: block; }
+.meal-shopping-accordion summary { font-weight: 600; cursor: pointer; min-height: 44px; align-content: center; }
+.meal-shopping-count { float: right; margin-left: 10px; font-weight: 400; }
+.meal-shopping-content { display: grid; gap: 12px; margin-top: 12px; }
+.meal-shopping-form { display: grid; gap: 8px; }
+.meal-shopping-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.meal-shopping-list li { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.meal-shopping-list label { display: flex; align-items: center; gap: 12px; min-height: 44px; min-width: 0; cursor: pointer; }
+.meal-shopping-list label span { overflow-wrap: anywhere; }
+.meal-shopping-list input { width: 20px; height: 20px; flex-shrink: 0; accent-color: var(--color-primary); }
+.meal-item-done span { text-decoration: line-through; color: var(--color-text-light); }
+
+.meal-home-content { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; gap: .75rem; min-width: 0; }
+.meal-home-page-header { grid-column: 1 / -1; }
+.meal-home-side-column { display: grid; align-content: start; gap: .75rem; min-width: 0; }
+.meal-home-card { display: grid; gap: 0; min-width: 0; padding: 19px 20px; border: 1px solid var(--color-border-soft); border-radius: 20px; background: var(--color-surface); }
+.meal-home-card-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 15px; }
+.meal-home-card-header h2 { margin: 0; font-size: 14px; font-weight: 700; letter-spacing: -.02em; }
+.meal-home-card-header p { margin: 4px 0 0; color: var(--color-text-light); font-size: .75rem; }
+.meal-home-meal-list, .home-reset-list { display: grid; gap: 0; min-width: 0; }
+.meal-home-row { display: grid; grid-template-columns: 29px minmax(88px, 120px) minmax(0, 1fr) 28px; gap: 12px; align-items: center; min-width: 0; padding: 9px 0; border-top: 1px solid var(--color-border-soft); }
+.optional-meal-row { grid-template-columns: 29px minmax(88px, 120px) minmax(0, 1fr); }
+.meal-home-row:first-child, .home-reset-row:first-child { border-top: 0; }
+.meal-home-row label { margin: 0; font-size: .75rem; font-weight: 600; }
+.meal-home-icon { display: grid; place-items: center; width: 29px; height: 29px; border-radius: 9px; background: var(--color-primary-soft); color: var(--color-primary); }
+.meal-home-row input, .home-reset-row input, .home-reset-add input { width: 100%; min-width: 0; min-height: 34px; padding: 7px 8px; border: 1px solid transparent; border-radius: 8px; background: var(--color-background); color: var(--color-text); font: inherit; font-size: .75rem; }
+.meal-home-row input:hover, .home-reset-row input:hover { border-color: var(--color-border-soft); }
+.meal-home-row input:focus-visible, .home-reset-row input:focus-visible, .home-reset-add input:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
+.meal-home-icon-button { display: grid; place-items: center; width: 28px; height: 28px; padding: 0; border: 1px solid transparent; border-radius: 8px; background: transparent; color: var(--color-text-light); cursor: pointer; font-size: 18px; }
+.meal-home-icon-button:hover:not(:disabled) { border-color: var(--color-border-soft); color: var(--color-danger); }
+.meal-home-icon-button:disabled { opacity: .4; cursor: default; }
+.home-reset-row { display: grid; grid-template-columns: 18px minmax(0, 1fr) 28px; gap: 11px; align-items: center; min-width: 0; padding: 10px 0; border-top: 1px solid var(--color-border-soft); }
+.home-reset-check { display: grid; place-items: center; width: 18px; height: 18px; padding: 0; border: 1px solid var(--color-primary-border); border-radius: 6px; background: transparent; color: var(--primary-foreground); cursor: pointer; }
+.home-reset-check[aria-pressed='true'] { border-color: var(--color-primary); background: var(--color-primary); }
+.home-reset-row.is-done input { color: var(--color-text-light); text-decoration: line-through; }
+.meal-home-footnote { margin: 13px 0 0; padding-top: 12px; border-top: 1px solid var(--color-border-soft); color: var(--color-text-light); font-size: .75rem; }
+.meal-home-empty { margin: 0; padding: 4px 0; color: var(--color-text-light); font-size: .75rem; }
+.home-reset-add { display: flex; gap: 8px; margin-top: 11px; }
+.home-reset-add input { flex: 1; border-color: var(--color-border-soft); }
+.home-reset-add button, .meal-home-content > button { flex: none; min-height: 36px; padding: 0 14px; border: 0; border-radius: 10px; background: var(--color-primary); color: var(--primary-foreground); font-size: 12px; font-weight: 700; cursor: pointer; }
+.home-reset-add button:disabled { opacity: .5; cursor: default; }
+.meal-home-content :is(button, input):focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
+
+@media (max-width: 600px) {
+  .meal-home-card { padding: 16px; border-radius: 16px; }
+  .meal-home-row { grid-template-columns: 36px minmax(0, 1fr) 36px; }
+  .optional-meal-row { grid-template-columns: 36px minmax(0, 1fr); }
+  .meal-home-row label { grid-column: 2; }
+  .meal-home-row input { grid-column: 1 / 3; grid-row: 2; }
+  .meal-home-row .meal-home-icon-button { grid-column: 3; grid-row: 2; }
+  .home-reset-add { grid-template-columns: 1fr; }
+  .meal-card { padding: 16px; }
+  .meal-dinner-entry { grid-template-columns: auto minmax(0, 1fr); gap: 8px; }
+  .meal-dinner-entry > input { grid-column: 1 / -1; }
+  .meal-dinner-entry .meal-line-actions { grid-column: 1 / -1; flex-wrap: wrap; }
+  .meal-clear-control button { display: inline-flex; align-items: center; gap: 4px; }
+  .meal-clear-label { display: inline; }
+  .meal-day-entry { flex-wrap: wrap; }
+  .meal-day-entry input { flex-basis: 100%; }
+}
+
+.meal-planner-cta:focus-visible {
+  outline: 2px solid var(--focus-ring-color);
+  outline-offset: 2px;
+}
+
+@media (max-width: 900px) {
+  .meal-planner-ctas { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 800px) {
+  .meal-home-content { grid-template-columns: 1fr; }
+  .meal-home-page-header { grid-column: auto; }
+}
+
+@media (max-width: 600px) {
+  .meal-planner-ctas { grid-template-columns: 1fr; }
+  .meal-planner-cta { min-height: 76px; }
+}

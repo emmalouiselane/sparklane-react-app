@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { API_BASE_URL } from '../config/api';
+import { DATA_SAVED_EVENT } from './page-refresh';
 
 export const apiClient = axios.create({
   baseURL: API_BASE_URL,
@@ -33,4 +34,12 @@ apiClient.interceptors.request.use(async (config) => {
     config.headers['X-CSRF-Token'] = await getCsrfToken();
   }
   return config;
+});
+
+apiClient.interceptors.response.use((response) => {
+  const method = (response.config.method || 'get').toLowerCase();
+  if (!SAFE_METHODS.has(method) && typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent(DATA_SAVED_EVENT, { detail: response.config.url || '' }));
+  }
+  return response;
 });

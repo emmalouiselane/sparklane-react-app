@@ -14,6 +14,14 @@ export function toInputDate(date) {
   return `${year}-${month}-${day}`;
 }
 
+export function getLocalDayBounds(date = new Date()) {
+  const start = new Date(date);
+  start.setHours(0, 0, 0, 0);
+  const end = new Date(start);
+  end.setDate(end.getDate() + 1);
+  return { dayStart: start.toISOString(), dayEnd: end.toISOString() };
+}
+
 export function parseInputDate(value) {
   const [year, month, day] = value.split('-').map(Number);
   return new Date(year, month - 1, day, 12, 0, 0, 0);

@@ -1,28 +1,33 @@
 import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { Toaster } from 'react-hot-toast';
-import Login from './components/Login';
-import Header from './components/Header';
-import Sidebar, { ModuleId, ModuleNavItem } from './components/Sidebar';
-import { AuthProvider, useAuthContext } from './contexts/AuthContext';
+import Login from './components/login';
+import Header from './components/header';
+import Sidebar, { ModuleId } from './components/sidebar';
+import { AuthProvider, useAuthContext } from './contexts/auth-context';
 import Homepage from './pages/homepage';
-import RecurringRoutines from './components/RecurringRoutines';
+import RecurringRoutines from './components/recurring-routines';
 import TimeLogsPage from './pages/time-logs';
 import MealPlannerPage from './pages/meal-planner';
 import MonthlyBudgetPage from './pages/monthly-budget';
 import AccountSettingsPage from './pages/account-settings';
-import Footer from './components/Footer';
+import Footer from './components/footer';
 import PrivacyPolicyPage from './pages/privacy-policy';
 import TermsOfServicePage from './pages/terms-of-service';
-import { isOptionalModuleId, OPTIONAL_MODULES, OptionalModuleId } from './config/modules';
+import MyWeekPage from './pages/my-week';
+import WellnessPage from './pages/wellness';
+import { isSidebarModuleId, OPTIONAL_MODULES, SIDEBAR_MODULES, SidebarModuleId, withRequiredModules } from './config/modules';
+import { applyThemePreference, getStoredThemePreference, getThemePreference, storeThemePreference } from './helpers/theme';
+import { DATA_SAVED_EVENT, PAGE_ACTIVATED_EVENT } from './helpers/page-refresh';
 
-import './App.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import './CustomBootstrap.css';
-import './brand.css';
+import './assets/styles/app.css';
+import './assets/styles/custom-bootstrap.css';
+import './assets/styles/brand.css';
+import './assets/styles/page-shared.css';
+import { ModuleNavItem } from './interfaces/SidebarProps';
 
-const ACTIVE_MODULE_STORAGE_KEY = 'sparklane_active_module';
 const SIDEBAR_WIDTH_STORAGE_KEY = 'sparklane_sidebar_width';
-const DEFAULT_SIDEBAR_WIDTH = 260;
+const DEFAULT_SIDEBAR_WIDTH = 248;
 const MIN_SIDEBAR_WIDTH = 200;
 const MAX_SIDEBAR_WIDTH = 420;
 
@@ -36,57 +41,34 @@ function getStoredSidebarWidth(userId?: string) {
   }
 }
 const MODULE_NAV_ITEMS: ModuleNavItem[] = [
-  { id: 'home', label: 'Home' },
-  ...OPTIONAL_MODULES,
-  { id: 'account-settings', label: 'Account Settings' },
+  ...SIDEBAR_MODULES,
 ];
 
-const MODULE_COMPONENTS: Record<ModuleId, React.ComponentType> = {
-  home: Homepage,
-  'recurring-routines': RecurringRoutines,
-  'time-logs': TimeLogsPage,
-  'monthly-budget': MonthlyBudgetPage,
-  'meal-planner': MealPlannerPage,
-  'account-settings': AccountSettingsPage,
-};
-
-function getStoredActiveModule(userId?: string): ModuleId {
-  if (typeof window === 'undefined') {
-    return 'home';
-  }
-
-  try {
-    const storedModule = userId ? window.localStorage.getItem(`${ACTIVE_MODULE_STORAGE_KEY}:${userId}`) : null;
-    if (storedModule && Object.prototype.hasOwnProperty.call(MODULE_COMPONENTS, storedModule)) {
-      return storedModule as ModuleId;
-    }
-  } catch { /* Navigation still works when browser storage is unavailable. */ }
-
-  return 'home';
-}
-
 function AppContent() {
-  const { user, isAuthenticated, loading, error, checkAuthStatus, setError } = useAuthContext();
-  const [activeModule, setActiveModule] = useState<ModuleId>(() => getStoredActiveModule(user?.id));
-  const [mealPlannerVisited, setMealPlannerVisited] = useState(false);
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(true);
+  const { user, isAuthenticated, loading, error, checkAuthStatus, setError, handleLogout } = useAuthContext();
+  const [activeModule, setActiveModule] = useState<ModuleId>('home');
+  const [visitedModules, setVisitedModules] = useState<Set<ModuleId>>(() => new Set<ModuleId>(['home']));
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [sidebarWidth, setSidebarWidth] = useState(() => getStoredSidebarWidth(user?.id));
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const moduleHeadingRef = useRef<HTMLHeadingElement>(null);
-  const enabledModules: OptionalModuleId[] = useMemo(() =>
-    Array.isArray(user?.enabledModules)
-      ? user.enabledModules.filter((moduleId: string) => isOptionalModuleId(moduleId))
-      : [],
+  const enabledModules: SidebarModuleId[] = useMemo(() =>
+    withRequiredModules(Array.isArray(user?.enabledModules)
+      ? user.enabledModules.filter((moduleId: string) => isSidebarModuleId(moduleId))
+      : SIDEBAR_MODULES.map((module) => module.id)),
     [user?.enabledModules]
   );
-  const enabledModuleSet = useMemo(() => new Set<OptionalModuleId>(enabledModules), [enabledModules]);
-  const visibleNavItems = MODULE_NAV_ITEMS.filter((item) =>
-    !isOptionalModuleId(item.id) || enabledModuleSet.has(item.id)
-  );
+  const enabledModuleSet = useMemo(() => new Set<SidebarModuleId>(enabledModules), [enabledModules]);
+  const visibleNavItems = MODULE_NAV_ITEMS.filter((item) => enabledModuleSet.has(item.id));
+  const safeActiveModule = isSidebarModuleId(activeModule) && !enabledModuleSet.has(activeModule)
+    ? MODULE_NAV_ITEMS.find((item) => enabledModuleSet.has(item.id))?.id ?? 'account-settings'
+    : activeModule;
 
   useLayoutEffect(() => {
-    document.documentElement.dataset.theme = user?.theme === 'light' ? 'light' : 'dark';
-  }, [user?.theme]);
+    const theme = user ? getThemePreference(user.theme) : getStoredThemePreference();
+    applyThemePreference(theme);
+    if (user) storeThemePreference(theme);
+  }, [user]);
  
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -109,10 +91,48 @@ function AppContent() {
   }, [activeModule]);
 
   useEffect(() => {
-    if (!user?.id) return;
-    try { window.localStorage.setItem(`${ACTIVE_MODULE_STORAGE_KEY}:${user.id}`, activeModule); }
-    catch { /* Navigation still works when browser storage is unavailable. */ }
-  }, [activeModule, user?.id]);
+    const activateCurrentPage = () => {
+      window.dispatchEvent(new CustomEvent(PAGE_ACTIVATED_EVENT, { detail: safeActiveModule }));
+      if (isAuthenticated) checkAuthStatus();
+    };
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') activateCurrentPage();
+    };
+    const refreshAffectedPages = (event: Event) => {
+      const url = (event as CustomEvent<string>).detail || '';
+      const targets = url.includes('/api/todos') || url.includes('/api/calendar')
+        ? ['home', 'my-week']
+        : url.includes('/api/wellness')
+          ? ['home', 'wellness']
+          : url.includes('/api/habits')
+            ? ['home', 'recurring-routines']
+            : url.includes('/api/meal-planner')
+              ? ['home', 'meal-planner']
+              : url.includes('/api/budget')
+                ? ['monthly-budget', 'account-settings']
+                : url.includes('/api/time-logs')
+                  ? ['time-logs']
+                  : url.includes('/auth/preferences')
+                    ? ['account-settings']
+                    : [safeActiveModule];
+      targets.forEach((pageId) => {
+        window.dispatchEvent(new CustomEvent(PAGE_ACTIVATED_EVENT, { detail: pageId }));
+      });
+    };
+
+    const refreshTimer = window.setInterval(() => {
+      if (document.visibilityState === 'visible') activateCurrentPage();
+    }, 60_000);
+    window.addEventListener('focus', activateCurrentPage);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener(DATA_SAVED_EVENT, refreshAffectedPages);
+    return () => {
+      window.removeEventListener('focus', activateCurrentPage);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener(DATA_SAVED_EVENT, refreshAffectedPages);
+      window.clearInterval(refreshTimer);
+    };
+  }, [safeActiveModule, isAuthenticated, checkAuthStatus]);
 
   useEffect(() => {
     try {
@@ -123,8 +143,8 @@ function AppContent() {
   }, [sidebarWidth, user?.id]);
 
   useEffect(() => {
-    if (isOptionalModuleId(activeModule) && !enabledModuleSet.has(activeModule)) {
-      setActiveModule('home');
+    if (isSidebarModuleId(activeModule) && !enabledModuleSet.has(activeModule)) {
+      setActiveModule(MODULE_NAV_ITEMS.find((item) => enabledModuleSet.has(item.id))?.id ?? 'account-settings');
     }
   }, [activeModule, enabledModuleSet]);
 
@@ -157,15 +177,6 @@ function AppContent() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  const safeActiveModule = isOptionalModuleId(activeModule) && !enabledModuleSet.has(activeModule)
-    ? 'home'
-    : activeModule;
-  const ActiveModulePage = MODULE_COMPONENTS[safeActiveModule];
-
-  useEffect(() => {
-    if (safeActiveModule === 'meal-planner') setMealPlannerVisited(true);
-  }, [safeActiveModule]);
-
   if (loading) {
     return (
       <div className="app">Loading...</div>
@@ -183,6 +194,7 @@ function AppContent() {
 
   const handleModuleSelect = (module: ModuleId) => {
     setActiveModule(module);
+    setVisitedModules((current) => new Set(current).add(module));
     setIsMobileSidebarOpen(false);
   };
 
@@ -215,33 +227,47 @@ function AppContent() {
           minWidth={MIN_SIDEBAR_WIDTH}
           maxWidth={MAX_SIDEBAR_WIDTH}
           onResize={setSidebarWidth}
+          user={user}
+          onOpenAccountSettings={() => handleModuleSelect('account-settings')}
+          onLogout={handleLogout}
         />
 
         <div className="app-content">
           <Header
-            user={user}
             error={error}
+            activeModuleLabel={safeActiveModule === 'account-settings'
+              ? 'Account settings'
+              : visibleNavItems.find((item) => item.id === safeActiveModule)?.label || 'Today'}
             isMobileMenuOpen={isMobileSidebarOpen}
             onOpenMobileMenu={() => setIsMobileSidebarOpen(true)}
-            onOpenAccountSettings={() => setActiveModule('account-settings')}
           />
 
-          <main className="app-main" id="main-content" role="main" aria-labelledby="module-heading">
-            {enabledModuleSet.has('meal-planner') && (mealPlannerVisited || safeActiveModule === 'meal-planner') && (
-              <div hidden={safeActiveModule !== 'meal-planner'}>
-                <MealPlannerPage />
-              </div>
-            )}
-            {safeActiveModule === 'home' ? (
+          <main className="app-main" id="main-content" role="main" aria-label={safeActiveModule === 'account-settings' ? 'Account settings' : visibleNavItems.find((item) => item.id === safeActiveModule)?.label || 'Today'}>
+            {visitedModules.has('home') && <div className="module-page-cache" hidden={safeActiveModule !== 'home'}>
               <Homepage
-                enabledModuleCount={enabledModules.length}
+                userId={user?.id}
+                weeklyIntention={user?.weeklyIntention}
+                enabledModuleCount={enabledModules.filter((moduleId) => OPTIONAL_MODULES.some((module) => module.id === moduleId)).length}
                 routinesEnabled={enabledModuleSet.has('recurring-routines')}
-                defaultHomepageTab={user?.homepageTab === 'routines' ? 'routines' : 'events'}
-                onOpenModuleSettings={() => setActiveModule('account-settings')}
+                mealsEnabled={enabledModuleSet.has('meal-planner')}
+                onSelectModule={handleModuleSelect}
+                onOpenModuleSettings={() => handleModuleSelect('account-settings')}
               />
-            ) : safeActiveModule !== 'meal-planner' ? (
-              <ActiveModulePage />
-            ) : null}
+            </div>}
+            {visitedModules.has('my-week') && <div className="module-page-cache" hidden={safeActiveModule !== 'my-week'}>
+              <MyWeekPage
+                onSelectModule={handleModuleSelect}
+                timeLogsEnabled={enabledModuleSet.has('time-logs')}
+                habitsEnabled={enabledModuleSet.has('recurring-routines')}
+                mealsEnabled={enabledModuleSet.has('meal-planner')}
+              />
+            </div>}
+            {visitedModules.has('wellness') && <div className="module-page-cache" hidden={safeActiveModule !== 'wellness'}><WellnessPage userId={user?.id} /></div>}
+            {visitedModules.has('recurring-routines') && <div className="module-page-cache" hidden={safeActiveModule !== 'recurring-routines'}><RecurringRoutines /></div>}
+            {visitedModules.has('time-logs') && <div className="module-page-cache" hidden={safeActiveModule !== 'time-logs'}><TimeLogsPage /></div>}
+            {visitedModules.has('monthly-budget') && <div className="module-page-cache" hidden={safeActiveModule !== 'monthly-budget'}><MonthlyBudgetPage /></div>}
+            {visitedModules.has('meal-planner') && enabledModuleSet.has('meal-planner') && <div className="module-page-cache" hidden={safeActiveModule !== 'meal-planner'}><MealPlannerPage /></div>}
+            {visitedModules.has('account-settings') && <div className="module-page-cache" hidden={safeActiveModule !== 'account-settings'}><AccountSettingsPage /></div>}
           </main>
           <Footer />
         </div>

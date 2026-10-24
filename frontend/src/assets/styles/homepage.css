@@ -1,0 +1,135 @@
+.today-date-controls { display: flex; align-items: center; gap: .55rem; flex: none; margin-left: auto; padding-bottom: .25rem; }
+.today-date-controls button { display: grid; place-items: center; width: 34px; height: 34px; padding: 0; color: var(--color-text); background: var(--color-surface); border: 1px solid var(--color-border-soft); border-radius: 10px; }
+.today-date-controls button:hover { color: var(--color-highlight); border-color: var(--color-primary-border); }
+.today-date-controls button svg { width: 16px; height: 16px; }
+.today-date-controls > span { min-width: 106px; color: var(--color-text); font-size: .75rem; text-align: center; white-space: nowrap; }
+.today-heading h1 span { color: var(--color-highlight); }
+.today-hero p, .today-feature-card p { margin: 0; color: var(--color-text-light); font-size: .83rem; }
+.today-date { flex: none; width: 100px; height: 86px; display: grid; place-content: center; text-align: center; border: 1px solid var(--color-border-soft); background: var(--color-surface); border-radius: 18px; }
+.today-date span { font-size: .75rem; text-transform: uppercase; letter-spacing: .1em; color: var(--color-text-light); }
+.today-date strong { font-size: 1.85rem; line-height: 1.2; }
+.today-hero { position: relative; isolation: isolate; overflow: hidden; margin-bottom: 0.5rem; min-height: 145px; }
+.today-hero > :not(.header-botanical) { position: relative; z-index: 1; }
+.today-hero .header-botanical { position: absolute; z-index: 0; top: 50%; right: 10%; width: clamp(8rem, 18vw, 12rem); opacity: .16; pointer-events: none; transform: translateY(-50%) rotate(8deg); }
+.today-hero h2 { margin: .45rem 0 .4rem; color: var(--color-heading); font-size: clamp(1.2rem, 2.3vw, 1.65rem); }
+.today-hero-actions { display: flex; gap: .65rem; flex-wrap: wrap; margin-left: auto; }
+.today-hero-actions button { display: inline-flex; align-items: center; gap: .55rem; padding: .7rem .85rem; color: var(--color-text); background: var(--color-primary-soft); border: 1px solid var(--color-primary-border); border-radius: 12px; font-weight: 700; font-size: .78rem; }
+.today-hero-actions button:hover { background: var(--color-accent-light); }
+.today-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; gap: .75rem; }
+.weekly-intention { grid-column: 1 / -1; display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; min-width: 0; margin: auto; text-align: center; }
+.weekly-intention > div { min-width: 0; }
+.weekly-intention p { margin: 0; color: var(--color-text); font-size: .88rem; line-height: 1.55; }
+.today-column { display: grid; align-content: start; gap: .75rem; min-width: 0; }
+.today-column > .card, .today-feature-card { margin: 0; border-color: var(--color-border-soft); border-radius: 20px; background: var(--color-surface); box-shadow: var(--shadow-soft); }
+.today-column > .todo-card { text-align: left; }
+.today-column > .todo-card { overflow: hidden; }
+.today-column > .todo-card > .card-header { padding: 1.1rem 1.25rem .65rem; background: transparent; border-bottom: 0; }
+.today-column > .todo-card > .card-body { padding: 0 1.25rem 1.15rem; }
+.today-column .todo-header-left { gap: .65rem; text-align: left; }
+.today-column .todo-header-left > svg { display: none; }
+.today-column .todo-header-left .card-title { margin: 0; font-size: .9rem; font-weight: 700; letter-spacing: -.01em; }
+.todo-card-subtitle { margin-top: .25rem; color: var(--color-text-light); font-size: .75rem; }
+.today-column .todo-header-actions { gap: .4rem; }
+.today-column .todo-header-actions .btn { border-radius: 999px; font-size: .75rem; padding: .38rem .6rem; }
+.today-column .todo-header-actions .manage-tasks-link { padding: .2rem .35rem; color: var(--color-highlight); font-weight: 700; text-decoration: none; white-space: nowrap; }
+.today-column .todo-header-actions .manage-tasks-link:hover { color: var(--color-accent-highlight); text-decoration: underline; }
+.today-column .todo-item { display: flex; align-items: center; min-height: 43px; padding: .58rem 0; margin: 0; border: 0; border-top: 1px solid rgba(255,255,255,.045); border-radius: 0; background: transparent; }
+.today-column .todo-item:first-child { border-top: 0; }
+.today-column .todo-item.completed { background: transparent; }
+.today-column .todo-card .calendar-priority-item { border-left: 0; background: transparent; }
+.today-column .todo-card .calendar-priority-item .todo-title { font-size: .76rem; }
+.today-column .todo-card .calendar-priority-item .todo-description { margin-top: .2rem; font-size: .75rem; }
+.today-column .todo-card .calendar-priority-label { white-space: nowrap; font-size: .75rem; background: rgba(139,199,154,.1); }
+.today-column .todo-title { color: var(--color-text); font-size: .76rem; line-height: 1.45; }
+.today-column .todo-title.completed-text { color: var(--color-text-light); opacity: 1; }
+.today-column .todo-title-row { margin-bottom: .1rem !important; }
+.today-column .todo-description { margin: .15rem 0 0; color: var(--color-text-light); font-size: .75rem; }
+.today-column .todo-meta { display: block; margin-top: .2rem; color: var(--color-text-light); font-size: .75rem; }
+.today-column .todo-card .card-body > .list-group { background: transparent; }
+.today-column .todo-card .todo-content { width: 100%; align-items: center; }
+.today-column .todo-card .todo-left { align-items: center; }
+.today-column .todo-card .todo-left .checkbox { display: grid; place-items: center; flex: none; width: 18px; height: 18px; margin: 0 .65rem 0 0; padding: 0; color: var(--color-text-light); background: transparent; border: 1.4px solid var(--color-text-light); border-radius: 6px; font-size: 12px; line-height: 1; }
+.today-column .todo-card .todo-item.completed .todo-left .checkbox { color: var(--primary-foreground); background: var(--color-highlight); border-color: var(--color-highlight); }
+.today-column .todo-card .todo-left .checkbox svg { width: 14px; height: 14px; margin: 0; }
+.today-column .todo-card .todo-actions { flex: none; gap: .4rem; }
+.today-column .todo-card .todo-actions .priority-label { padding: .25rem .55rem; border-radius: 999px; font-size: .75rem; font-weight: 700; text-transform: capitalize; }
+.today-column .todo-card .priority-high { color: #f0a18a; background: rgba(216, 139, 105, .16); }
+.today-column .todo-card .priority-medium { color: #e6c982; background: rgba(230, 201, 130, .14); }
+.today-column .todo-card .priority-low { color: var(--color-highlight); background: var(--color-primary-soft); }
+.today-column .todo-card .manage-tasks-link:focus-visible { outline: 2px solid var(--color-highlight); outline-offset: 2px; }
+.today-column .routines-card { overflow: hidden; }
+.today-column .routines-card > .card-header { padding: 1rem 1.2rem .8rem; background: transparent; border-bottom: 0; }
+.today-column .routines-card > .card-body { padding: 0 1.2rem 1rem; }
+.today-column .routines-header .card-title { display: flex; align-items: center; gap: .75rem; font-size: 1rem; }
+.today-column .routines-header .card-title svg { color: var(--color-highlight); }
+.today-column .routines-header .btn { border-radius: 999px; font-size: .75rem; }
+.today-column .routines-intro { font-size: .75rem; margin: 0 0 .6rem; }
+.today-column .routine-item { padding: .75rem 0; }
+.today-column .routine-heading h3 { font-size: .85rem; }
+.today-column .routine-heading p, .today-column .routine-progress { font-size: .75rem; }
+.today-column .routine-step { margin: .45rem 0; font-size: .78rem; }
+.today-column .habits-today .routines-card { overflow: hidden; }
+.today-column .habits-today .routines-header { align-items: center; padding: 1rem 1.2rem .65rem; background: transparent; border-bottom: 0; }
+.today-column .habits-today .routines-header > div { min-width: 0; }
+.today-column .habits-today .routines-header .card-title { gap: .45rem; font-size: .9rem; }
+.today-column .habits-today .routines-header .card-title svg { width: 15px; height: 15px; }
+.today-column .habits-today .routines-header .habits-view-link { border-radius: .375rem; font-size: .75rem; font-weight: 700; text-decoration: none; }
+.today-column .habits-today .routines-header .habits-view-link:hover { color: var(--color-accent-highlight); text-decoration: underline; }
+.today-column .habits-today .habits-card-subtitle { color: var(--color-text-light); font-size: .75rem; }
+.today-column .habits-today .routines-card > .card-body { padding: 0 1.2rem 1rem; }
+.today-column .habits-today .simple-habit-item { padding: .55rem 0; border-top: 1px solid rgba(255,255,255,.045); }
+.today-column .habits-today .simple-habit-heading h3 { margin: 0; font-size: .76rem; font-weight: 600; }
+.today-column .habits-today .habit-row-summary { align-items: center; flex-direction: row; margin-top: .35rem; }
+.today-column .habits-today .habit-streak { font-size: .75rem; }
+.today-column .habits-today .habit-days { gap: .35rem; }
+.today-column .habits-today .day-dot { width: 21px; height: 21px; border-radius: 7px; font-size: .75rem; }
+.today-column .habits-today .habits-card-footer { margin-top: .5rem; padding-top: .65rem; font-size: .75rem; }
+.today-feature-card .card-body { padding: 1.2rem; }
+.today-feature-card .card-title { margin-bottom: .45rem; font-size: 1.05rem; }
+.today-feature-card p { margin-bottom: 1rem; line-height: 1.6; }
+.meals-home-card .card-body { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: start; gap: .85rem; }
+.meals-home-card .btn { grid-column: 2; justify-self: start; }
+.today-menu-card > .card-header { display: flex; align-items: center; justify-content: space-between; gap: .75rem; padding: 1rem 1.2rem .55rem; background: transparent; border-bottom: 0; }
+.today-menu-card > .card-header .card-title { margin: 0; font-size: .9rem; font-weight: 700; }
+.today-menu-subtitle { margin-top: .25rem; color: var(--color-text-light); font-size: .75rem; }
+.today-menu-card > .card-header .btn, .today-header-link, .habits-view-link { display: inline-flex; align-items: center; gap: .25rem; flex: none; padding: .2rem; color: var(--color-highlight); font-size: .75rem; font-weight: 700; text-decoration: none; white-space: nowrap; }
+.today-menu-card > .card-header .btn svg, .today-header-link svg, .habits-view-link svg { width: 12px; height: 12px; margin: 0; }
+.today-menu-card > .card-body { display: block; padding: 0 1.2rem 1rem; }
+.today-menu-rows { display: grid; }
+.today-menu-row { display: flex; align-items: center; gap: .65rem; padding: .55rem 0; border-top: 1px solid rgba(255,255,255,.045); }
+.today-menu-row:first-child { border-top: 0; }
+.today-menu-icon { display: grid; place-items: center; flex: none; width: 29px; height: 29px; color: var(--color-highlight); background: var(--color-primary-soft); border-radius: 9px; }
+.today-menu-icon svg { width: 15px; height: 15px; }
+.today-menu-row > div { min-width: 0; display: grid; gap: .15rem; }
+.today-menu-name { color: var(--color-text); font-size: .75rem; font-weight: 700; }
+.today-menu-plan { color: var(--color-text-light); font-size: .75rem; overflow-wrap: anywhere; }
+.today-menu-state { margin: .4rem 0 .8rem; color: var(--color-text-light); font-size: .75rem; }
+.today-meals-content { min-width: 0; }
+.today-meals-content .card-title { margin: .25rem 0 .5rem; font-size: 1rem; }
+.today-menu-summary { display: grid; gap: .38rem; }
+.today-menu-summary > div { display: grid; grid-template-columns: 4rem minmax(0, 1fr); gap: .75rem; align-items: baseline; }
+.today-menu-summary > div span, .today-shopping-count { color: var(--color-text-light); font-size: .75rem; }
+.today-menu-summary > div strong { min-width: 0; overflow-wrap: anywhere; font-size: .75rem; font-weight: 600; }
+.today-shopping-count { margin: .3rem 0 0 !important; padding-top: .5rem; border-top: 1px solid var(--color-border-soft); }
+.today-card-icon, .wellness-icon { display: grid; place-items: center; width: 38px; height: 38px; color: var(--color-highlight); background: var(--color-primary-soft); border-radius: 12px; }
+.today-card-icon svg { width: 18px; height: 18px; }
+.today-mood-options { display: flex; justify-content: space-between; gap: .4rem; }
+.today-mood-options button { min-width: 0; flex: 1; display: grid; justify-items: center; gap: .2rem; padding: .45rem .2rem; color: var(--color-text-light); background: transparent; border: 1px solid transparent; border-radius: 12px; font-size: 1.2rem; }
+.today-mood-options button span { font-size: .75rem; }
+.today-mood-options button:hover, .today-mood-options button[aria-pressed="true"] { color: var(--color-text); background: var(--color-primary-soft); border-color: var(--color-primary-border); }
+.today-text-link { margin-top: .65rem; display: inline-flex; align-items: center; gap: .4rem; padding: 0; color: var(--color-highlight); background: none; border: 0; font-size: .78rem; font-weight: 700; }
+.today-page :focus-visible { outline: 3px solid var(--color-highlight); outline-offset: 3px; }
+@media (max-width: 900px) { .today-grid { grid-template-columns: 1fr; } }
+@media (max-width: 575px) { .weekly-intention { align-items: flex-start; flex-direction: column; gap: .6rem; } }
+@media (max-width: 600px) {
+  .page-heading.today-heading { align-items: flex-start; flex-direction: column; }
+  .today-date-controls { align-self: flex-end; gap: .35rem; margin-top: -.5rem; padding: 0; }
+  .today-date-controls > span { min-width: 0; font-size: .75rem; }
+  .today-date { flex: none; width: 70px; height: 82px; margin: 0 0 0 auto; }
+  .today-date strong { font-size: 2rem; }
+  .page-hero.today-hero { align-items: center; flex-wrap: nowrap; gap: .75rem; padding: 1.2rem; }
+  .today-hero .header-botanical { right: 20%; width: 7rem; opacity: .12; }
+  .today-hero > div:first-child { min-width: 0; flex: 1; }
+  .today-hero-actions { width: 100%; order: 3; margin-left: 0; }
+  .today-hero-actions button { flex: 1; justify-content: center; }
+}

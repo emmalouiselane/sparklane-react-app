@@ -1,12 +1,16 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import toast from 'react-hot-toast';
-import { useAuthContext } from '../contexts/AuthContext';
-import { apiClient } from '../helpers/auth';
-import { getOrdinalSuffix } from '../helpers/helper';
-import { OPTIONAL_MODULES, OptionalModuleId } from '../config/modules';
-import './account-settings.css';
+import { ArrowClockwise } from 'react-bootstrap-icons';
 
-type ThemePreference = 'dark' | 'light';
+import { useAuthContext } from '../contexts/auth-context';
+import { API_BASE_URL } from '../config/api';
+import { apiClient } from '../helpers/auth';
+import { useRefreshOnPageActivation } from '../helpers/page-refresh';
+import { getOrdinalSuffix } from '../helpers/helper';
+import { applyThemePreference, getStoredThemePreference, getThemeName, getThemePreference, storeThemePreference, ThemePreference } from '../helpers/theme';
+import { isSidebarModuleId, SIDEBAR_MODULES, SidebarModuleId, TOGGLEABLE_MODULES, ToggleableModuleId, withRequiredModules } from '../config/modules';
+
+import '../assets/styles/account-settings.css';
 
 function describePayDay(payDay: number) {
   const ordinalDay = `${payDay}${getOrdinalSuffix(payDay)}`;
@@ -18,51 +22,57 @@ function describePayDay(payDay: number) {
   return `the ${ordinalDay} of each month, or the last available day in shorter months`;
 }
 
+const THEME_GROUPS: { label: string; themes: { id: ThemePreference; label: string; description: string }[] }[] = [
+  {
+    label: 'Dark themes',
+    themes: [
+      { id: 'dark', label: 'Evergreen', description: 'A calm, deep green palette.' },
+      { id: 'deep-lake', label: 'Deep Lake', description: 'Calm, deep blues inspired by still water.' },
+      { id: 'desert-dusk', label: 'Desert Dusk', description: 'Muted mauve, sand, and dusky rose tones.' }
+    ]
+  },
+  {
+    label: 'Light themes',
+    themes: [
+      { id: 'light', label: 'Sunlit Clay', description: 'A cream and terracotta palette.' },
+      { id: 'cherry-blossom', label: 'Cherry blossom', description: 'A soft pink palette with plum accents.' },
+      { id: 'misty-lavender', label: 'Misty Lavender', description: 'Soft lavender and cool grey for an airy feel.' }
+    ]
+  }
+  
+];
+
 function AccountSettingsPage() {
   const { user, checkAuthStatus } = useAuthContext();
   const [payDay, setPayDay] = useState<number>(28);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [theme, setTheme] = useState<ThemePreference>(user?.theme === 'light' ? 'light' : 'dark');
+  const [theme, setTheme] = useState<ThemePreference>(getThemePreference(user?.theme ?? getStoredThemePreference()));
   const [isThemeSaving, setIsThemeSaving] = useState(false);
-  const [enabledModules, setEnabledModules] = useState<OptionalModuleId[]>(
-    Array.isArray(user?.enabledModules) ? user.enabledModules : []
+  const [enabledModules, setEnabledModules] = useState<SidebarModuleId[]>(
+    withRequiredModules(Array.isArray(user?.enabledModules)
+      ? user.enabledModules.filter((moduleId: string) => isSidebarModuleId(moduleId))
+      : SIDEBAR_MODULES.map((module) => module.id))
   );
-  const [savingModule, setSavingModule] = useState<OptionalModuleId | null>(null);
-  const [homepageTab, setHomepageTab] = useState<'events' | 'routines'>(user?.homepageTab === 'routines' ? 'routines' : 'events');
-  const [isHomepageTabSaving, setIsHomepageTabSaving] = useState(false);
-
+  const [savingModule, setSavingModule] = useState<SidebarModuleId | null>(null);
+  const [refreshTick, setRefreshTick] = useState(0);
+  const hasLoadedSettings = useRef(false);
+  useRefreshOnPageActivation('account-settings', () => setRefreshTick(current => current + 1));
   useEffect(() => {
-    setHomepageTab(user?.homepageTab === 'routines' ? 'routines' : 'events');
-  }, [user?.homepageTab]);
-
-  const handleHomepageTabChange = async (nextTab: 'events' | 'routines') => {
-    const previousTab = homepageTab;
-    setHomepageTab(nextTab);
-    setIsHomepageTabSaving(true);
-    try {
-      await apiClient.patch('/auth/preferences', { homepageTab: nextTab });
-      await checkAuthStatus();
-      toast.success('Default homepage tab saved.');
-    } catch {
-      setHomepageTab(previousTab);
-      toast.error('Unable to save default homepage tab. Please try again.');
-    } finally { setIsHomepageTabSaving(false); }
-  };
-
-  useEffect(() => {
-    setTheme(user?.theme === 'light' ? 'light' : 'dark');
+    setTheme(getThemePreference(user?.theme));
   }, [user?.theme]);
 
   useEffect(() => {
-    setEnabledModules(Array.isArray(user?.enabledModules) ? user.enabledModules : []);
+    setEnabledModules(withRequiredModules(Array.isArray(user?.enabledModules)
+      ? user.enabledModules.filter((moduleId: string) => isSidebarModuleId(moduleId))
+      : SIDEBAR_MODULES.map((module) => module.id)));
   }, [user?.enabledModules]);
 
   useEffect(() => {
     const fetchSettings = async () => {
       try {
-        setIsLoading(true);
+        if (!hasLoadedSettings.current) setIsLoading(true);
         setError(null);
         const response = await apiClient.get('/api/budget/settings');
 
@@ -71,12 +81,13 @@ function AccountSettingsPage() {
         console.error('Failed to fetch account settings', requestError);
         setError(requestError.response?.data?.error || 'Failed to load account settings.');
       } finally {
+        hasLoadedSettings.current = true;
         setIsLoading(false);
       }
     };
 
     fetchSettings();
-  }, []);
+  }, [refreshTick]);
 
   const handlePayDayChange = async (nextPayDay: number) => {
     try {
@@ -95,21 +106,22 @@ function AccountSettingsPage() {
     }
   };
 
-  const handleThemeChange = async (useLightTheme: boolean) => {
+  const handleThemeChange = async (nextTheme: ThemePreference) => {
     const previousTheme = theme;
-    const nextTheme: ThemePreference = useLightTheme ? 'light' : 'dark';
 
     try {
       setTheme(nextTheme);
-      document.documentElement.dataset.theme = nextTheme;
+      applyThemePreference(nextTheme);
+      storeThemePreference(nextTheme);
       setIsThemeSaving(true);
 
       await apiClient.patch('/auth/preferences', { theme: nextTheme });
       await checkAuthStatus();
-      toast.success(`${nextTheme === 'light' ? 'Warm light' : 'Dark green'} theme saved.`);
+      toast.success(`${getThemeName(nextTheme)} theme saved.`);
     } catch (requestError: any) {
       setTheme(previousTheme);
-      document.documentElement.dataset.theme = previousTheme;
+      applyThemePreference(previousTheme);
+      storeThemePreference(previousTheme);
       console.error('Failed to update theme', requestError);
       toast.error(requestError.response?.data?.error || 'Failed to save theme preference.');
     } finally {
@@ -117,7 +129,7 @@ function AccountSettingsPage() {
     }
   };
 
-  const handleModuleChange = async (moduleId: OptionalModuleId, enabled: boolean) => {
+  const handleModuleChange = async (moduleId: ToggleableModuleId, enabled: boolean) => {
     const previousModules = enabledModules;
     const nextModules = enabled
       ? enabledModules.includes(moduleId) ? enabledModules : [...enabledModules, moduleId]
@@ -128,7 +140,7 @@ function AccountSettingsPage() {
       setSavingModule(moduleId);
       await apiClient.patch('/auth/preferences', { enabledModules: nextModules });
       await checkAuthStatus();
-      const moduleLabel = OPTIONAL_MODULES.find((module) => module.id === moduleId)?.label || 'Module';
+      const moduleLabel = SIDEBAR_MODULES.find((module) => module.id === moduleId)?.label || 'Module';
       toast.success(`${moduleLabel} turned ${enabled ? 'on' : 'off'}.`);
     } catch (requestError: any) {
       setEnabledModules(previousModules);
@@ -142,9 +154,20 @@ function AccountSettingsPage() {
   const displayName = user?.name?.givenName || user?.name || user?.displayName || 'Google User';
   const email = user?.email || user?.emails?.[0]?.value || 'No email available';
   const avatarUrl = user?.picture || user?.photos?.[0]?.value;
+  const currentThemeName = getThemeName(theme);
+  const handleCalendarReauthentication = () => {
+    window.location.href = `${API_BASE_URL}/auth/google/calendar`;
+  };
 
   return (
-    <section className="account-settings-page" aria-label="Account settings">
+    <section className="page-container account-settings-page" aria-labelledby="account-settings-heading">
+      <header className="page-heading">
+        <div>
+          <span className="page-eyebrow">Your preferences</span>
+          <h1 id="account-settings-heading">Account settings</h1>
+          <p>Manage your modules, budget settings, and appearance.</p>
+        </div>
+      </header>
       <section className="settings-card profile-card">
         <div className="settings-card-header">
           <h2>Google Account</h2>
@@ -153,7 +176,7 @@ function AccountSettingsPage() {
 
         <div className="profile-summary">
           {avatarUrl ? (
-            <img src={avatarUrl} alt={displayName} className="settings-avatar" />
+            <img src={avatarUrl} alt="" className="settings-avatar" />
           ) : (
             <div className="settings-avatar-fallback" aria-hidden="true">
               {displayName.charAt(0).toUpperCase()}
@@ -163,19 +186,26 @@ function AccountSettingsPage() {
           <div className="profile-copy">
             <h3>{displayName}</h3>
             <p>{email}</p>
-            <span className="settings-chip">Google connected</span>
+            <div className="calendar-connection-actions">
+              <span className="settings-chip">Google connected</span>
+              <button type="button" className="settings-chip settings-calendar-button" onClick={handleCalendarReauthentication}>
+                <ArrowClockwise size={16} aria-hidden="true" />
+                <span>Reauthenticate Calendar</span>
+              </button>
+            </div>
           </div>
         </div>
       </section>
 
-      <section className="settings-card">
+      <div className="settings-primary-column">
+      <section className="settings-card module-settings-card">
         <div className="settings-card-header">
           <h2>Modules</h2>
-          <p>Choose which optional modules appear in your navigation.</p>
+          <p>Choose which optional modules you have.</p>
         </div>
 
         <div className="module-settings-list">
-          {OPTIONAL_MODULES.map((module) => (
+          {TOGGLEABLE_MODULES.map((module) => (
             <label className="settings-toggle" key={module.id}>
               <span className="settings-toggle-copy">
                 <strong>{module.label}</strong>
@@ -198,64 +228,11 @@ function AccountSettingsPage() {
         </div>
 
         <p className="settings-helper" aria-live="polite">
-          {savingModule ? 'Saving your module preferences...' : `${enabledModules.length} of ${OPTIONAL_MODULES.length} modules enabled.`}
+          {savingModule ? 'Saving your module preferences...' : `${TOGGLEABLE_MODULES.filter((module) => enabledModules.includes(module.id)).length} of ${TOGGLEABLE_MODULES.length} modules enabled.`}
         </p>
       </section>
 
-      <section className="settings-card">
-        <div className="settings-card-header">
-          <h2>Homepage</h2>
-          <p>Choose which tab opens when you visit the homepage.</p>
-        </div>
-        <label className="settings-field">
-          <span>Default homepage tab</span>
-          <select id="settings-homepage-tab" name="homepageTab" value={homepageTab} disabled={isHomepageTabSaving}
-            onChange={event => handleHomepageTabChange(event.target.value as 'events' | 'routines')}>
-            <option value="events">Upcoming Events</option>
-            <option value="routines">Recurring Routines</option>
-          </select>
-        </label>
-        <p className="settings-helper" aria-live="polite">
-          {isHomepageTabSaving ? 'Saving your homepage preference…' : 'You can switch tabs any time on the homepage.'}
-        </p>
-        {!enabledModules.includes('recurring-routines') && homepageTab === 'routines' && (
-          <p className="settings-helper">Enable Recurring Routines above to show your checklists in that tab.</p>
-        )}
-      </section>
-
-      <section className="settings-card">
-        <div className="settings-card-header">
-          <h2>Appearance</h2>
-          <p>Choose the colour theme used across Spark Lane.</p>
-        </div>
-
-        <label className="settings-toggle">
-          <span className="settings-toggle-copy">
-            <strong>Warm light theme</strong>
-            <span>Use the cream and terracotta theme.</span>
-          </span>
-          <input
-            id="settings-light-theme"
-            name="lightTheme"
-            className="settings-toggle-input"
-            type="checkbox"
-            checked={theme === 'light'}
-            onChange={(event) => handleThemeChange(event.target.checked)}
-            disabled={isThemeSaving}
-          />
-          <span className="settings-toggle-track" aria-hidden="true">
-            <span className="settings-toggle-thumb" />
-          </span>
-        </label>
-
-        <p className="settings-helper" aria-live="polite">
-          {isThemeSaving
-            ? 'Saving your theme preference...'
-            : `Currently using the ${theme === 'light' ? 'warm light' : 'dark green'} theme.`}
-        </p>
-      </section>
-
-      <section className="settings-card">
+      <section className="settings-card budget-settings-card">
         <div className="settings-card-header">
           <h2>Budget Settings</h2>
           <p>Choose the monthly day your pay period starts from.</p>
@@ -263,11 +240,11 @@ function AccountSettingsPage() {
 
         {error && <p className="settings-error">{error}</p>}
 
-        <label className="settings-field pay-day">
+        <label className="settings-field pay-day" htmlFor="settings-pay-day">
           <p>
             Pay day:
           </p>
-          
+
           <select
             id="settings-pay-day"
             name="payDay"
@@ -291,6 +268,47 @@ function AccountSettingsPage() {
               : `Current pay periods start on ${describePayDay(payDay)}.`}
         </p>
       </section>
+      </div>
+
+      <div className="settings-secondary-column">
+        <section className="settings-card">
+          <div className="settings-card-header">
+            <h2>Appearance</h2>
+            <p>Choose the colour theme used across Spark Lane.</p>
+          </div>
+
+          <fieldset className="appearance-theme">
+            <legend>Choose a theme</legend>
+            {THEME_GROUPS.map((group) => (
+              <div className="appearance-theme-group" key={group.label}>
+                <h3>{group.label}</h3>
+                {group.themes.map((option) => (
+                  <label className={`appearance-theme-option${theme === option.id ? ' is-selected' : ''}`} key={option.id}>
+                    <input
+                      type="radio"
+                      name="theme"
+                      value={option.id}
+                      checked={theme === option.id}
+                      onChange={() => handleThemeChange(option.id)}
+                      disabled={isThemeSaving}
+                    />
+                    <span className="appearance-theme-copy">
+                      <strong>{option.label}</strong>
+                      <span>{option.description}</span>
+                    </span>
+                  </label>
+                ))}
+              </div>
+            ))}
+          </fieldset>
+
+          <p className="settings-helper" aria-live="polite">
+            {isThemeSaving
+              ? 'Saving your theme preference...'
+              : `Currently using the ${currentThemeName} theme.`}
+          </p>
+        </section>
+      </div>
     </section>
   );
 }

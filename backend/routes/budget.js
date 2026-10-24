@@ -1,7 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
-const BudgetPayment = require('../models/BudgetPayment');
-const BudgetSettings = require('../models/BudgetSettings');
+const BudgetPayment = require('../models/budget-payment');
+const BudgetSettings = require('../models/budget-settings');
 const { getAppUserId, requireAuth, requireTrustedOrigin } = require('../middleware/auth');
 
 const router = express.Router();

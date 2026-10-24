@@ -1,0 +1,128 @@
+/* Shared page headings, eyebrows, and hero surfaces. */
+.page-container {
+  padding: .6rem .3rem;
+}
+
+.page-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: .75rem;
+  margin: .3rem 0 .6rem;
+}
+
+.page-heading h1 {
+  margin: .25rem 0 .35rem;
+  color: var(--color-heading);
+  font-size: clamp(2rem, 4vw, 2.7rem);
+}
+
+.page-heading p {
+  margin: 0;
+  color: var(--color-text-light);
+}
+
+.page-heading > svg {
+  align-self: flex-start;
+  flex: none;
+  color: var(--color-highlight);
+  margin-top: 1rem;
+  margin-right: 0.5rem;
+}
+
+.page-eyebrow {
+  display: block;
+  color: var(--color-highlight);
+  font-size: .75rem;
+  font-weight: 800;
+  letter-spacing: .13em;
+  text-transform: uppercase;
+}
+
+.loading-message {
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+  padding: 1.2rem 0;
+  color: var(--color-text-light);
+  font-size: .8rem;
+}
+
+.page-hero {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: .75rem;
+  padding: 1.5rem 1.65rem;
+  border: 1px solid var(--color-primary-border);
+  border-radius: 24px;
+  background: linear-gradient(110deg, var(--color-accent-light), var(--color-surface) 72%, var(--color-surface-elevated));
+  box-shadow: var(--shadow-soft);
+}
+
+/* Shared agenda and task card structure. */
+.todo-card,
+.agenda-card {
+  text-align: center;
+}
+
+.todo-card .loading-container,
+.agenda-card .loading-container {
+  padding: 1.5rem;
+}
+
+.todo-card .card-header,
+.agenda-card .card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.todo-card .card-header .todo-header,
+.agenda-card .card-header .agenda-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.todo-card .todo-header-left,
+.agenda-card .agenda-header-left {
+  display: flex;
+  align-items: center;
+}
+
+.todo-card .todo-header-left svg,
+.agenda-card .agenda-header-left svg {
+  margin: auto 10px auto 0;
+}
+
+.todo-card .todo-header-left .card-title,
+.agenda-card .agenda-header-left .card-title {
+  margin: auto 0;
+}
+
+.todo-card .todo-header-actions {
+  gap: 8px;
+  align-items: center;
+}
+
+.todo-card .todo-header-actions .clear-completed-btn,
+.todo-card .todo-header-actions .quick-add-btn,
+.agenda-card .agenda-header .quick-add-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-weight: 500;
+}
+
+.todo-card .card-body svg,
+.agenda-card .card-body svg {
+  margin: auto 5px auto 0;
+}
+
+.todo-card .card-body .list-group,
+.agenda-card .card-body .list-group {
+  backdrop-filter: blur(10px);
+}
+

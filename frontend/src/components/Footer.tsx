@@ -1,8 +1,12 @@
 import React from 'react';
-import './Footer.css';
+
+import '../assets/styles/footer.css';
 
 const Footer: React.FC = () => (
   <footer className="site-footer">
+    <span className="site-footer-tagline">
+      Made for a life that feels like yours <span aria-hidden="true">✳</span>
+    </span>
     <span>
       © {new Date().getFullYear()}{' '}
       <a

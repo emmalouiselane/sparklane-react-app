@@ -16,6 +16,20 @@ const todoSchema = new mongoose.Schema({
     trim: true,
     default: ''
   },
+  date: {
+    type: String,
+    default: ''
+  },
+  time: {
+    type: String,
+    trim: true,
+    default: ''
+  },
+  tag: {
+    type: String,
+    trim: true,
+    default: ''
+  },
   priority: {
     type: String,
     enum: ['low', 'medium', 'high'],
@@ -24,6 +38,10 @@ const todoSchema = new mongoose.Schema({
   completed: {
     type: Boolean,
     default: false
+  },
+  sortOrder: {
+    type: Number,
+    default: null
   }
 }, {
   timestamps: true

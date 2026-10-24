@@ -1,4 +1,7 @@
 const SAFE_METHODS = new Set(['GET', 'HEAD', 'OPTIONS']);
+const REQUIRED_MODULES = ['home', 'my-week'];
+const LEGACY_OPTIONAL_DEFAULTS = ['wellness', 'monthly-budget', 'time-logs', 'meal-planner'];
+const SIDEBAR_MODULES = [...REQUIRED_MODULES, 'wellness', 'recurring-routines', 'monthly-budget', 'meal-planner', 'time-logs'];
 
 function collectAllowedOrigins() {
   const configuredOrigins = [
@@ -24,6 +27,18 @@ function sanitizeUser(user) {
     return null;
   }
 
+  const storedModules = Array.isArray(user.enabledModules)
+    ? user.enabledModules.filter((moduleId) => SIDEBAR_MODULES.includes(moduleId))
+    : null;
+
+  const selectedModules = user.modulePreferencesVersion >= 1
+    ? storedModules || []
+    : ['wellness', ...(storedModules || LEGACY_OPTIONAL_DEFAULTS)];
+
+  const enabledModules = SIDEBAR_MODULES.filter((moduleId) =>
+    REQUIRED_MODULES.includes(moduleId) || selectedModules.includes(moduleId)
+  );
+
   return {
     id: user.googleId || user.id,
     displayName: user.displayName,
@@ -32,12 +47,9 @@ function sanitizeUser(user) {
     photos: user.photos,
     picture: user.photos?.[0]?.value,
     email: user.emails?.[0]?.value,
-    theme: user.theme === 'light' ? 'light' : 'dark',
-    homepageTab: user.homepageTab === 'routines' ? 'routines' : 'events',
-    // Accounts created before module preferences existed keep their current navigation.
-    enabledModules: Array.isArray(user.enabledModules)
-      ? user.enabledModules
-      : ['monthly-budget', 'time-logs', 'meal-planner']
+    theme: ['dark', 'light', 'cherry-blossom', 'deep-lake', 'misty-lavender', 'desert-dusk'].includes(user.theme) ? user.theme : 'dark',
+    weeklyIntention: typeof user.weeklyIntention === 'string' ? user.weeklyIntention : '',
+    enabledModules
   };
 }
 

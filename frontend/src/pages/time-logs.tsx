@@ -1,7 +1,9 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import { ChevronLeft, ChevronRight, Trash } from 'react-bootstrap-icons';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { ChevronLeft, ChevronRight, ClockHistory, Trash } from 'react-bootstrap-icons';
 import toast from 'react-hot-toast';
+
 import { apiClient } from '../helpers/auth';
+import { useRefreshOnPageActivation } from '../helpers/page-refresh';
 import {
   addDays,
   formatDateDisplay,
@@ -11,14 +13,10 @@ import {
   parseInputDate,
   toInputDate
 } from '../helpers/helper';
-import './time-logs.css';
+import { TimeLog } from '../interfaces/TimeLog';
 
-interface TimeLog {
-  id: string;
-  title: string;
-  durationHours: number;
-  date: string;
-}
+import '../assets/styles/planner-sections.css';
+import '../assets/styles/time-logs.css';
 
 function TimeLogsPage() {
   const [timeLogs, setTimeLogs] = useState<TimeLog[]>([]);
@@ -29,11 +27,15 @@ function TimeLogsPage() {
   const [date, setDate] = useState(toInputDate(new Date()));
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isWeekSummaryOpen, setIsWeekSummaryOpen] = useState(false);
+  const [refreshTick, setRefreshTick] = useState(0);
+  const hasLoaded = useRef(false);
+
+  useRefreshOnPageActivation('time-logs', () => setRefreshTick(current => current + 1));
 
   useEffect(() => {
     const fetchTimeLogs = async () => {
       try {
-        setIsLoading(true);
+        if (!hasLoaded.current) setIsLoading(true);
         setError(null);
         const response = await apiClient.get('/api/time-logs');
 
@@ -50,12 +52,13 @@ function TimeLogsPage() {
         console.error('Failed to fetch time logs', requestError);
         setError(requestError.response?.data?.error || 'Failed to load time logs.');
       } finally {
+        hasLoaded.current = true;
         setIsLoading(false);
       }
     };
 
     fetchTimeLogs();
-  }, []);
+  }, [refreshTick]);
 
   const groupedLogs = useMemo(() => {
     const grouped = timeLogs.reduce<Record<string, TimeLog[]>>((acc, log) => {
@@ -166,22 +169,35 @@ function TimeLogsPage() {
   };
 
   return (
-    <section className="time-logs-page" aria-label="Time Logs module">
+    <section className="page-container planner-section-page time-logs-page" aria-labelledby="time-logs-title">
+      <header className="page-heading">
+        <div>
+          <span className="page-eyebrow">A little space for you</span>
+          <h1 id="time-logs-title">Time logs</h1>
+          <p>Track what you did each day and keep a simple running total.</p>
+        </div>
+        <ClockHistory size={34} aria-hidden="true" />
+      </header>
+
       <section className="time-log-entry-card">
         <div className="time-log-card-header">
-          <h2>Time Logs</h2>
-          <p>Track what you did each day and keep a simple running total.</p>
+          <h2>Add a time log</h2>
+          <p>Capture an activity and how long it took.</p>
         </div>
 
         <form className="time-log-form" onSubmit={handleAddTimeLog}>
+          <label className="visually-hidden" htmlFor="time-log-activity">Activity</label>
           <input
+            id="time-log-activity"
             type="text"
             placeholder="Activity"
             value={title}
             onChange={(event) => setTitle(event.target.value)}
             required
           />
+          <label className="visually-hidden" htmlFor="time-log-hours">Hours</label>
           <input
+            id="time-log-hours"
             type="number"
             inputMode="decimal"
             min="0.1"
@@ -191,7 +207,9 @@ function TimeLogsPage() {
             onChange={(event) => setDurationHours(event.target.value)}
             required
           />
+          <label className="visually-hidden" htmlFor="time-log-date">Date</label>
           <input
+            id="time-log-date"
             type="date"
             value={date}
             onChange={(event) => setDate(event.target.value)}
@@ -220,7 +238,7 @@ function TimeLogsPage() {
                 >
                   <ChevronLeft size={16} />
                 </button>
-                <h5>{formatDateDisplay(selectedDayGroup.date)}</h5>
+                <h2>{formatDateDisplay(selectedDayGroup.date)}</h2>
                 <button
                   type="button"
                   className="time-log-date-btn"
@@ -294,9 +312,9 @@ function TimeLogsPage() {
               >
                 <ChevronLeft size={16} />
               </button>
-              <h5 id="week-summary-heading">
+              <h2 id="week-summary-heading">
                 {formatDateDisplay(weekSummary.startDate)} to {formatDateDisplay(weekSummary.endDate)}
-              </h5>
+              </h2>
               <div className="time-log-modal-spacer" aria-hidden="true" />
             </div>
 

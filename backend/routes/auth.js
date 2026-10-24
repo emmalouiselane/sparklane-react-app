@@ -1,10 +1,12 @@
 const express = require('express');
-const AuthAccount = require('../models/AuthAccount');
-const { encryptToken, tokenIdentifiers } = require('../lib/tokenCrypto');
+const AuthAccount = require('../models/auth-account');
+const { encryptToken, tokenIdentifiers } = require('../lib/token-crypto');
 const { requireAuth, requireTrustedOrigin, sanitizeUser } = require('../middleware/auth');
-const { createAuthorizationRequest, exchangeAndVerify } = require('../lib/googleOAuth');
+const { createAuthorizationRequest, exchangeAndVerify } = require('../lib/google-oauth');
 
 const router = express.Router();
+const REQUIRED_MODULES = ['home', 'my-week'];
+const MODULE_ORDER = ['home', 'my-week', 'wellness', 'recurring-routines', 'monthly-budget', 'meal-planner', 'time-logs'];
 const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
 const sessionCookieName = process.env.NODE_ENV === 'production' ? '__Host-sessionId' : 'sessionId';
 
@@ -49,7 +51,8 @@ router.get('/google/callback', async (req, res) => {
         $setOnInsert: {
           sessionVersion: 0,
           googleSignInDisabled: false,
-          enabledModules: []
+          enabledModules: [],
+          modulePreferencesVersion: 0
         }
       },
       { upsert: true, new: true, setDefaultsOnInsert: true }
@@ -113,19 +116,19 @@ router.get('/user', requireAuth, (req, res) => res.json({ user: sanitizeUser(req
 
 router.patch('/preferences', requireAuth, requireTrustedOrigin, async (req, res) => {
   try {
-    const { theme, enabledModules, homepageTab } = req.body;
-    const allowedModules = new Set(['monthly-budget', 'time-logs', 'meal-planner', 'recurring-routines']);
+    const { theme, enabledModules, weeklyIntention } = req.body;
+    const allowedModules = new Set(['home', 'my-week', 'wellness', 'recurring-routines', 'monthly-budget', 'meal-planner', 'time-logs']);
 
-    if (theme === undefined && enabledModules === undefined && homepageTab === undefined) {
+    if (theme === undefined && enabledModules === undefined && weeklyIntention === undefined) {
       return res.status(400).json({ error: 'At least one preference is required' });
     }
 
-    if (theme !== undefined && !['dark', 'light'].includes(theme)) {
-      return res.status(400).json({ error: 'Theme must be either dark or light' });
+    if (theme !== undefined && !['dark', 'light', 'cherry-blossom', 'deep-lake', 'misty-lavender', 'desert-dusk'].includes(theme)) {
+      return res.status(400).json({ error: 'Theme preference is not supported' });
     }
 
-    if (homepageTab !== undefined && !['events', 'routines'].includes(homepageTab)) {
-      return res.status(400).json({ error: 'Homepage tab must be events or routines' });
+    if (weeklyIntention !== undefined && (typeof weeklyIntention !== 'string' || weeklyIntention.length > 160)) {
+      return res.status(400).json({ error: 'Weekly intention must be text of 160 characters or fewer' });
     }
 
     if (enabledModules !== undefined && (
@@ -140,10 +143,12 @@ router.patch('/preferences', requireAuth, requireTrustedOrigin, async (req, res)
     }
 
     if (enabledModules !== undefined) {
-      req.user.enabledModules = [...new Set(enabledModules)];
+      const selectedModules = new Set([...REQUIRED_MODULES, ...enabledModules]);
+      req.user.enabledModules = MODULE_ORDER.filter((moduleId) => selectedModules.has(moduleId));
+      req.user.modulePreferencesVersion = 1;
     }
 
-    if (homepageTab !== undefined) req.user.homepageTab = homepageTab;
+    if (weeklyIntention !== undefined) req.user.weeklyIntention = weeklyIntention;
 
     await req.user.save();
 
@@ -159,7 +164,9 @@ router.patch('/preferences', requireAuth, requireTrustedOrigin, async (req, res)
 
 router.post('/logout', requireTrustedOrigin, (req, res) => {
   req.session.destroy((error) => {
-    if (error) return res.status(500).json({ error: 'Failed to destroy session' });
+    if (error) 
+      return res.status(500).json({ error: 'Failed to destroy session' });
+    
     res.clearCookie(sessionCookieName, {
       httpOnly: true,
       sameSite: process.env.COOKIE_SAMESITE || 'lax',
