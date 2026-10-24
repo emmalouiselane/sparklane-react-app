@@ -1,5 +1,5 @@
 const express = require('express');
-const Todo = require('../models/todo');
+const Todo = require('../models/Todo');
 const { getAppUserId, requireAuth, requireTrustedOrigin } = require('../middleware/auth');
 
 const router = express.Router();

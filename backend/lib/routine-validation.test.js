@@ -17,7 +17,7 @@ test('completion dates must be real calendar dates including leap years', () => 
 });
 
 test('checklist update is scoped to the user, routine, step and scheduled weekday', async () => {
-  const Routine = require('../models/routine');
+  const Routine = require('../models/Routine');
   const router = require('../routes/routines');
   const handler = router.stack.find(layer => layer.route?.path === '/:id/steps/:stepId').route.stack[0].handle;
   const original = Routine.findOneAndUpdate;

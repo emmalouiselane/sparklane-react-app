@@ -1,5 +1,5 @@
 const session = require('express-session');
-const Session = require('../models/session');
+const Session = require('../models/Session');
 
 function resolveExpiry(sessionData) {
   if (sessionData?.cookie?.expires) {
