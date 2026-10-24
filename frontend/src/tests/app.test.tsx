@@ -1,5 +1,5 @@
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
-import App from '../app';
+import App from '../App';
 import { apiClient } from '../helpers/auth';
 import { useAuthContext } from '../contexts/auth-context';
 
@@ -9,8 +9,8 @@ jest.mock('./contexts/auth-context', () => ({
   useAuthContext: jest.fn(),
 }));
 jest.mock('react-hot-toast', () => ({ __esModule: true, default: { success: jest.fn(), error: jest.fn() }, Toaster: () => null }));
-jest.mock('./components/header', () => () => null);
-jest.mock('./components/footer', () => () => null);
+jest.mock('./components/Header', () => () => null);
+jest.mock('./components/Footer', () => () => null);
 jest.mock('./pages/homepage', () => () => <p>Home content</p>);
 
 const api = apiClient as jest.Mocked<typeof apiClient>;
