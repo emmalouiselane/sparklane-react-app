@@ -1,4 +1,4 @@
-import { ModuleId } from "../components/sidebar";
+import { ModuleId } from "../components/Sidebar";
 import { SidebarModuleId } from "../config/modules";
 
 export interface SidebarProps {
