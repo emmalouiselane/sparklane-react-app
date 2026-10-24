@@ -166,7 +166,7 @@ function MyWeekPage({ onSelectModule, timeLogsEnabled = false, habitsEnabled = f
         <Card.Body><span className="page-eyebrow">A little direction</span><Card.Title as="h2">Weekly intention</Card.Title><p>What would make this week feel good?</p>
           <label htmlFor="weekly-intention">Your intention</label>
           <textarea id="weekly-intention" value={intention} maxLength={160} onChange={event => updateIntention(event.target.value)} placeholder="This week, I want to make room for…" />
-          <small aria-live="polite">{isSavingIntention ? 'Saving…' : intentionSaveError ? 'Could not save. Please try editing again.' : 'Saved to your account. A gentle intention, not another rule.'}</small>
+          <small aria-live="polite">{isSavingIntention ? 'Saving…' : intentionSaveError ? 'Could not save. Please try editing again.' : 'A gentle intention, not another rule.'}</small>
         </Card.Body>
       </Card>
       </div>
