@@ -1,9 +1,9 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const express = require('express');
-const Session = require('../models/Session');
-const MongoSessionStore = require('./MongoSessionStore');
-const Todo = require('../models/Todo');
+const Session = require('../models/session');
+const MongoSessionStore = require('./mongo-session-store');
+const Todo = require('../models/todo');
 const { requireAuth, requireTrustedOrigin } = require('../middleware/auth');
 
 test('expired sessions cannot be renewed while awaiting MongoDB TTL cleanup', async () => {
@@ -40,10 +40,12 @@ test('todo routes reject other owners and bind mutations to the session owner', 
   Todo.findOne = async (query) => query._id === id && query.userId === 'owner' ? { _id: id } : null;
   Todo.findOneAndUpdate = async (query, update) => { calls.push(query); return { _id: id, ...update }; };
   Todo.findOneAndDelete = async (query) => { calls.push(query); return { _id: id }; };
+
   const app = express();
   app.use(express.json());
   app.use((req, res, next) => { req.user = { googleId: req.get('test-owner') }; req.isAuthenticated = () => Boolean(req.user.googleId); next(); });
   app.use('/todos', require('../routes/todos'));
+  
   const server = app.listen(0, '127.0.0.1');
   await new Promise(resolve => server.once('listening', resolve));
   const url = `http://127.0.0.1:${server.address().port}/todos/${id}`;

@@ -1,0 +1,350 @@
+.account-settings-page {
+  display: grid;
+  gap: 8px;
+  align-items: start;
+}
+
+.settings-card {
+  background: var(--color-surface-elevated);
+  border: 1px solid var(--color-border-soft);
+  border-radius: 14px;
+  padding: 18px;
+  display: grid;
+  gap: 8px;
+  justify-items: stretch;
+  align-content: start;
+  text-align: left;
+}
+
+.settings-secondary-column {
+  display: grid;
+  align-content: start;
+  gap: 8px;
+  min-width: 0;
+}
+
+.settings-card-header h2,
+.settings-card-header p,
+.profile-copy h3,
+.profile-copy p,
+.settings-helper {
+  margin: 0;
+}
+
+.settings-card-header h2 {
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: -.02em;
+}
+
+.profile-copy h3 {
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: -.02em;
+}
+
+.settings-card-header p,
+.profile-copy p,
+.settings-helper {
+  font-size: .8rem;
+  font-weight: 400;
+  line-height: 1.5;
+}
+
+.settings-card-header {
+  display: grid;
+  gap: 6px;
+  justify-items: start;
+}
+
+.settings-card-header p,
+.settings-helper,
+.profile-copy p {
+  opacity: 0.82;
+}
+
+.profile-summary {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.settings-avatar,
+.settings-avatar-fallback {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.settings-avatar {
+  object-fit: cover;
+}
+
+.settings-avatar-fallback {
+  background: var(--color-primary);
+  color: var(--color-text);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.profile-copy {
+  display: grid;
+  gap: 8px;
+  justify-items: start;
+}
+
+.settings-chip {
+  width: fit-content;
+  border-radius: 999px;
+  padding: 6px 10px;
+  background: var(--color-primary-soft);
+  border: 1px solid var(--color-primary-border);
+  color: var(--color-text);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.settings-field {
+  display: grid;
+  gap: 8px;
+  font-size: .8rem;
+  font-weight: 700;
+  justify-items: center;
+
+  &.pay-day {
+    display: flex;
+    align-items: center;
+    justify-items: start;
+
+    p {
+      margin: 0 8px 0 0 !important;
+    }
+
+  }
+}
+
+.settings-field select {
+  max-width: 100%;
+  border: 1px solid var(--color-border-soft);
+  border-radius: 8px;
+  padding: 10px 12px;
+  background-color: var(--color-surface);
+  color: var(--color-text);
+  font: inherit;
+  font-size: .85rem;
+  font-weight: 500;
+  cursor: pointer;
+  appearance: auto;
+  -webkit-appearance: auto;
+  -moz-appearance: auto;
+}
+
+.settings-field select:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.settings-field select:disabled {
+  opacity: 0.7;
+  cursor: wait;
+}
+
+.settings-field select option {
+  background-color: var(--color-surface);
+  color: var(--color-text);
+}
+
+.appearance-theme {
+  width: min(440px, 100%);
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  display: grid;
+  gap: 10px;
+  text-align: left;
+}
+
+.appearance-theme legend {
+  float: none;
+  width: auto;
+  margin: 0;
+  padding: 0;
+  font-size: .9rem;
+  font-weight: 700;
+}
+
+.appearance-theme-option {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid var(--color-border-soft);
+  border-radius: 12px;
+  background: var(--color-surface);
+  cursor: pointer;
+  text-align: left;
+}
+
+.appearance-theme-option.is-selected {
+  border-color: var(--color-highlight);
+  background: var(--color-primary-soft);
+}
+
+.appearance-theme-option input {
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  accent-color: var(--color-primary);
+}
+
+.appearance-theme-option input:focus-visible {
+  outline: 2px solid var(--color-highlight);
+  outline-offset: 3px;
+}
+
+.appearance-theme-option input:disabled {
+  cursor: wait;
+}
+
+.appearance-theme-copy {
+  display: grid;
+  gap: 3px;
+}
+
+.appearance-theme-copy strong,
+.settings-toggle-copy > strong {
+  font-size: .85rem;
+  font-weight: 700;
+}
+
+.appearance-theme-copy > span {
+  color: var(--color-text-light);
+  font-size: .8rem;
+}
+
+.settings-toggle {
+  width: min(440px, 100%);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px 16px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.module-settings-list {
+  width: min(440px, 100%);
+  display: grid;
+  gap: 18px;
+}
+
+.settings-toggle-copy {
+  display: grid;
+  gap: 4px;
+}
+
+.settings-toggle-copy > span {
+  color: var(--color-text-light);
+  font-size: 0.8rem;
+  line-height: 1.5;
+}
+
+.settings-toggle-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.settings-toggle-track {
+  grid-column: 2;
+  grid-row: 1;
+  width: 52px;
+  height: 30px;
+  padding: 3px;
+  border: 1px solid var(--color-border-soft);
+  border-radius: 999px;
+  background: var(--color-accent-light);
+  transition: background-color 160ms ease, border-color 160ms ease;
+}
+
+.settings-toggle-thumb {
+  display: block;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--color-text-light);
+  box-shadow: var(--shadow-soft);
+  transition: transform 160ms ease, background-color 160ms ease;
+}
+
+.settings-toggle-input:checked + .settings-toggle-track {
+  border-color: var(--color-primary-border);
+  background: var(--color-primary-soft);
+}
+
+.settings-toggle-input:checked + .settings-toggle-track .settings-toggle-thumb {
+  transform: translateX(22px);
+  background: var(--color-primary);
+}
+
+.settings-toggle-input:focus-visible + .settings-toggle-track {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 3px;
+}
+
+.settings-toggle-input:disabled + .settings-toggle-track {
+  opacity: 0.65;
+  cursor: wait;
+}
+
+.settings-error {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 10px;
+  font-weight: 600;
+}
+
+.settings-error {
+  background: var(--color-surface);
+  border: 1px solid var(--color-danger);
+  color: var(--color-danger);
+}
+
+@media (min-width: 769px) {
+  .account-settings-page {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .account-settings-page > .profile-card {
+    grid-column: 1 / -1;
+    margin-top: 8px;
+  }
+
+  .account-settings-page > .settings-secondary-column {
+    grid-column: 2;
+  }
+}
+
+@media (max-width: 768px) {
+  .profile-summary {
+    align-items: flex-start;
+  }
+}
+
+@media (max-width: 560px) {
+  .profile-summary {
+    flex-direction: column;
+  }
+}

@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
-import './meal-planner.css';
-import { useAuthContext } from '../contexts/AuthContext';
-import MealPlanner from '../components/MealPlanner';
-import PMOSReferenceGuide from '../components/PMOSReferenceGuide';
+
+import { useAuthContext } from '../contexts/auth-context';
+import MealPlanner from '../components/meal-planner';
+import PMOSReferenceGuide from '../components/pmos-reference-guide';
+
+import '../assets/styles/meal-planner.css';
 
 const QUICK_LINKS = [
   {
@@ -16,7 +18,7 @@ function MealPlannerPage() {
   const [activePage, setActivePage] = useState("meal-planner");
 
   return (
-    <section className="meal-planner-page" aria-label="Meal Planner module">
+    <section className="page-container meal-planner-page" aria-label="Meals and Home module">
       <div className="meal-planner-main">
 
         <div hidden={activePage !== 'meal-planner'}>
@@ -27,42 +29,32 @@ function MealPlannerPage() {
         )}  
       </div>
 
-      <aside className="meal-planner-sidebar" aria-label="Reference guides">
-        <div className="meal-planner-sidebar-card">
-          <ul className="meal-planner-links">
-            <li>
-            <button
-              type="button"
-              aria-pressed={activePage === 'meal-planner'}
-              onClick={() => setActivePage("meal-planner")}
-            >
-              <span>Meal Planner</span>
-            </button>
-            </li>
-            <li>
-            <button
-              type="button"
-              aria-pressed={activePage === 'pmos-reference-guide'}
-              onClick={() => setActivePage("pmos-reference-guide")}
-            >
-              <span>PMOS Reference Guide</span>
-            </button>
-            </li>
-          </ul>
-
-          <p>Need inspiration? Check out my recipes.</p>
-
-          <ul className="meal-planner-links">
-            {QUICK_LINKS.map((link) => (
-              <li key={link.href}>
-                <a href={link.href} target="_blank" rel="noopener noreferrer">
-                  {link.title}
-                </a>
-              </li>
-            ))}
-          </ul>
-        </div>
-      </aside>
+      <section className="meal-planner-ctas" aria-label="More meals and home resources">
+        <button
+          className="meal-planner-cta"
+          type="button"
+          aria-pressed={activePage === 'meal-planner'}
+          onClick={() => setActivePage('meal-planner')}
+        >
+          <span className="meal-planner-cta-copy"><strong>Meals &amp; Home</strong><span>Return to your meal plan and home reset.</span></span>
+          <span aria-hidden="true">→</span>
+        </button>
+        <button
+          className="meal-planner-cta"
+          type="button"
+          aria-pressed={activePage === 'pmos-reference-guide'}
+          onClick={() => setActivePage('pmos-reference-guide')}
+        >
+          <span className="meal-planner-cta-copy"><strong>PMOS Reference Guide</strong><span>Open your reference guide for practical support.</span></span>
+          <span aria-hidden="true">→</span>
+        </button>
+        {QUICK_LINKS.map((link) => (
+          <a className="meal-planner-cta" key={link.href} href={link.href} target="_blank" rel="noopener noreferrer">
+            <span className="meal-planner-cta-copy"><strong>{link.title}</strong><span>Need inspiration? Explore recipes.</span></span>
+            <span aria-hidden="true">↗</span>
+          </a>
+        ))}
+      </section>
     </section>
   );
 }

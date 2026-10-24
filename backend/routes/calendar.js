@@ -1,7 +1,7 @@
 const express = require('express');
 const { google } = require('googleapis');
 const { requireAuth, requireTrustedOrigin } = require('../middleware/auth');
-const { decryptStoredToken, encryptToken, tokenIdentifiers } = require('../lib/tokenCrypto');
+const { decryptStoredToken, encryptToken, tokenIdentifiers } = require('../lib/token-crypto');
 
 const router = express.Router();
 
@@ -59,18 +59,28 @@ async function getAuthorizedCalendarClient(user) {
   return google.calendar({ version: 'v3', auth: oauth2Client });
 }
 
-// Get calendar events (next 7 days)
+// Get calendar events (next 7 days by default; callers may request a bounded range)
 router.get('/events', async (req, res) => {
   try {
     const calendar = await getAuthorizedCalendarClient(req.user);
-    
-    const now = new Date();
-    const endTime = new Date();
-    endTime.setDate(now.getDate() + 7); // Get events for next 7 days
+
+    let startTime = new Date();
+    let endTime = new Date();
+    endTime.setDate(endTime.getDate() + 7);
+    if (req.query.timeMin !== undefined || req.query.timeMax !== undefined) {
+      const requestedStart = new Date(req.query.timeMin);
+      const requestedEnd = new Date(req.query.timeMax);
+      const requestedSpan = requestedEnd.getTime() - requestedStart.getTime();
+      if (!req.query.timeMin || !req.query.timeMax || Number.isNaN(requestedStart.getTime()) || Number.isNaN(requestedEnd.getTime()) || requestedSpan <= 0 || requestedSpan > 31 * 24 * 60 * 60 * 1000) {
+        return res.status(400).json({ error: 'A valid timeMin and timeMax range of 31 days or less is required.' });
+      }
+      startTime = requestedStart;
+      endTime = requestedEnd;
+    }
 
     const response = await calendar.events.list({
       calendarId: 'primary',
-      timeMin: now.toISOString(),
+      timeMin: startTime.toISOString(),
       timeMax: endTime.toISOString(),
       singleEvents: true,
       orderBy: 'startTime',

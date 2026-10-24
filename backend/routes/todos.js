@@ -1,5 +1,5 @@
 const express = require('express');
-const Todo = require('../models/Todo');
+const Todo = require('../models/todo');
 const { getAppUserId, requireAuth, requireTrustedOrigin } = require('../middleware/auth');
 
 const router = express.Router();
@@ -22,7 +22,7 @@ router.get('/', async (req, res) => {
 // Create new todo
 router.post('/', async (req, res) => {
   try {
-    const { title, description, priority } = req.body;
+    const { title, description, priority, date, time, tag } = req.body;
 
     if (!title) {
       return res.status(400).json({ error: 'Title is required' });
@@ -32,7 +32,10 @@ router.post('/', async (req, res) => {
       userId: getAppUserId(req.user),
       title,
       description: description || '',
-      priority: priority || 'medium'
+      priority: priority || 'medium',
+      date: date || '',
+      time: time || '',
+      tag: tag || ''
     });
 
     const savedTodo = await todo.save();
@@ -47,11 +50,35 @@ router.post('/', async (req, res) => {
   }
 });
 
+// Save the user's manual task order for the inline planner list.
+router.patch('/reorder', async (req, res) => {
+  const { todoIds } = req.body;
+  if (!Array.isArray(todoIds) || todoIds.some(id => typeof id !== 'string') || new Set(todoIds).size !== todoIds.length) {
+    return res.status(400).json({ error: 'Provide a unique ordered list of task IDs.' });
+  }
+
+  try {
+    const userId = getAppUserId(req.user);
+    const userTodos = await Todo.find({ userId }).select('_id');
+    if (userTodos.length !== todoIds.length || userTodos.some(todo => !todoIds.includes(String(todo._id)))) {
+      return res.status(400).json({ error: 'The ordered task list does not match your tasks.' });
+    }
+
+    await Todo.bulkWrite(todoIds.map((id, sortOrder) => ({
+      updateOne: { filter: { _id: id, userId }, update: { $set: { sortOrder } } }
+    })));
+    res.json({ message: 'Task order saved.' });
+  } catch (error) {
+    console.error('Error saving todo order:', error);
+    res.status(500).json({ error: 'Failed to save task order.' });
+  }
+});
+
 // Update todo
 router.put('/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const { title, description, priority, completed } = req.body;
+    const { title, description, priority, completed, date, time, tag } = req.body;
 
     const userId = getAppUserId(req.user);
     const todo = await Todo.findOne({ _id: id, userId });
@@ -61,10 +88,26 @@ router.put('/:id', async (req, res) => {
     }
 
     const updateData = {};
-    if (title !== undefined) updateData.title = title;
-    if (description !== undefined) updateData.description = description;
-    if (priority !== undefined) updateData.priority = priority;
-    if (completed !== undefined) updateData.completed = completed;
+    if (title !== undefined) 
+      updateData.title = title;
+
+    if (description !== undefined) 
+      updateData.description = description;
+    
+    if (date !== undefined) 
+      updateData.date = date;
+
+    if (time !== undefined) 
+      updateData.time = time;
+
+    if (tag !== undefined) 
+      updateData.tag = tag;
+
+    if (priority !== undefined) 
+      updateData.priority = priority;
+    
+    if (completed !== undefined) 
+      updateData.completed = completed;
 
     const updatedTodo = await Todo.findOneAndUpdate(
       { _id: id, userId },

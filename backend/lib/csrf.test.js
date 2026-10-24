@@ -4,15 +4,23 @@ const express = require('express');
 const cors = require('cors');
 const session = require('express-session');
 const csurf = require('csurf');
-const corsOptions = require('./corsOptions');
-const BudgetPayment = require('../models/BudgetPayment');
+const corsOptions = require('./cors-options');
+const BudgetPayment = require('../models/budget-payment');
 
 test('cross-origin payment deletion succeeds with a session CSRF token and rejects missing or foreign tokens', async t => {
   const originalFind = BudgetPayment.findOne;
   const originalDelete = BudgetPayment.findOneAndDelete;
   const queries = [];
-  BudgetPayment.findOne = async query => { queries.push(query); return { _id: query._id }; };
-  BudgetPayment.findOneAndDelete = async query => { queries.push(query); return { _id: query._id }; };
+  BudgetPayment.findOne = async query => { 
+    queries.push(query); 
+    return { _id: query._id }; 
+  };
+  
+  BudgetPayment.findOneAndDelete = async query => { 
+    queries.push(query); 
+    return { _id: query._id }; 
+  };
+  
   t.after(() => {
     BudgetPayment.findOne = originalFind;
     BudgetPayment.findOneAndDelete = originalDelete;
@@ -32,7 +40,9 @@ test('cross-origin payment deletion succeeds with a session CSRF token and rejec
   app.use('/auth', require('../routes/auth'));
   app.use('/api/budget', require('../routes/budget'));
   app.use((error, req, res, next) => {
-    if (error.code !== 'EBADCSRFTOKEN') return next(error);
+    if (error.code !== 'EBADCSRFTOKEN') 
+      return next(error);
+    
     return res.status(403).json({ error: 'Invalid CSRF token' });
   });
   const server = app.listen(0, '127.0.0.1');
@@ -42,10 +52,13 @@ test('cross-origin payment deletion succeeds with a session CSRF token and rejec
   const origin = 'http://localhost:3000';
   const path = '/api/budget/payments/507f1f77bcf86cd799439011';
 
-  const preflight = await request(path, { method: 'OPTIONS', headers: {
+  const preflight = await request(path, { 
+    method: 'OPTIONS', headers: {
     Origin: origin, 'Access-Control-Request-Method': 'DELETE',
-    'Access-Control-Request-Headers': 'content-type,x-csrf-token'
-  } });
+      'Access-Control-Request-Headers': 'content-type,x-csrf-token'
+    } 
+  });
+
   assert.equal(preflight.status, 204);
   assert.equal(preflight.headers.get('Access-Control-Allow-Origin'), origin);
   assert.equal(preflight.headers.get('Access-Control-Allow-Credentials'), 'true');
@@ -61,7 +74,9 @@ test('cross-origin payment deletion succeeds with a session CSRF token and rejec
 
   for (const token of [undefined, 'invalid-token']) {
     const headers = { Origin: origin, Cookie: cookie };
-    if (token) headers['X-CSRF-Token'] = token;
+    if (token) 
+      headers['X-CSRF-Token'] = token;
+    
     const response = await request(path, { method: 'DELETE', headers });
     assert.equal(response.status, 403);
     assert.deepEqual(await response.json(), { error: 'Invalid CSRF token' });

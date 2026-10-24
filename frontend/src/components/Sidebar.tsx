@@ -1,32 +1,21 @@
-import React, { useRef, useState } from 'react';
-import { PiggyBank, ForkKnife, HouseDoor, PersonGear, ClockHistory, ArrowRepeat } from 'react-bootstrap-icons';
-import './Sidebar.css';
+import React, { useEffect, useRef, useState } from 'react';
+import { PiggyBank, ForkKnife, HouseDoor, PersonGear, ClockHistory, ArrowRepeat, CalendarWeek, HeartPulse, BoxArrowRight } from 'react-bootstrap-icons';
 
-export type ModuleId = 'home' | 'time-logs' | 'monthly-budget' | 'meal-planner' | 'recurring-routines' | 'account-settings';
+import { SidebarModuleId } from '../config/modules';
+import { SidebarProps } from '../interfaces/SidebarProps';
 
-export interface ModuleNavItem {
-  id: ModuleId;
-  label: string;
-}
+import '../assets/styles/sidebar.css';
 
-interface SidebarProps {
-  items: ModuleNavItem[];
-  activeModule: ModuleId;
-  onSelectModule: (module: ModuleId) => void;
-  isCollapsed: boolean;
-  onToggleCollapsed: () => void;
-  isMobileOpen: boolean;
-  onCloseMobile: () => void;
-  width: number;
-  minWidth: number;
-  maxWidth: number;
-  onResize: (width: number) => void;
-}
+export type ModuleId = SidebarModuleId | 'account-settings';
 
 function getNavIcon(moduleId: ModuleId) {
   switch (moduleId) {
     case 'home':
       return <HouseDoor size={16} />;
+    case 'my-week':
+      return <CalendarWeek size={16} />;
+    case 'wellness':
+      return <HeartPulse size={16} />;
     case 'time-logs':
       return <ClockHistory size={16} />;
     case 'monthly-budget':
@@ -54,19 +43,59 @@ function Sidebar({
   minWidth,
   maxWidth,
   onResize,
+  user,
+  onOpenAccountSettings,
+  onLogout,
 }: SidebarProps) {
   const dragStart = useRef<{ pointerId: number; x: number; width: number } | null>(null);
   const [isResizing, setIsResizing] = useState(false);
+  const [quote, setQuote] = useState<string | null>(null);
   const resizeTo = (nextWidth: number) => onResize(Math.min(maxWidth, Math.max(minWidth, nextWidth)));
   const stopResizing = () => {
     dragStart.current = null;
     setIsResizing(false);
   };
 
+  useEffect(() => {
+    if (typeof window.fetch !== 'function') 
+      return undefined;
+    
+    const controller = new AbortController();
+    window.fetch('https://sparklane.dev/api/quotes.json', { signal: controller.signal })
+      .then(response => {
+        if (!response.ok) throw new Error('Unable to load quotes');
+        return response.json();
+      })
+      .then((payload: unknown) => {
+        const quotes = payload && typeof payload === 'object' ? (payload as { quotes?: unknown }).quotes : null;
+
+        if (Array.isArray(quotes)) {
+          const available = quotes.filter((item): item is string => typeof item === 'string' && item.trim().length > 0);
+          if (available.length) 
+            setQuote(available[Math.floor(Math.random() * available.length)]);
+        }
+      })
+      .catch(() => { /* The sidebar remains useful when the quote feed is unavailable. */ });
+    return () => controller.abort();
+  }, []);
+
+  const getUserInitial = () => {
+    const name = user?.name?.givenName || user?.name || user?.given_name || '';
+    return name ? String(name).charAt(0).toUpperCase() : 'U';
+  };
+
   return (
     <aside className={`app-sidebar${isCollapsed ? ' is-collapsed' : ''}${isMobileOpen ? ' is-mobile-open' : ''}${isResizing ? ' is-resizing' : ''}`}>
       <div className="sidebar-header">
-        <h2 className="sidebar-title">Modules</h2>
+        <button type="button" className="sidebar-brand" onClick={() => onSelectModule('home')} aria-label="Sparklane Today">
+          <img src="/sparklane-mark.png" alt="" aria-hidden="true" className="sidebar-brand-icon" />
+          {!isCollapsed && (
+            <span className="sidebar-brand-wordmark">
+              sparklane
+              <small>Your day, your pace</small>
+            </span>
+          )}
+        </button>
         <button
           type="button"
           className="sidebar-collapse-toggle"
@@ -86,6 +115,7 @@ function Sidebar({
         </button>
       </div>
 
+      {!isCollapsed && <div className="sidebar-workspace-label">Your planner</div>}
       <nav id="module-navigation" aria-label="Module navigation">
         <ul className="sidebar-nav-list">
           {items.map((item) => (
@@ -105,6 +135,36 @@ function Sidebar({
           ))}
         </ul>
       </nav>
+      {!isCollapsed && <div className="sidebar-bottom">
+        {quote && (
+          <blockquote className="sidebar-quote">“{quote}”</blockquote>
+        )}
+        <div className="sidebar-note">
+          <span className="sidebar-note-spark" aria-hidden="true">✳</span>
+          <strong>A little progress<br />is still progress.</strong>
+          <span>Take today one step at a time.</span>
+        </div>
+        <div className="sidebar-profile-row">
+          <button type="button" className="sidebar-profile" onClick={onOpenAccountSettings} aria-label="Open account settings">
+            {user?.picture || user?.photos?.[0]?.value ? <img src={user.picture || user.photos[0].value} alt="" /> : <span className="sidebar-avatar-fallback">{getUserInitial()}</span>}
+            <span className="sidebar-profile-details">
+              <strong>{user?.name?.givenName || user?.name || user?.given_name || 'Your profile'}</strong>
+              <small>Account settings</small>
+            </span>
+          </button>
+          <button type="button" className="sidebar-logout" onClick={onLogout} aria-label="Logout" title="Logout">
+            <BoxArrowRight size={17} />
+          </button>
+        </div>
+      </div>}
+      {isCollapsed && <div className="sidebar-collapsed-actions">
+        <button type="button" onClick={onOpenAccountSettings} aria-label="Open account settings" title="Account settings">
+          <PersonGear size={16} />
+        </button>
+        <button type="button" onClick={onLogout} aria-label="Logout" title="Logout">
+          <BoxArrowRight size={16} />
+        </button>
+      </div>}
       {!isCollapsed && (
         <div
           className="sidebar-resize-handle"
@@ -119,7 +179,9 @@ function Sidebar({
           aria-valuetext={`${width} pixels`}
           title="Drag to resize, or use the left and right arrow keys"
           onPointerDown={(event) => {
-            if (event.button !== 0) return;
+            if (event.button !== 0) 
+              return;
+
             event.preventDefault();
             event.currentTarget.focus();
             event.currentTarget.setPointerCapture(event.pointerId);
@@ -133,7 +195,9 @@ function Sidebar({
             }
           }}
           onPointerUp={(event) => {
-            if (dragStart.current?.pointerId !== event.pointerId) return;
+            if (dragStart.current?.pointerId !== event.pointerId) 
+              return;
+            
             event.currentTarget.releasePointerCapture(event.pointerId);
             stopResizing();
           }}

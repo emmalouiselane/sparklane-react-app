@@ -7,22 +7,24 @@ const passport = require('passport');
 const csurf = require('csurf');
 require('dotenv').config();
 
-const corsOptions = require('./lib/corsOptions');
-const AuthAccount = require('./models/AuthAccount');
-const MongoSessionStore = require('./lib/MongoSessionStore');
-const RateLimitBucket = require('./models/RateLimitBucket');
+const corsOptions = require('./lib/cors-options');
+const AuthAccount = require('./models/auth-account');
+const MongoSessionStore = require('./lib/mongo-session-store');
+const RateLimitBucket = require('./models/rate-limit-bucket');
 const {
   createRequestLimiters, installEarlyRateLimits, installAccountRateLimits, rateLimitErrorHandler
-} = require('./lib/rateLimit');
+} = require('./lib/rate-limit');
 
 const authRoutes = require('./routes/auth');
-const securityEvents = require('./routes/securityEvents');
+const securityEvents = require('./routes/security-events');
 const calendarRoutes = require('./routes/calendar');
 const budgetRoutes = require('./routes/budget');
-const timeLogsRoutes = require('./routes/timeLogs');
+const timeLogsRoutes = require('./routes/time-logs');
 const todosRoutes = require('./routes/todos');
 const routinesRoutes = require('./routes/routines');
-const mealPlannerRoutes = require('./routes/mealPlanner');
+const habitsRoutes = require('./routes/habits');
+const wellnessRoutes = require('./routes/wellness');
+const mealPlannerRoutes = require('./routes/meal-planner');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -32,9 +34,13 @@ const sessionCookieName = isProduction ? '__Host-sessionId' : 'sessionId';
 const csrfProtection = csurf({ cookie: false });
 
 const required = ['SESSION_SECRET', 'TOKEN_ENCRYPTION_KEY', 'GOOGLE_CLIENT_ID', 'GOOGLE_CLIENT_SECRET', 'MONGODB_URI'];
-if (isProduction) required.push('FRONTEND_URL', 'BACKEND_PUBLIC_URL');
+if (isProduction) 
+  required.push('FRONTEND_URL', 'BACKEND_PUBLIC_URL');
+
 const missing = required.filter((name) => !process.env[name]);
-if (missing.length) throw new Error(`Missing required environment variables: ${missing.join(', ')}`);
+
+if (missing.length) 
+  throw new Error(`Missing required environment variables: ${missing.join(', ')}`);
 
 // Local requests must not be able to choose their own IP using forwarded headers.
 // Production defaults to the existing single ingress proxy deployment.
@@ -124,6 +130,8 @@ app.use('/api/time-logs', timeLogsRoutes);
 app.use('/api/budget', budgetRoutes);
 app.use('/api/todos', todosRoutes);
 app.use('/api/routines', routinesRoutes);
+app.use('/api/habits', habitsRoutes);
+app.use('/api/wellness', wellnessRoutes);
 app.use('/api/meal-planner', mealPlannerRoutes);
 
 app.use(rateLimitErrorHandler);

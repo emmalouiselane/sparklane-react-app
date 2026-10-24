@@ -2,7 +2,7 @@ import React from 'react';
 import { Button } from 'react-bootstrap';
 import { API_BASE_URL } from '../config/api';
 
-import './Login.css';
+import '../assets/styles/login.css';
 
 const Login: React.FC = () => {
   const handleGoogleLogin = () => {
@@ -32,7 +32,6 @@ const Login: React.FC = () => {
             <p>We do not sell your Google data or use it for advertising. </p>
           </div>
           
-
           <div className="google-login-button">
             <Button 
               variant="primary" 
